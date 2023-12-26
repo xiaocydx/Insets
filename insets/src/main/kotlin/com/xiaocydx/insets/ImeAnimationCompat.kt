@@ -76,7 +76,7 @@ fun Window.restoreImeAnimation() {
 
 /**
  * 对`window.decorView`设置[WindowInsetsAnimationCompat.Callback]，
- * 该函数能避免跟[modifyImeAnimation]产生冲突，实际效果等同于：
+ * 该函数能避免跟[modifyImeAnimation]的实现产生冲突，实际效果等同于：
  * ```
  * ViewCompat.setWindowInsetsAnimationCallback(window.decorView, callback)
  * ```
