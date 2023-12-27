@@ -35,7 +35,7 @@ import com.xiaocydx.insets.InsetsCompatReflection.setStableInsets
 import com.xiaocydx.insets.InsetsCompatReflection.setupImmutableListener
 
 /**
- * 兼容Android 9.0以下[WindowInsets]可变的问题
+ * 兼容Android 9.0以下的[WindowInsets]可变
  *
  * [ViewCompat.setOnApplyWindowInsetsListener]最后是设置匿名[View.OnApplyWindowInsetsListener]，
  * 该函数确保对匿名[View.OnApplyWindowInsetsListener.onApplyWindowInsets]传入不可变的[WindowInsets]。
@@ -63,7 +63,7 @@ fun View.setOnApplyWindowInsetsListenerImmutable(
 }
 
 /**
- * 兼容Android 9.0以下[WindowInsets]可变的问题
+ * 兼容Android 9.0以下的[WindowInsets]可变
  *
  * Android 11以下，[ViewCompat.setWindowInsetsAnimationCallback]最后是设置`Impl21OnApplyWindowInsetsListener`，
  * 该函数确保`Impl21OnApplyWindowInsetsListener`构造函数创建的`mLastInsets`生成缓存，避免后续读取到改变后的值。

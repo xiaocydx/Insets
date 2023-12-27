@@ -33,7 +33,7 @@ class ImmutableCompatActivity : AppCompatActivity() {
         editText.setText("ImmutableCompat")
 
         window.disabledDecorFitsSystemWindows()
-        // 兼容Android 9.0以下WindowInsets可变的问题
+        // 兼容Android 9.0以下的WindowInsets可变
         root.setOnApplyWindowInsetsListenerImmutable(OnApplyWindowInsetsImpl())
         // 注释上一行，启用下一行，可复现Android 9.0以下WindowInsets可变引起的问题
         // ViewCompat.setOnApplyWindowInsetsListener(root, OnApplyWindowInsetsImpl())
