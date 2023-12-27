@@ -1,4 +1,4 @@
-package com.xiaocydx.insets.sample
+package com.xiaocydx.insets.sample.compat
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.xiaocydx.insets.compat.enableDispatchApplyInsetsFullscreenCompat
+import com.xiaocydx.insets.sample.R
+import com.xiaocydx.insets.sample.databinding.ActivityInsetsCompatBinding
 
 /**
  * FullscreenCompat的示例代码
@@ -23,6 +25,7 @@ class FullscreenCompatActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ActivityInsetsCompatBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_insets_compat)
         val editText = findViewById<EditText>(R.id.editText)
         editText.setText("FullscreenCompat")

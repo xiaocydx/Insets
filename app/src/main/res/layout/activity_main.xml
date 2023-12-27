@@ -8,25 +8,34 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/btnImeAnimationCompat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
-        android:onClick="startImeAnimationCompatActivity"
         android:text="ImeAnimationCompat"
         android:textAllCaps="false" />
 
     <Button
+        android:id="@+id/btnFullscreenCompat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
-        android:onClick="startFullscreenCompatActivity"
         android:text="FullscreenCompat"
         android:textAllCaps="false" />
 
     <Button
+        android:id="@+id/btnImmutableCompat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="startImmutableCompatActivity"
+        android:layout_marginBottom="5dp"
         android:text="ImmutableCompat"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btnSystemBarBasic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="SystemBarBasic"
         android:textAllCaps="false" />
 </LinearLayout>

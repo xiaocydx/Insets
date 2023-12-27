@@ -1,9 +1,14 @@
 package com.xiaocydx.insets.sample
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.xiaocydx.insets.sample.compat.FullscreenCompatActivity
+import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
+import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
+import com.xiaocydx.insets.sample.databinding.ActivityMainBinding
+import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
 
 /**
  * @author xcc
@@ -13,18 +18,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(contentView())
     }
 
-    fun startImeAnimationCompatActivity(view: View) {
-        startActivity(Intent(this, ImeAnimationCompatActivity::class.java))
-    }
+    private fun contentView() = ActivityMainBinding
+        .inflate(layoutInflater).apply {
+            btnImeAnimationCompat.onClick { startActivity<ImeAnimationCompatActivity>() }
+            btnFullscreenCompat.onClick { startActivity<FullscreenCompatActivity>() }
+            btnImmutableCompat.onClick { startActivity<ImmutableCompatActivity>() }
+            btnSystemBarBasic.onClick { startActivity<SystemBarBasicActivity>() }
+        }.root
 
-    fun startFullscreenCompatActivity(view: View) {
-        startActivity(Intent(this, FullscreenCompatActivity::class.java))
-    }
-
-    fun startImmutableCompatActivity(view: View) {
-        startActivity(Intent(this, ImmutableCompatActivity::class.java))
+    private inline fun <reified T : Activity> startActivity() {
+        startActivity(Intent(this, T::class.java))
     }
 }

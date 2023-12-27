@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Insets"
-        android:name=".App"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
@@ -22,18 +22,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ImeAnimationCompatActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".FullscreenCompatActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ImmutableCompatActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".compat.ImeAnimationCompatActivity" />
+        <activity android:name=".compat.FullscreenCompatActivity" />
+        <activity android:name=".compat.ImmutableCompatActivity" />
+        <activity android:name=".systembar.SystemBarBasicActivity" />
     </application>
 
 </manifest>

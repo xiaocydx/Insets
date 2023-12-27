@@ -1,4 +1,4 @@
-package com.xiaocydx.insets.sample
+package com.xiaocydx.insets.sample.compat
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import com.xiaocydx.insets.compat.modifyImeAnimation
 import com.xiaocydx.insets.compat.setWindowInsetsAnimationCallbackCompat
+import com.xiaocydx.insets.sample.R
 
 /**
  * ImeAnimationCompat的示例代码

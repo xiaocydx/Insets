@@ -1,4 +1,4 @@
-package com.xiaocydx.insets.sample
+package com.xiaocydx.insets.sample.compat
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.xiaocydx.insets.compat.setOnApplyWindowInsetsListenerImmutable
 import com.xiaocydx.insets.compat.setWindowInsetsAnimationCallbackImmutable
+import com.xiaocydx.insets.sample.R
 
 /**
  * ImmutableCompat的示例代码
