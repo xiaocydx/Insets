@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.xiaocydx.insets
+@file:Suppress("SpellCheckingInspection")
+
+package com.xiaocydx.insets.compat
 
 import android.view.View
 import android.view.Window
@@ -24,7 +26,7 @@ import androidx.core.view.ViewCompat
  * @author xcc
  * @date 2023/5/2
  */
-internal abstract class WindowAttachCompat(protected val window: Window) {
+internal abstract class WindowAttacher(protected val window: Window) {
     private var isAttached = false
     private var listener: View.OnAttachStateChangeListener? = null
     protected val decorView = window.decorView

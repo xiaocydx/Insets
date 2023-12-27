@@ -16,7 +16,7 @@
 
 @file:SuppressLint("ObsoleteSdkInt")
 
-package com.xiaocydx.insets
+package com.xiaocydx.insets.compat
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
@@ -30,9 +30,12 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
-import com.xiaocydx.insets.InsetsCompatReflection.getLastInsetsFromProxyListener
-import com.xiaocydx.insets.InsetsCompatReflection.setStableInsets
-import com.xiaocydx.insets.InsetsCompatReflection.setupImmutableListener
+import com.xiaocydx.insets.compat.InsetsCompatReflection.getLastInsetsFromProxyListener
+import com.xiaocydx.insets.compat.InsetsCompatReflection.setStableInsets
+import com.xiaocydx.insets.compat.InsetsCompatReflection.setupImmutableListener
+import com.xiaocydx.insets.onApplyWindowInsetsCompat
+import com.xiaocydx.insets.setOnApplyWindowInsetsListenerCompat
+import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
 
 /**
  * 兼容Android 9.0以下的[WindowInsets]可变
@@ -143,7 +146,7 @@ private class WindowInsetsImmutableListener(
 
 @RequiresApi(21)
 @SuppressLint("PrivateApi")
-private object InsetsCompatReflection : ReflectHelper {
+private object InsetsCompatReflection : Reflection {
     private var mKeyedTagsField: FieldCache? = null
     private var mListenerInfoField: FieldCache? = null
     private var mOnApplyWindowInsetsListenerField: FieldCache? = null
@@ -168,7 +171,7 @@ private object InsetsCompatReflection : ReflectHelper {
                 .declaredInstanceFields.find("mStableInsets").toCache()
             mLastInsetsField = proxyListenerClass
                 .declaredInstanceFields.find("mLastInsets").toCache()
-            this.proxyListenerClass = proxyListenerClass
+            InsetsCompatReflection.proxyListenerClass = proxyListenerClass
             reflectSucceed = true
         }.onFailure {
             mKeyedTagsField = null

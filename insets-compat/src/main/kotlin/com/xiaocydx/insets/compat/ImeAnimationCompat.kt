@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.xiaocydx.insets
+package com.xiaocydx.insets.compat
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -25,6 +25,7 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.core.view.*
 import androidx.core.view.WindowInsetsCompat.Type.ime
+import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
 
 /**
  * 修改Android 11及以上IME动画的`durationMillis`和`interpolator`
@@ -116,7 +117,7 @@ private class ImeAnimationCompat(
     window: Window,
     private val durationMillis: Long,
     private val interpolator: Interpolator?,
-) : WindowAttachCompat(window) {
+) : WindowAttacher(window) {
 
     override fun onAttach() {
         // onAttach()确保insetsController是InsetsController，而不是PendingInsetsController
@@ -353,7 +354,7 @@ private const val NO_VALUE = -1L
 
 @RequiresApi(30)
 @SuppressLint("PrivateApi")
-private object InsetsAnimationReflection : ReflectHelper {
+private object InsetsAnimationReflection : Reflection {
     var insetsAnimation: WindowInsetsAnimationCache? = null; private set
     var insetsAnimationCompat: WindowInsetsAnimationCompatCache? = null; private set
     var insetsController: InsetsControllerCache? = null; private set

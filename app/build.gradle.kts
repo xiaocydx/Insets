@@ -38,4 +38,6 @@ dependencies {
     implementation("com.google.android.material:material:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(project(":insets"))
+    implementation(project(":insets-compat"))
+    implementation(project(":insets-systembar"))
 }

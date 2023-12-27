@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.xiaocydx.insets
+package com.xiaocydx.insets.compat
 
 import android.os.Build
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -26,7 +26,7 @@ import java.lang.reflect.Modifier
  * @author xcc
  * @date 2023/2/2
  */
-internal interface ReflectHelper {
+internal interface Reflection {
 
     val Class<*>.declaredStaticFields: List<Field>
         get() {

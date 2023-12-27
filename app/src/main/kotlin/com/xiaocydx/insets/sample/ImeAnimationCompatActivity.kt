@@ -7,8 +7,8 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
-import com.xiaocydx.insets.modifyImeAnimation
-import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
+import com.xiaocydx.insets.compat.modifyImeAnimation
+import com.xiaocydx.insets.compat.setWindowInsetsAnimationCallbackCompat
 
 /**
  * ImeAnimationCompat的示例代码

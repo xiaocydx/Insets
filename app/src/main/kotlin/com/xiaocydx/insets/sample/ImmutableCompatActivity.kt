@@ -13,8 +13,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import com.xiaocydx.insets.setOnApplyWindowInsetsListenerImmutable
-import com.xiaocydx.insets.setWindowInsetsAnimationCallbackImmutable
+import com.xiaocydx.insets.compat.setOnApplyWindowInsetsListenerImmutable
+import com.xiaocydx.insets.compat.setWindowInsetsAnimationCallbackImmutable
 
 /**
  * ImmutableCompat的示例代码

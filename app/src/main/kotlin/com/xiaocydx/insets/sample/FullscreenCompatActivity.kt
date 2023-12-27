@@ -8,7 +8,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.xiaocydx.insets.enableDispatchApplyInsetsFullscreenCompat
+import com.xiaocydx.insets.compat.enableDispatchApplyInsetsFullscreenCompat
 
 /**
  * FullscreenCompat的示例代码

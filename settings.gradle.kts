@@ -17,3 +17,5 @@ dependencyResolutionManagement {
 rootProject.name = "Insets"
 include(":app")
 include(":insets")
+include(":insets-compat")
+include(":insets-systembar")

@@ -16,7 +16,7 @@
 
 @file:SuppressLint("ObsoleteSdkInt")
 
-package com.xiaocydx.insets
+package com.xiaocydx.insets.compat
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -28,8 +28,8 @@ import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
 import android.widget.Scroller
 import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
-import com.xiaocydx.insets.FullscreenCompat.Companion.MSG_RESIZED
-import com.xiaocydx.insets.FullscreenCompat.Companion.MSG_RESIZED_REPORT
+import com.xiaocydx.insets.compat.FullscreenCompat.Companion.MSG_RESIZED
+import com.xiaocydx.insets.compat.FullscreenCompat.Companion.MSG_RESIZED_REPORT
 
 /**
  * 启用Android 11以下`window.attributes.flags`包含[FLAG_FULLSCREEN]的兼容方案
@@ -70,7 +70,7 @@ internal val Window.isFullscreenCompatEnabled: Boolean
     get() = decorView.getTag(R.id.tag_dispatch_apply_insets_full_screen_enabled) == true
 
 @RequiresApi(21)
-private class FullscreenCompat(window: Window) : WindowAttachCompat(window) {
+private class FullscreenCompat(window: Window) : WindowAttacher(window) {
 
     override fun onAttach(): Unit = with(ViewRootReflection) {
         if (!reflectSucceed) return
@@ -173,7 +173,7 @@ private class FullscreenCompat(window: Window) : WindowAttachCompat(window) {
 
 @RequiresApi(21)
 @SuppressLint("PrivateApi")
-private object ViewRootReflection : ReflectHelper {
+private object ViewRootReflection : Reflection {
     private var mCallbackField: FieldCache? = null
     private var mScrollYField: FieldCache? = null
     private var mScrollerField: FieldCache? = null

@@ -14,7 +14,7 @@ publishing {
 }
 
 android {
-    namespace = "com.xiaocydx.insets"
+    namespace = "com.xiaocydx.insets.compat"
     compileSdk = 33
 
     defaultConfig {
@@ -48,5 +48,7 @@ android {
 }
 
 dependencies {
+    compileOnly(project(":insets"))
     implementation("androidx.core:core:1.7.0")
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 }
