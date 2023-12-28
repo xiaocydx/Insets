@@ -43,41 +43,44 @@ fun SystemBar.Companion.install(application: Application) {
 }
 
 /**
- * ### [FragmentActivity]实现[SystemBar]
- * 1.默认配置
+ * ### 使用方式
+ * [FragmentActivity]和[Fragment]使用[SystemBar]有三种方式，以[Fragment]为例：
  * ```
- * class MainActivity : AppCompatActivity(), SystemBar
- * ```
+ * // 1. 实现SystemBar，应用默认配置
+ * class SystemBarDefaultFragment : Fragment(), SystemBar
  *
- * 2.构造声明
- * ```
- * class MainActivity : AppCompatActivity(), SystemBar {
+ * // 2. 实现SystemBar，构造声明配置
+ * class SystemBarConstructorFragment : Fragment(), SystemBar {
  *     init {
  *         systemBarController {...}
  *     }
  * }
- * ```
  *
- * 3.后续修改
- * ```
- * class MainActivity : AppCompatActivity(), SystemBar {
- *      // 保留controller，后续修改配置
- *      private val controller = systemBarController {...}
+ * // 3. 实现SystemBar，动态修改配置
+ * class SystemBarModifyFragment : Fragment(), SystemBar {
+ *      private val controller = systemBarController()
  * }
  * ```
  *
- * ### [Fragment]实现[SystemBar]
- * [Fragment]实现[SystemBar]跟上述[FragmentActivity]一致，
+ * ### 宿主[FragmentActivity]
  * 作为宿主的[FragmentActivity]，需要实现[SystemBar.Host]，
- * 宿主可以同时实现[SystemBar]和[SystemBar.Host]：
+ * 当宿主没有自己的`contentView`时，可以不实现[SystemBar]：
  * ```
+ * // 没有contentView，实现SystemBar.Host，支持Fragment即可
+ * class MainActivity : AppCompatActivity(), SystemBar.Host
+ *
+ * // 有contentView，实现SystemBar，跟SystemBar.Host没有冲突
  * class MainActivity : AppCompatActivity(), SystemBar, SystemBar.Host
  * ```
  *
- * ### 应用配置和恢复配置
- * 1. [FragmentActivity]应用配置的时机早于[Fragment]。
- * 2. 当`fragment.lifecycle`的状态转换为[RESUMED]时，应用当前的配置。
- * 3. 当`fragment.lifecycle`的状态转换为[DESTROYED]时，恢复之前的配置。
+ * ### 设置和恢复window属性
+ * * [SystemBarController.isAppearanceLightStatusBar]。
+ * * [SystemBarController.isAppearanceLightNavigationBar]。
+ *
+ * 以上两个配置项需要设置window属性：
+ * 1. [FragmentActivity]设置window属性的时机早于[Fragment]。
+ * 2. 当`fragment.lifecycle`的状态转换为[RESUMED]时，按当前配置设置window属性。
+ * 3. 当`fragment.lifecycle`的状态转换为[DESTROYED]时，按之前配置恢复window属性。
  *
  * 第3点是用于支持`fragment.lifecycle`的状态没有从[RESUMED]回退的场景，
  * 系统配置更改、进程被杀掉导致[FragmentActivity]重建，第3点也仍然满足。

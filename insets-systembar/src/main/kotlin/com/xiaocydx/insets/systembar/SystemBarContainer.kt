@@ -27,10 +27,13 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowInsets
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import com.xiaocydx.insets.consume
 import com.xiaocydx.insets.isGestureNavigationBar
+import com.xiaocydx.insets.navigationBarHeight
+import com.xiaocydx.insets.statusBarHeight
+import com.xiaocydx.insets.toWindowInsetsCompat
 import com.xiaocydx.insets.updatePadding
 
 /**
@@ -86,25 +89,29 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
         else -> super.verifyDrawable(who)
     }
 
+    override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
+        super.dispatchApplyWindowInsets(insets)
+        // 兼容到跟Android 11一样的分发效果，确保同级子View能处理已消费的Insets
+        return insets
+    }
+
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
-        val applyInsets = WindowInsetsCompat.toWindowInsetsCompat(insets, this)
-        val statusBarHeight = applyInsets.getInsets(statusBars()).top
-        val navigationBarHeight = applyInsets.getInsets(navigationBars()).bottom
-        updatePadding(
-            top = when (statusBarEdgeToEdge) {
-                EdgeToEdge.Disabled -> statusBarHeight
-                EdgeToEdge.Enabled, EdgeToEdge.Gesture -> 0
-            },
-            bottom = when (navigationBarEdgeToEdge) {
-                EdgeToEdge.Disabled -> navigationBarHeight
-                EdgeToEdge.Enabled -> 0
-                EdgeToEdge.Gesture -> when {
-                    applyInsets.isGestureNavigationBar(this) -> 0
-                    else -> navigationBarHeight
-                }
-            }
-        )
-        return super.onApplyWindowInsets(insets)
+        val applyInsets = insets.toWindowInsetsCompat(this)
+        var typeMask = 0
+        var pendingTop = 0
+        var pendingBottom = 0
+        if (statusBarEdgeToEdge == EdgeToEdge.Disabled) {
+            typeMask = typeMask or statusBars()
+            pendingTop = applyInsets.statusBarHeight
+        }
+        if (navigationBarEdgeToEdge == EdgeToEdge.Disabled
+                || (navigationBarEdgeToEdge == EdgeToEdge.Gesture
+                        && !applyInsets.isGestureNavigationBar(this))) {
+            typeMask = typeMask or navigationBars()
+            pendingBottom = applyInsets.navigationBarHeight
+        }
+        updatePadding(top = pendingTop, bottom = pendingBottom)
+        return applyInsets.consume(typeMask).toWindowInsets()!!
     }
 
     override fun draw(canvas: Canvas) {

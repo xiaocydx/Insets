@@ -24,24 +24,57 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType
+import androidx.core.view.WindowInsetsCompat.Type.ime
+import androidx.core.view.WindowInsetsCompat.Type.navigationBars
+import androidx.core.view.WindowInsetsCompat.Type.statusBars
 
 /**
- * 通过[WindowInsetsCompat.getInsets]获取statusBars类型的Insets
+ * 状态栏高度
  */
-fun WindowInsetsCompat.statusBars() = getInsets(WindowInsetsCompat.Type.statusBars())
+val WindowInsetsCompat.statusBarHeight: Int
+    get() = getInsets(statusBars()).top
 
 /**
- * 通过[WindowInsetsCompat.getInsets]获取navigationBars类型的Insets
+ * 导航栏高度
  */
-fun WindowInsetsCompat.navigationBars() = getInsets(WindowInsetsCompat.Type.navigationBars())
+val WindowInsetsCompat.navigationBarHeight: Int
+    get() = getInsets(navigationBars()).bottom
 
 /**
- * 通过[WindowInsetsCompat.getInsets]获取ime类型的Insets
+ * IME高度
+ *
+ * **注意**：IME高度包含导航栏高度。
  */
-fun WindowInsetsCompat.ime() = getInsets(WindowInsetsCompat.Type.ime())
+val WindowInsetsCompat.imeHeight: Int
+    get() = getInsets(ime()).bottom
 
 /**
- * 消费指定[InsetsType]类型集的Insets
+ * 是否为手势导航栏
+ *
+ * **注意**：若导航栏被隐藏，则该函数返回`true`，此时导航栏高度为0，
+ * 实际场景可以将隐藏的导航栏，当作手势导航栏来处理，通常不会有问题。
+ */
+fun WindowInsetsCompat.isGestureNavigationBar(view: View): Boolean {
+    val threshold = (24 * view.resources.displayMetrics.density).toInt()
+    return navigationBarHeight <= threshold.coerceAtLeast(66)
+}
+
+/**
+ * 获取`contentView`的IME偏移，可用于设置`contentView`间距的场景
+ */
+fun WindowInsetsCompat.getImeOffset(view: View): Int {
+    val imeHeight = imeHeight.takeIf { it > 0 } ?: return 0
+    var navigationBarHeight = navigationBarHeight
+    if (navigationBarHeight <= 0) {
+        // 父View可能消费了导航栏insets，尝试通过rootInsets得到导航栏高度
+        val rootInsets = view.getRootWindowInsetsCompat()
+        navigationBarHeight = rootInsets?.navigationBarHeight ?: 0
+    }
+    return (imeHeight - navigationBarHeight).coerceAtLeast(0)
+}
+
+/**
+ * 消费指定类型集的Insets
  *
  * ```
  * val typeMask = WindowInsetsCompat.Type.statusBars()
@@ -55,26 +88,15 @@ fun WindowInsetsCompat.ime() = getInsets(WindowInsetsCompat.Type.ime())
 fun WindowInsetsCompat.consume(@InsetsType typeMask: Int): WindowInsetsCompat {
     if (typeMask <= 0) return this
     val builder = WindowInsetsCompat.Builder(this)
-    if (typeMask != WindowInsetsCompat.Type.ime()) {
-        // typeMask等于IME会抛出IllegalArgumentException
+    if (typeMask != ime()) {
+        // typeMask等于ime()会抛出IllegalArgumentException
         builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
     }
     return builder.setInsets(typeMask, Insets.NONE).build()
 }
 
 /**
- * 是否为手势导航栏
- *
- * **注意**：若导航栏被隐藏，则该函数返回`true`，此时导航栏高度为0，
- * 实际场景可以将隐藏的导航栏，当作手势导航栏来处理，一般不会有问题。
- */
-fun WindowInsetsCompat.isGestureNavigationBar(view: View): Boolean {
-    val threshold = (24 * view.resources.displayMetrics.density).toInt()
-    return navigationBars().bottom <= threshold.coerceAtLeast(66)
-}
-
-/**
- * [WindowInsetsAnimationCompat.getTypeMask]是否包含指定[InsetsType]类型集的Insets
+ * [WindowInsetsAnimationCompat.getTypeMask]是否包含指定类型集的Insets
  */
 fun WindowInsetsAnimationCompat.contains(@InsetsType typeMask: Int) = this.typeMask and typeMask == typeMask
 
@@ -82,7 +104,7 @@ fun WindowInsetsAnimationCompat.contains(@InsetsType typeMask: Int) = this.typeM
  * 当分发到[WindowInsetsCompat]时，调用[block]
  */
 fun View.doOnApplyWindowInsets(block: (view: View, insets: WindowInsetsCompat, initialState: ViewState) -> Unit) {
-    val initialState = recordCurrentState()
+    val initialState = ViewState(this)
     setOnApplyWindowInsetsListenerCompat { view, insets ->
         block(view, insets, initialState)
         insets
@@ -131,19 +153,19 @@ fun View.handleGestureNavBarEdgeToEdgeOnApply() {
  * 通用的手势导航栏EdgeToEdge处理逻辑，可以跟[doOnApplyWindowInsets]结合使用
  */
 fun View.handleGestureNavBarEdgeToEdge(insets: WindowInsetsCompat, initialState: ViewState) {
-    val navigationBarHeight = insets.navigationBars().bottom
+    val navigationBarHeight = insets.navigationBarHeight
     val isGestureNavigationBar = insets.isGestureNavigationBar(this)
     // 1. 若当前是手势导航栏，则增加高度，否则保持初始高度
     val height = when {
         initialState.params.height < 0 -> initialState.params.height
         !isGestureNavigationBar -> initialState.params.height
-        else -> navigationBarHeight + initialState.params.height
+        else -> initialState.params.height + navigationBarHeight
     }
     if (layoutParams.height != height) updateLayoutParams { this.height = height }
     // 2. 若当前是手势导航栏，则增加paddingBottom，否则保持初始paddingBottom
     updatePadding(bottom = when {
         !isGestureNavigationBar -> initialState.paddings.bottom
-        else -> navigationBarHeight + initialState.paddings.bottom
+        else -> initialState.paddings.bottom + navigationBarHeight
     })
     // 3. 手势导航栏EdgeToEdge会增加paddingBottom，将clipToPadding设为false，
     // 使得滚动容器在滚动时，能将内容绘制在paddingBottom区域，当滚动到底部时，

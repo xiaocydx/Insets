@@ -20,7 +20,10 @@
 package com.xiaocydx.insets.systembar
 
 import android.annotation.SuppressLint
+import android.view.View
+import android.view.WindowInsets
 import androidx.annotation.ColorInt
+import com.xiaocydx.insets.getRootWindowInsetsCompat
 import com.xiaocydx.insets.systembar.EdgeToEdge.Disabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Enabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Gesture
@@ -48,14 +51,26 @@ interface SystemBarController {
     var navigationBarColor: Int
 
     /**
-     * 设为[Enabled]可去除状态栏间距和[statusBarColor]，默认为[Disabled]，
-     * [Gesture]等于[Enabled]，[Gesture]仅对[navigationBarEdgeToEdge]有区分。
+     * 状态栏EdgeToEdge，默认为[Disabled]
+     *
+     * 1. [Disabled]：消费[WindowInsets]的状态栏Insets，设置状态栏高度的间距，绘制背景色。
+     * 2. [Enabled]：不消费[WindowInsets]的状态栏Insets，不设置状态栏高度的间距，不绘制背景色。
+     * 3. [Gesture]：作用等于[Enabled]，[Gesture]仅对[navigationBarEdgeToEdge]有区分。
+     *
+     * [Disabled]消费[WindowInsets]的状态栏Insets，目的是避免子View重复处理状态栏Insets，设置高度间距，
+     * 子View处理[WindowInsets]，若需要获取状态栏高度，则可以通过[View.getRootWindowInsetsCompat]获取。
      */
     var statusBarEdgeToEdge: EdgeToEdge
 
     /**
-     * 设为[Enabled]可去除导航栏间距和[navigationBarColor]，默认为[Disabled]，
-     * [Gesture]是当前为手势导航栏时，才去除导航栏间距和[navigationBarColor]。
+     * 导航栏EdgeToEdge，默认为[Disabled]
+     *
+     * 1. [Disabled]：消费[WindowInsets]的导航栏Insets，设置导航栏高度的间距，绘制背景色。
+     * 2. [Enabled]：不消费[WindowInsets]的导航栏Insets，不设置导航栏高度的间距，不绘制背景色。
+     * 3. [Gesture]：当前为手势导航栏时，作用等于[Enabled]，否则作用等于[Disabled]。
+     *
+     * [Disabled]消费[WindowInsets]的导航栏Insets，目的是避免子View重复处理导航栏Insets，设置高度间距，
+     * 子View处理[WindowInsets]，若需要获取导航栏高度，则可以通过[View.getRootWindowInsetsCompat]获取。
      */
     var navigationBarEdgeToEdge: EdgeToEdge
 

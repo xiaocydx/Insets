@@ -18,15 +18,8 @@ package com.xiaocydx.insets
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CheckResult
 import androidx.annotation.Px
 import androidx.core.view.ViewCompat
-
-/**
- * 记录[View]当前的状态，可用于记录初始状态
- */
-@CheckResult
-fun View.recordCurrentState() = ViewState(this)
 
 /**
  * 更新`margins`，有改变才申请重新布局

@@ -65,7 +65,7 @@ fun View.setWindowInsetsAnimationCallbackCompat(callback: WindowInsetsAnimationC
 /**
  * 传入[view]是为了确保转换出的[WindowInsetsCompat]是正确的结果
  */
-fun WindowInsets.toCompat(view: View) = WindowInsetsCompat.toWindowInsetsCompat(this, view)
+fun WindowInsets.toWindowInsetsCompat(view: View) = WindowInsetsCompat.toWindowInsetsCompat(this, view)
 
 internal fun Window.disableDecorFitsSystemWindowsInternal(
     @InsetsType consumeTypeMask: Int
