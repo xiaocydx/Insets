@@ -16,6 +16,7 @@
 
 package com.xiaocydx.insets
 
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -88,11 +89,21 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
 fun WindowInsetsCompat.consume(@InsetsType typeMask: Int): WindowInsetsCompat {
     if (typeMask <= 0) return this
     val builder = WindowInsetsCompat.Builder(this)
-    if (typeMask != ime()) {
-        // typeMask等于ime()会抛出IllegalArgumentException
-        builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
+    builder.build().getInsets(navigationBars())
+    if (Build.VERSION.SDK_INT >= 30) {
+        if (typeMask != ime()) {
+            // typeMask等于ime()会抛出IllegalArgumentException
+            builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
+        }
+        builder.setInsets(typeMask, Insets.NONE)
+    } else {
+        // Builder低版本源码构建的WindowInsetsCompat缺失insets，
+        // 需要先通过all去除消费类型集，再设置剩余类型集的Insets。
+        val all = 0xFFFFFFFFu
+        val finalTypeMask = (all and typeMask.toUInt().inv()).toInt()
+        builder.setInsets(finalTypeMask, getInsets(finalTypeMask))
     }
-    return builder.setInsets(typeMask, Insets.NONE).build()
+    return builder.build()
 }
 
 /**
