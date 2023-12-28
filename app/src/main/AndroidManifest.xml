@@ -26,6 +26,7 @@
         <activity android:name=".compat.FullscreenCompatActivity" />
         <activity android:name=".compat.ImmutableCompatActivity" />
         <activity android:name=".systembar.SystemBarBasicActivity" />
+        <activity android:name=".systembar.SystemBarRestoreActivity" />
     </application>
 
 </manifest>

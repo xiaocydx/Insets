@@ -9,6 +9,7 @@ import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
 import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
 import com.xiaocydx.insets.sample.databinding.ActivityMainBinding
 import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
+import com.xiaocydx.insets.sample.systembar.SystemBarRestoreActivity
 
 /**
  * @author xcc
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
             btnFullscreenCompat.onClick { startActivity<FullscreenCompatActivity>() }
             btnImmutableCompat.onClick { startActivity<ImmutableCompatActivity>() }
             btnSystemBarBasic.onClick { startActivity<SystemBarBasicActivity>() }
+            btnSystemBarRestore.onClick { startActivity<SystemBarRestoreActivity>() }
         }.root
 
     private inline fun <reified T : Activity> startActivity() {

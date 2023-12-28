@@ -1,18 +1,28 @@
+@file:SuppressLint("SetTextI18n")
+
 package com.xiaocydx.insets.sample.systembar
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.transition.Slide
+import androidx.fragment.app.FragmentActivity
 import com.xiaocydx.insets.sample.databinding.ActivitySystemBarBasicBinding
-import com.xiaocydx.insets.sample.databinding.FragmentSystemBarBinding
+import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
 import com.xiaocydx.insets.sample.onClick
 import com.xiaocydx.insets.systembar.SystemBar
 
 /**
+ * [SystemBar]的基本使用
+ *
+ * [FragmentActivity]和[Fragment]使用[SystemBar]有三种方式，以[Fragment]为例：
+ * 1. [SystemBarDefaultFragment]：实现[SystemBar]，应用默认配置。
+ * 2. [SystemBarConstructorFragment]：实现[SystemBar]，构造声明配置。
+ * 3. [SystemBarModifyFragment]：实现[SystemBar]，动态修改配置。
+ *
+ * 作为宿主的[FragmentActivity]，需要实现[SystemBar.Host]，
+ * 当宿主没有自己的`contentView`时，可以不实现[SystemBar]。
+ *
  * @author xcc
  * @date 2023/12/27
  */
@@ -25,24 +35,50 @@ class SystemBarBasicActivity : AppCompatActivity(), SystemBar, SystemBar.Host {
 
     private fun contentView() = ActivitySystemBarBasicBinding
         .inflate(layoutInflater).apply {
-            btnDefault.onClick {
-                supportFragmentManager.beginTransaction()
-                    .addToBackStack(null)
-                    .add(android.R.id.content, SystemBarDefaultFragment())
-                    .commit()
-            }
+            btnDefault.onClick { addFragment<SystemBarDefaultFragment>() }
+            btnConstructor.onClick { addFragment<SystemBarConstructorFragment>() }
+            btnModify.onClick { addFragment<SystemBarModifyFragment>() }
         }.root
 }
 
-class SystemBarDefaultFragment : Fragment(), SystemBar {
+class SystemBarDefaultFragment : BaseFragment(), SystemBar {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = FragmentSystemBarBinding.inflate(inflater, container, false).apply {
+    override fun LayoutBaseBinding.initView() {
         root.setBackgroundColor(0xFF91A1AA.toInt())
         tvCenter.text = "实现SystemBar，应用默认配置"
-        enterTransition = Slide(Gravity.RIGHT).apply { addTarget(root) }
-    }.root
+    }
+}
+
+class SystemBarConstructorFragment : BaseFragment(), SystemBar {
+
+    init {
+        systemBarController {
+            statusBarColor = 0xFFC4B9BA.toInt()
+            navigationBarColor = 0xFFC4B9BA.toInt()
+            isAppearanceLightStatusBar = true
+            isAppearanceLightNavigationBar = true
+        }
+    }
+
+    override fun LayoutBaseBinding.initView() {
+        root.setBackgroundColor(0xFF91A1AA.toInt())
+        tvCenter.text = "实现SystemBar，构造声明配置"
+    }
+}
+
+class SystemBarModifyFragment : BaseFragment(), SystemBar {
+    private val controller = systemBarController()
+
+    override fun LayoutBaseBinding.initView() {
+        root.setBackgroundColor(0xFF91A1AA.toInt())
+        tvCenter.onClick {
+            controller.apply {
+                statusBarColor = 0xFFC4B9BA.toInt()
+                navigationBarColor = 0xFFC4B9BA.toInt()
+                isAppearanceLightStatusBar = true
+                isAppearanceLightNavigationBar = true
+            }
+        }
+        tvCenter.text = "实现SystemBar，动态修改配置\n\n点击修改系统栏背景色和前景色"
+    }
 }
