@@ -6,7 +6,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import androidx.core.view.updatePadding
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -23,7 +23,7 @@ import com.xiaocydx.insets.systembar.SystemBar
  * 在[ViewPager2]场景下使用[SystemBar]：
  * 1. [FragmentStateAdapter]构建的[Fragment]不要实现[SystemBar]。
  * 2. [ViewPager2]所在的[FragmentActivity]或[Fragment]实现[SystemBar]。
- * 3. 选中[Fragment]或者滚动停止时，应用`ViewPager2.currentItem`对应的配置。
+ * 3. 选中[Fragment]或滚动停止时，设置`ViewPager2.currentItem`对应的window属性。
  *
  * @author xcc
  * @date 2023/12/29
@@ -32,6 +32,7 @@ class SystemBarVp2Activity : AppCompatActivity(), SystemBar, SystemBar.Host {
     private val controller = systemBarController {
         // PageFragment自行处理状态栏Insets
         statusBarEdgeToEdge = EdgeToEdge.Enabled
+        navigationBarColor = 0xFF5E79B5.toInt()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +47,7 @@ class SystemBarVp2Activity : AppCompatActivity(), SystemBar, SystemBar.Host {
             viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     val page = pageAdapter.pages[position]
-                    controller.navigationBarColor = page.navigationBarColor
-                    controller.isAppearanceLightNavigationBar = page.isAppearanceLightNavigationBar
+                    controller.isAppearanceLightStatusBar = page.isAppearanceLightStatusBar
                 }
             })
         }.root
@@ -66,8 +66,8 @@ class SystemBarVp2Activity : AppCompatActivity(), SystemBar, SystemBar.Host {
 }
 
 enum class Page(
-    val navigationBarColor: Int,
-    val isAppearanceLightNavigationBar: Boolean
+    val statusBarColor: Int,
+    val isAppearanceLightStatusBar: Boolean
 ) {
     A(0xFFBABBC4.toInt(), true),
     B(0xFF496291.toInt(), false),
@@ -81,10 +81,12 @@ class PageFragment : BaseFragment() {
         val page = Page.values()[ordinal]
         root.setBackgroundColor(0xFFAABBC4.toInt())
         root.onClick { requireActivity().addFragment<NotPageFragment>() }
-        root.doOnApplyWindowInsets { view, insets, initialState ->
-            view.updatePadding(top = initialState.paddings.top + insets.statusBarHeight)
-        }
         tvCenter.text = "PageFragment${page.name}\n\n点击添加NotPageFragment"
+        statusBar.setBackgroundColor(page.statusBarColor)
+        statusBar.doOnApplyWindowInsets { view, insets, initialState ->
+            val height = initialState.params.height + insets.statusBarHeight
+            if (height != view.layoutParams.height) view.updateLayoutParams { this.height = height }
+        }
     }
 
     companion object {
