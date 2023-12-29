@@ -10,6 +10,7 @@ import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
 import com.xiaocydx.insets.sample.databinding.ActivityMainBinding
 import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
 import com.xiaocydx.insets.sample.systembar.SystemBarRestoreActivity
+import com.xiaocydx.insets.sample.systembar.SystemBarVp2Activity
 
 /**
  * @author xcc
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
             btnImmutableCompat.onClick { startActivity<ImmutableCompatActivity>() }
             btnSystemBarBasic.onClick { startActivity<SystemBarBasicActivity>() }
             btnSystemBarRestore.onClick { startActivity<SystemBarRestoreActivity>() }
+            btnSystemBarVp2.onClick { startActivity<SystemBarVp2Activity>() }
         }.root
 
     private inline fun <reified T : Activity> startActivity() {

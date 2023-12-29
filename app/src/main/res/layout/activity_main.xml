@@ -46,4 +46,12 @@
         android:layout_marginBottom="5dp"
         android:text="SystemBarRestore"
         android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btnSystemBarVp2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="SystemBarVp2"
+        android:textAllCaps="false" />
 </LinearLayout>
