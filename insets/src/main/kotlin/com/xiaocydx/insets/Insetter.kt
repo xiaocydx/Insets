@@ -17,7 +17,6 @@
 package com.xiaocydx.insets
 
 import android.graphics.Rect
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -82,29 +81,43 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
  * ```
  * val typeMask = WindowInsetsCompat.Type.statusBars()
  * val outcome = insets.consumeInsets(typeMask)
- * val insets = outcome.getInsets(typeMask) // 返回Insets.NONE
+ * outcome.getInsets(typeMask) // 返回Insets.NONE
+ * outcome.getInsetsIgnoringVisibility(typeMask) // 返回Insets.NONE
+ * outcome.isVisible(typeMask) // 不改变isVisible结果
  * ```
  */
 @CheckResult
 @Suppress("DEPRECATION")
 fun WindowInsetsCompat.consumeInsets(@InsetsType typeMask: Int): WindowInsetsCompat {
     if (typeMask == 0) return this
-    val builder = WindowInsetsCompat.Builder(this)
-    val outcome = builder.setInsets(typeMask, Insets.NONE).build()
-    if (Build.VERSION.SDK_INT >= 30) return outcome
-    // Android 11以下的systemWindowInsets包含ime，但在调用builder.setInsets()后，
-    // builder.build()会替换systemWindowInsets，只剩下statusBars和navigationBars，
-    // 这会导致判断systemWindowInsets的代码出现异常，因此需要修正systemWindowInsets。
-    val systemWindows = systemBars() or ime() and typeMask.inv()
-    if (systemWindows == 0) return outcome
-    val systemWindowInsets = getInsets(systemWindows).run { Rect(left, top, right, bottom) }
-    return outcome.replaceSystemWindowInsets(systemWindowInsets)
+    var builder = WindowInsetsCompat.Builder(this)
+    if (typeMask != ime()) {
+        // 当typeMask等于ime()时，会抛出IllegalArgumentException
+        builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
+        // Android 11以下需要修正stableInsets，getInsetsIgnoringVisibility()才返回Insets.NONE
+        builder.setStableInsets(getInsets(systemBars() and typeMask.inv()))
+    }
+    builder.setInsets(typeMask, Insets.NONE)
+    val systemWindowInsets = getInsets(systemBars() or ime() and typeMask.inv())
+    if (!systemWindowInsets.isEmpty) {
+        // Android 11以下的systemWindowInsets包含ime，但在调用builder.setInsets()后，
+        // builder.build()会替换systemWindowInsets，只剩下statusBars和navigationBars，
+        // 这会导致判断systemWindowInsets的代码出现异常，因此需要修正systemWindowInsets。
+        builder = WindowInsetsCompat.Builder(builder.build())
+        builder.setSystemWindowInsets(systemWindowInsets)
+    }
+    return builder.build()
 }
 
 /**
  * [WindowInsetsAnimationCompat.getTypeMask]是否包含指定类型集的Insets
  */
 fun WindowInsetsAnimationCompat.contains(@InsetsType typeMask: Int) = this.typeMask and typeMask == typeMask
+
+val Insets.isEmpty: Boolean
+    get() = left == 0 && top == 0 && right == 0 && bottom == 0
+
+fun Insets.toRect() = run { Rect(left, top, right, bottom) }
 
 /**
  * 当分发到[WindowInsetsCompat]时，调用[block]
