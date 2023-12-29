@@ -16,6 +16,7 @@
 
 package com.xiaocydx.insets
 
+import android.graphics.Rect
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType
 import androidx.core.view.WindowInsetsCompat.Type.ime
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import androidx.core.view.WindowInsetsCompat.Type.systemBars
 
 /**
  * 状态栏高度
@@ -67,7 +69,7 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
     val imeHeight = imeHeight.takeIf { it > 0 } ?: return 0
     var navigationBarHeight = navigationBarHeight
     if (navigationBarHeight <= 0) {
-        // 父View可能消费了导航栏insets，尝试通过rootInsets得到导航栏高度
+        // 父View可能消费了导航栏Insets，尝试通过rootInsets获取导航栏高度
         val rootInsets = view.getRootWindowInsetsCompat()
         navigationBarHeight = rootInsets?.navigationBarHeight ?: 0
     }
@@ -79,31 +81,24 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
  *
  * ```
  * val typeMask = WindowInsetsCompat.Type.statusBars()
- * val outcome = insets.consume(typeMask)
- * outcome.getInsets(typeMask) // Insets.NONE
- * outcome.getInsetsIgnoringVisibility(typeMask) // Insets.NONE
- * outcome.isVisible(typeMask) // 不改变可见结果
+ * val outcome = insets.consumeInsets(typeMask)
+ * val insets = outcome.getInsets(typeMask) // 返回Insets.NONE
  * ```
  */
 @CheckResult
-fun WindowInsetsCompat.consume(@InsetsType typeMask: Int): WindowInsetsCompat {
-    if (typeMask <= 0) return this
+@Suppress("DEPRECATION")
+fun WindowInsetsCompat.consumeInsets(@InsetsType typeMask: Int): WindowInsetsCompat {
+    if (typeMask == 0) return this
     val builder = WindowInsetsCompat.Builder(this)
-    builder.build().getInsets(navigationBars())
-    if (Build.VERSION.SDK_INT >= 30) {
-        if (typeMask != ime()) {
-            // typeMask等于ime()会抛出IllegalArgumentException
-            builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
-        }
-        builder.setInsets(typeMask, Insets.NONE)
-    } else {
-        // Builder低版本源码构建的WindowInsetsCompat缺失insets，
-        // 需要先通过all去除消费类型集，再设置剩余类型集的Insets。
-        val all = 0xFFFFFFFFu
-        val finalTypeMask = (all and typeMask.toUInt().inv()).toInt()
-        builder.setInsets(finalTypeMask, getInsets(finalTypeMask))
-    }
-    return builder.build()
+    val outcome = builder.setInsets(typeMask, Insets.NONE).build()
+    if (Build.VERSION.SDK_INT >= 30) return outcome
+    // Android 11以下的systemWindowInsets包含ime，但在调用builder.setInsets()后，
+    // builder.build()会替换systemWindowInsets，只剩下statusBars和navigationBars，
+    // 这会导致判断systemWindowInsets的代码出现异常，因此需要修正systemWindowInsets。
+    val systemWindows = systemBars() or ime() and typeMask.inv()
+    if (systemWindows == 0) return outcome
+    val systemWindowInsets = getInsets(systemWindows).run { Rect(left, top, right, bottom) }
+    return outcome.replaceSystemWindowInsets(systemWindowInsets)
 }
 
 /**

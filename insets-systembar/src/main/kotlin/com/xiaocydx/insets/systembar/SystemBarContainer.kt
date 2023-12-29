@@ -29,7 +29,7 @@ import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
-import com.xiaocydx.insets.consume
+import com.xiaocydx.insets.consumeInsets
 import com.xiaocydx.insets.isGestureNavigationBar
 import com.xiaocydx.insets.navigationBarHeight
 import com.xiaocydx.insets.statusBarHeight
@@ -111,7 +111,7 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
             pendingBottom = applyInsets.navigationBarHeight
         }
         updatePadding(top = pendingTop, bottom = pendingBottom)
-        return applyInsets.consume(typeMask).toWindowInsets()!!
+        return applyInsets.consumeInsets(typeMask).toWindowInsets()!!
     }
 
     override fun draw(canvas: Canvas) {
