@@ -19,8 +19,8 @@
 package com.xiaocydx.insets.systembar
 
 import android.view.Window
-import androidx.core.view.WindowInsetsCompat.Type.ime
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
+import androidx.core.view.WindowInsetsCompat.Type.navigationBars
+import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import com.xiaocydx.insets.disableDecorFitsSystemWindowsInternal
 
 internal val Window.initialState: WindowInitialState
@@ -45,5 +45,5 @@ internal fun Window.recordSystemBarInitialColor() {
 }
 
 internal fun Window.disableDecorFitsSystemWindows() {
-    disableDecorFitsSystemWindowsInternal(consumeTypeMask = systemBars() or ime())
+    disableDecorFitsSystemWindowsInternal(consumeTypeMask = statusBars() or navigationBars())
 }

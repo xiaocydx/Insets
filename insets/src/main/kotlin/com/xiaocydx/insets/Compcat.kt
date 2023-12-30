@@ -28,10 +28,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType
-import androidx.core.view.WindowInsetsControllerCompat
 
 /**
- * 禁用`window.decorView`实现的消费和间距逻辑，让视图树自行处理[WindowInsets]
+ * 禁用`window.decorView`实现的消费逻辑和间距逻辑，让视图树自行处理[WindowInsets]
  */
 fun Window.disableDecorFitsSystemWindows() {
     disableDecorFitsSystemWindowsInternal(consumeTypeMask = 0)
@@ -41,8 +40,10 @@ fun Window.setDecorFitsSystemWindowsCompat(decorFitsSystemWindows: Boolean) {
     WindowCompat.setDecorFitsSystemWindows(this, decorFitsSystemWindows)
 }
 
-fun Window.createWindowInsetsControllerCompat(editText: EditText) =
-        WindowInsetsControllerCompat(this, editText)
+/**
+ * Android 11以下，`WindowInsetsControllerCompat.show(ime())`需要[view]为[EditText]
+ */
+fun Window.getInsetsControllerCompat(view: View) = WindowCompat.getInsetsController(this, view)
 
 fun View.getRootWindowInsetsCompat() = ViewCompat.getRootWindowInsets(this)
 

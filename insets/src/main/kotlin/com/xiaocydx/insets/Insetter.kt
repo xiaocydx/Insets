@@ -17,6 +17,7 @@
 package com.xiaocydx.insets
 
 import android.graphics.Rect
+import android.os.Build.VERSION
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -91,20 +92,22 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
 fun WindowInsetsCompat.consumeInsets(@InsetsType typeMask: Int): WindowInsetsCompat {
     if (typeMask == 0) return this
     var builder = WindowInsetsCompat.Builder(this)
+    builder.setInsets(typeMask, Insets.NONE)
     if (typeMask != ime()) {
         // 当typeMask等于ime()时，会抛出IllegalArgumentException
         builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
+    }
+    if (VERSION.SDK_INT < 30) {
         // Android 11以下需要修正stableInsets，getInsetsIgnoringVisibility()才返回Insets.NONE
         builder.setStableInsets(getInsets(systemBars() and typeMask.inv()))
-    }
-    builder.setInsets(typeMask, Insets.NONE)
-    val systemWindowInsets = getInsets(systemBars() or ime() and typeMask.inv())
-    if (!systemWindowInsets.isEmpty) {
-        // Android 11以下的systemWindowInsets包含ime，但在调用builder.setInsets()后，
-        // builder.build()会替换systemWindowInsets，只剩下statusBars和navigationBars，
-        // 这会导致判断systemWindowInsets的代码出现异常，因此需要修正systemWindowInsets。
-        builder = WindowInsetsCompat.Builder(builder.build())
-        builder.setSystemWindowInsets(systemWindowInsets)
+        val systemWindowInsets = getInsets(systemBars() or ime() and typeMask.inv())
+        if (!systemWindowInsets.isEmpty) {
+            // Android 11以下的systemWindowInsets包含ime，但在调用builder.setInsets()后，
+            // builder.build()会替换systemWindowInsets，只剩下statusBars和navigationBars，
+            // 这会导致判断systemWindowInsets的代码出现异常，因此需要修正systemWindowInsets。
+            builder = WindowInsetsCompat.Builder(builder.build())
+            builder.setSystemWindowInsets(systemWindowInsets)
+        }
     }
     return builder.build()
 }

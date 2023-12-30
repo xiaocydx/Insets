@@ -96,21 +96,21 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
     }
 
     override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
-        val applyInsets = insets.toWindowInsetsCompat(this)
         var typeMask = 0
-        var pendingTop = 0
-        var pendingBottom = 0
-        if (statusBarEdgeToEdge == EdgeToEdge.Disabled) {
+        var paddingTop = 0
+        var paddingBottom = 0
+        val applyInsets = insets.toWindowInsetsCompat(this)
+        if (statusBarEdgeToEdge === EdgeToEdge.Disabled) {
             typeMask = typeMask or statusBars()
-            pendingTop = applyInsets.statusBarHeight
+            paddingTop = applyInsets.statusBarHeight
         }
-        if (navigationBarEdgeToEdge == EdgeToEdge.Disabled
-                || (navigationBarEdgeToEdge == EdgeToEdge.Gesture
+        if (navigationBarEdgeToEdge === EdgeToEdge.Disabled
+                || (navigationBarEdgeToEdge === EdgeToEdge.Gesture
                         && !applyInsets.isGestureNavigationBar(this))) {
             typeMask = typeMask or navigationBars()
-            pendingBottom = applyInsets.navigationBarHeight
+            paddingBottom = applyInsets.navigationBarHeight
         }
-        updatePadding(top = pendingTop, bottom = pendingBottom)
+        updatePadding(top = paddingTop, bottom = paddingBottom)
         return applyInsets.consumeInsets(typeMask).toWindowInsets()!!
     }
 

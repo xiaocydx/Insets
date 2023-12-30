@@ -21,7 +21,6 @@ package com.xiaocydx.insets.compat
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Build
-import android.util.SparseArray
 import android.view.View
 import android.view.WindowInsets
 import androidx.annotation.ChecksSdkIntAtLeast
@@ -147,7 +146,6 @@ private class WindowInsetsImmutableListener(
 @RequiresApi(21)
 @SuppressLint("PrivateApi")
 private object InsetsCompatReflection : Reflection {
-    private var mKeyedTagsField: FieldCache? = null
     private var mListenerInfoField: FieldCache? = null
     private var mOnApplyWindowInsetsListenerField: FieldCache? = null
     private var mStableInsetsField: FieldCache? = null
@@ -163,7 +161,6 @@ private object InsetsCompatReflection : Reflection {
             val proxyListenerClass = Class.forName("androidx.core.view." +
                     "WindowInsetsAnimationCompat\$Impl21\$Impl21OnApplyWindowInsetsListener")
             val viewFields = viewClass.declaredInstanceFields
-            mKeyedTagsField = viewFields.find("mKeyedTags").toCache()
             mListenerInfoField = viewFields.find("mListenerInfo").toCache()
             mOnApplyWindowInsetsListenerField = listenerInfoClass
                 .declaredInstanceFields.find("mOnApplyWindowInsetsListener").toCache()
@@ -174,7 +171,6 @@ private object InsetsCompatReflection : Reflection {
             InsetsCompatReflection.proxyListenerClass = proxyListenerClass
             reflectSucceed = true
         }.onFailure {
-            mKeyedTagsField = null
             mListenerInfoField = null
             mOnApplyWindowInsetsListenerField = null
             mStableInsetsField = null
@@ -203,11 +199,6 @@ private object InsetsCompatReflection : Reflection {
     }
 
     /**
-     * compileOnly依赖AndroidX core，访问`androidx.core.R.id.tag_window_insets_animation_callback`，
-     * 源码会爆红，但编译能通过，改为implementation依赖AndroidX core，虽然能解决爆红问题，但是不符合初衷，
-     * 在values目录下定义跟AndroidX core同名的id，不确定会不会造成其他问题，因此反射获取`proxyListener`，
-     * 若后续确定同名id不会造成其他问题，或者有其他办法解决爆红问题，则去除反射实现。
-     *
      * ```
      * private static class Impl21OnApplyWindowInsetsListener implements
      *         View.OnApplyWindowInsetsListener {
@@ -216,13 +207,8 @@ private object InsetsCompatReflection : Reflection {
      * ```
      */
     fun View.getLastInsetsFromProxyListener(): WindowInsetsCompat? {
-        val mKeyedTags = mKeyedTagsField?.get(this) as? SparseArray<*> ?: return null
-        for (index in 0 until mKeyedTags.size()) {
-            val value = mKeyedTags.valueAt(index)
-            if (!value.javaClass.isAssignableFrom(proxyListenerClass!!)) continue
-            mLastInsetsField?.get(value)?.let { it as? WindowInsetsCompat }?.let { return it }
-        }
-        return null
+        val proxyListener = getTag(androidx.core.R.id.tag_window_insets_animation_callback)
+        return proxyListener?.let { mLastInsetsField?.get(it) as? WindowInsetsCompat }
     }
 
     /**
