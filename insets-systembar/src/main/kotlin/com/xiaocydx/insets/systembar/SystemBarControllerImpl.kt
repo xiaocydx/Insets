@@ -226,6 +226,7 @@ internal class FragmentSystemBarController(
         val container = SystemBarContainer(view.context)
         fragment.mView = container.apply {
             addView(view)
+            enableConsumeTouchEvent()
             ViewTreeLifecycleOwner.set(this, owner)
             ViewTreeViewModelStoreOwner.set(this, owner as? ViewModelStoreOwner)
             ViewTreeSavedStateRegistryOwner.set(this, owner as? SavedStateRegistryOwner)

@@ -18,10 +18,12 @@
 
 package com.xiaocydx.insets.systembar
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowInsets
@@ -45,6 +47,7 @@ import com.xiaocydx.insets.updatePadding
 internal class SystemBarContainer(context: Context) : FrameLayout(context) {
     private val statusBarDrawable = ColorDrawable()
     private val navigationBarDrawable = ColorDrawable()
+    private var consumeTouchEvent = false
 
     init {
         setWillNotDraw(false)
@@ -83,6 +86,13 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
     init {
         layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
     }
+
+    fun enableConsumeTouchEvent() {
+        consumeTouchEvent = true
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent) = consumeTouchEvent
 
     override fun verifyDrawable(who: Drawable) = when (who) {
         statusBarDrawable, navigationBarDrawable -> true

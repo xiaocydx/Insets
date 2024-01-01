@@ -27,7 +27,6 @@ abstract class BaseFragment : Fragment() {
     protected abstract fun LayoutBaseBinding.initView()
 
     final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.isClickable = true
         enterTransition = Slide(Gravity.RIGHT).apply { addTarget(view) }
     }
 }
