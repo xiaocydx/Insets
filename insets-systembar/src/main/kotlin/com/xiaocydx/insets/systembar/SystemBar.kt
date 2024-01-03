@@ -73,6 +73,21 @@ fun SystemBar.Companion.install(application: Application) {
  * class MainActivity : AppCompatActivity(), SystemBar, SystemBar.Host
  * ```
  *
+ * ### 替换`Fragment.view`
+ * 在[Fragment.onCreateView]之后，`Fragment.view`会被替换为[SystemBarContainer]，
+ * 不能通过[Fragment.onViewCreated]的形参`view`或`Fragment.view`构建`ViewBinding`，
+ * 因为此时`view`跟`ViewBinding.rootView`的类型不一致，构建过程会抛出异常：
+ * ```
+ * class SystemBarDefaultFragment : Fragment(), SystemBar {
+ *
+ *     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+ *         // 此时view跟ViewBinding.rootView的类型不一致，构建过程会抛出异常，
+ *         // 应当在Fragment.onCreateView()创建view时，构建ViewBinding。
+ *         val binding = ViewBinding.bind(view)
+ *     }
+ * }
+ * ```
+ *
  * ### 设置和恢复window属性
  * * [SystemBarController.isAppearanceLightStatusBar]。
  * * [SystemBarController.isAppearanceLightNavigationBar]。
