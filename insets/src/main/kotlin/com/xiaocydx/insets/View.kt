@@ -44,12 +44,12 @@ data class ViewState(
     /**
      * [View]的params
      */
-    val params: ViewParams,
+    val params: ViewParams = ViewParams(),
 
     /**
      * [View]的paddings
      */
-    val paddings: ViewPaddings,
+    val paddings: ViewPaddings = ViewPaddings(),
 ) {
     constructor(view: View) : this(ViewParams(view), ViewPaddings(view))
 }
@@ -58,12 +58,12 @@ data class ViewState(
  * [View]的params
  */
 data class ViewParams(
-    @Px val width: Int,
-    @Px val height: Int,
-    @Px val marginLeft: Int,
-    @Px val marginTop: Int,
-    @Px val marginRight: Int,
-    @Px val marginBottom: Int
+    @Px val width: Int = 0,
+    @Px val height: Int = 0,
+    @Px val marginLeft: Int = 0,
+    @Px val marginTop: Int = 0,
+    @Px val marginRight: Int = 0,
+    @Px val marginBottom: Int = 0
 ) {
     constructor(view: View) : this(
         width = view.layoutParams?.width ?: 0,
@@ -79,10 +79,10 @@ data class ViewParams(
  * [View]的paddings
  */
 data class ViewPaddings(
-    @Px val left: Int,
-    @Px val top: Int,
-    @Px val right: Int,
-    @Px val bottom: Int
+    @Px val left: Int = 0,
+    @Px val top: Int = 0,
+    @Px val right: Int = 0,
+    @Px val bottom: Int = 0
 ) {
     constructor(view: View) : this(
         left = view.paddingLeft,

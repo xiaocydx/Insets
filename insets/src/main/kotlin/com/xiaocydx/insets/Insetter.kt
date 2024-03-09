@@ -26,10 +26,6 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType
-import androidx.core.view.WindowInsetsCompat.Type.ime
-import androidx.core.view.WindowInsetsCompat.Type.navigationBars
-import androidx.core.view.WindowInsetsCompat.Type.statusBars
-import androidx.core.view.WindowInsetsCompat.Type.systemBars
 
 /**
  * 状态栏高度
@@ -124,6 +120,8 @@ fun Insets.toRect() = run { Rect(left, top, right, bottom) }
 
 /**
  * 当分发到[WindowInsetsCompat]时，调用[block]
+ *
+ * **注意**：当前View能被分发[WindowInsets]，该函数才会生效。
  */
 fun View.doOnApplyWindowInsets(block: (view: View, insets: WindowInsetsCompat, initialState: ViewState) -> Unit) {
     val initialState = ViewState(this)
@@ -163,12 +161,23 @@ fun View.removeRequestApplyInsetsOnAttach() {
 }
 
 /**
- * 当分发到[WindowInsetsCompat]时，调用[handleGestureNavBarEdgeToEdge]
+ * 对View调用[doOnApplyWindowInsets]，构建负责处理[WindowInsets]的[InsetsReceiver]，
+ * [InsetsReceiver]提供常用的[WindowInsets]处理逻辑，例如[InsetsReceiver.paddings]。
+ *
+ * ```
+ * view.insets() // 记录view的当前状态作为初始值
+ *     .paddings(statusBars()) // view.paddingTop = initialValue + statusBarHeight
+ *     .margins(navigationBars()) // view.marginBottom = initialValue + navigationBarHeight
+ *     .dimension(navigationBars()) // 当view.layoutParams.height初始为具体值时，增加navigationBarHeight
+ * ```
+ *
+ * **注意**：当前View能被分发[WindowInsets]，该函数才会生效。
  */
-fun View.handleGestureNavBarEdgeToEdgeOnApply() {
-    doOnApplyWindowInsets { view, insets, initialState ->
-        view.handleGestureNavBarEdgeToEdge(insets, initialState)
-    }
+@CheckResult
+fun View.insets(): InsetsReceiver {
+    val receiver = InsetsReceiver()
+    doOnApplyWindowInsets(receiver)
+    return receiver
 }
 
 /**
@@ -183,7 +192,9 @@ fun View.handleGestureNavBarEdgeToEdge(insets: WindowInsetsCompat, initialState:
         !isGestureNavigationBar -> initialState.params.height
         else -> initialState.params.height + navigationBarHeight
     }
-    if (layoutParams.height != height) updateLayoutParams { this.height = height }
+    if (layoutParams != null && layoutParams.height != height) {
+        updateLayoutParams { this.height = height }
+    }
     // 2. 若当前是手势导航栏，则增加paddingBottom，否则保持初始paddingBottom
     updatePadding(bottom = when {
         !isGestureNavigationBar -> initialState.paddings.bottom
@@ -193,4 +204,17 @@ fun View.handleGestureNavBarEdgeToEdge(insets: WindowInsetsCompat, initialState:
     // 使得滚动容器在滚动时，能将内容绘制在paddingBottom区域，当滚动到底部时，
     // 留出paddingBottom区域，内容不会被手势导航栏遮挡。
     (this as? ViewGroup)?.takeIf { it.isScrollContainer }?.clipToPadding = !isGestureNavigationBar
+}
+
+/**
+ * 当分发到[WindowInsetsCompat]时，调用[handleGestureNavBarEdgeToEdge]
+ */
+@Deprecated(
+    message = "合并常用的WindowInsets处理逻辑",
+    replaceWith = ReplaceWith("insets().gestureNavBarEdgeToEdge()")
+)
+fun View.handleGestureNavBarEdgeToEdgeOnApply() {
+    doOnApplyWindowInsets { view, insets, initialState ->
+        view.handleGestureNavBarEdgeToEdge(insets, initialState)
+    }
 }

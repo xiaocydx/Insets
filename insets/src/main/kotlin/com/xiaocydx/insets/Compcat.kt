@@ -68,6 +68,33 @@ fun View.setWindowInsetsAnimationCallbackCompat(callback: WindowInsetsAnimationC
  */
 fun WindowInsets.toWindowInsetsCompat(view: View) = WindowInsetsCompat.toWindowInsetsCompat(this, view)
 
+@InsetsType
+fun statusBars() = WindowInsetsCompat.Type.statusBars()
+
+@InsetsType
+fun navigationBars() = WindowInsetsCompat.Type.navigationBars()
+
+@InsetsType
+fun captionBar() = WindowInsetsCompat.Type.captionBar()
+
+@InsetsType
+fun ime() = WindowInsetsCompat.Type.ime()
+
+@InsetsType
+fun systemGestures() = WindowInsetsCompat.Type.systemGestures()
+
+@InsetsType
+fun mandatorySystemGestures() = WindowInsetsCompat.Type.mandatorySystemGestures()
+
+@InsetsType
+fun tappableElement() = WindowInsetsCompat.Type.tappableElement()
+
+@InsetsType
+fun displayCutout() = WindowInsetsCompat.Type.displayCutout()
+
+@InsetsType
+fun systemBars() = WindowInsetsCompat.Type.systemBars()
+
 internal fun Window.disableDecorFitsSystemWindowsInternal(
     @InsetsType consumeTypeMask: Int
 ) = ReflectCompat {
