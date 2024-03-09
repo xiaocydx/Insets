@@ -37,8 +37,14 @@ import androidx.lifecycle.Lifecycle.State.RESUMED
  *     }
  * }
  * ```
+ *
+ * @param default [SystemBarController]属性的默认值
  */
-fun SystemBar.Companion.install(application: Application) {
+fun SystemBar.Companion.install(
+    application: Application,
+    default: SystemBarController.Default = SystemBarController.Default()
+) {
+    SystemBarController.setDefault(default)
     ActivitySystemBarInstaller.register(application)
 }
 

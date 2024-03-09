@@ -34,7 +34,6 @@ import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import com.xiaocydx.insets.doOnAttach
-import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
 import com.xiaocydx.insets.systembar.SystemBarContainer
 import com.xiaocydx.insets.systembar.SystemBarController
@@ -47,45 +46,46 @@ import com.xiaocydx.insets.systembar.name
  * @date 2023/12/24
  */
 internal sealed class SystemBarControllerImpl : SystemBarController {
-    private var hasStatusBarColor = false
-    private var hasNavigationBarColor = false
+    private val default = Default
+    private var hasStatusBarColor = default.statusBarColor != null
+    private var hasNavigationBarColor = default.navigationBarColor != null
     protected var container: SystemBarContainer? = null
     protected var observer: SystemBarStateObserver? = null
     protected abstract val window: Window?
 
-    override var statusBarColor = 0
+    override var statusBarColor = default.statusBarColor ?: 0
         set(value) {
             field = value
             hasStatusBarColor = true
             container?.statusBarColor = value
         }
 
-    override var navigationBarColor = 0
+    override var navigationBarColor = default.navigationBarColor ?: 0
         set(value) {
             field = value
             hasNavigationBarColor = true
             observer?.setNavigationBarColor(value)
         }
 
-    override var statusBarEdgeToEdge: EdgeToEdge = EdgeToEdge.Disabled
+    override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
         set(value) {
             field = value
             container?.statusBarEdgeToEdge = value
         }
 
-    override var navigationBarEdgeToEdge: EdgeToEdge = EdgeToEdge.Disabled
+    override var navigationBarEdgeToEdge = default.navigationBarEdgeToEdge
         set(value) {
             field = value
             container?.navigationBarEdgeToEdge = value
         }
 
-    override var isAppearanceLightStatusBar = false
+    override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
         set(value) {
             field = value
             observer?.setAppearanceLightStatusBar(value)
         }
 
-    override var isAppearanceLightNavigationBar = false
+    override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
         set(value) {
             field = value
             observer?.setAppearanceLightNavigationBar(value)
@@ -111,6 +111,10 @@ internal sealed class SystemBarControllerImpl : SystemBarController {
             apply { initializer?.invoke(this) }.apply { onAttach() }
 
     protected abstract fun onAttach()
+
+    companion object {
+        @Volatile var Default = SystemBarController.Default()
+    }
 }
 
 internal class ActivitySystemBarController(

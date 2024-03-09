@@ -23,10 +23,12 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.view.WindowInsets
 import androidx.annotation.ColorInt
+import androidx.fragment.app.SystemBarControllerImpl
 import com.xiaocydx.insets.getRootWindowInsetsCompat
 import com.xiaocydx.insets.systembar.EdgeToEdge.Disabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Enabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Gesture
+import com.xiaocydx.insets.systembar.SystemBarController.Default
 
 /**
  * [SystemBar]控制器
@@ -88,6 +90,18 @@ interface SystemBarController {
      */
     var isAppearanceLightNavigationBar: Boolean
 
+    /**
+     * [SystemBarController]属性的默认值
+     */
+    data class Default(
+        val statusBarColor: Int? = null,
+        val navigationBarColor: Int? = null,
+        val statusBarEdgeToEdge: EdgeToEdge = Disabled,
+        val navigationBarEdgeToEdge: EdgeToEdge = Disabled,
+        val isAppearanceLightStatusBar: Boolean = false,
+        val isAppearanceLightNavigationBar: Boolean = false
+    )
+
     companion object
 }
 
@@ -99,3 +113,7 @@ sealed class EdgeToEdge {
 
 internal val SystemBarController.Companion.name: String
     get() = SystemBarController::class.java.simpleName
+
+internal fun SystemBarController.Companion.setDefault(default: Default) {
+    SystemBarControllerImpl.Default = default
+}
