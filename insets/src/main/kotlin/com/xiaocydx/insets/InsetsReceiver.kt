@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 xiaocydx
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.xiaocydx.insets
 
 import android.view.View
@@ -119,13 +135,13 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
         storeMap[KEY_DIMENSION]?.let { dimension ->
             val applyInsets = getInsets(dimension, insets)
             val finalState = dimension.getFinalState(initialState)
-            val height = when {
-                finalState.params.height < 0 -> finalState.params.height
-                else -> finalState.params.height + applyInsets.top + applyInsets.bottom
-            }
             val width = when {
                 finalState.params.width < 0 -> finalState.params.width
                 else -> finalState.params.width + applyInsets.left + applyInsets.right
+            }
+            val height = when {
+                finalState.params.height < 0 -> finalState.params.height
+                else -> finalState.params.height + applyInsets.top + applyInsets.bottom
             }
             val params = view.layoutParams
             if (params != null && (params.width != width || params.height != height)) {
@@ -153,9 +169,9 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
 
     private fun getInsets(store: InsetsStore, insets: WindowInsetsCompat): Insets {
         // 查找相同typeMask的insets，避免重复调用getInsets()
-        storeMap.forEach action@{
-            if (it == null || it.typeMask != store.typeMask) return@action
-            if (it.insets != null) return it.insets!!
+        storeMap.forEach {
+            val sameInsets = it?.getSameInsets(store)
+            if (sameInsets != null) return sameInsets
         }
         store.insets = insets.getInsets(store.typeMask)
         return store.insets!!
@@ -170,6 +186,10 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
         var ignoringInitial: Boolean = false,
         var insets: Insets? = null
     ) {
+        fun getSameInsets(other: InsetsStore): Insets? {
+            return insets?.takeIf { typeMask == other.typeMask }
+        }
+
         fun getFinalState(initialState: ViewState): ViewState {
             return if (ignoringInitial) EMPTY_STATE else initialState
         }
