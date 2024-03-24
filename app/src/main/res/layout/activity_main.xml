@@ -32,6 +32,14 @@
         android:textAllCaps="false" />
 
     <Button
+        android:id="@+id/btnInsetter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:text="Insetter"
+        android:textAllCaps="false" />
+
+    <Button
         android:id="@+id/btnSystemBarBasic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

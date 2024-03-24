@@ -25,6 +25,7 @@
         <activity android:name=".compat.ImeAnimationCompatActivity" />
         <activity android:name=".compat.FullscreenCompatActivity" />
         <activity android:name=".compat.ImmutableCompatActivity" />
+        <activity android:name=".insetter.InsetterActivity" />
         <activity android:name=".systembar.SystemBarBasicActivity" />
         <activity android:name=".systembar.SystemBarRestoreActivity" />
         <activity android:name=".systembar.SystemBarVp2Activity" />

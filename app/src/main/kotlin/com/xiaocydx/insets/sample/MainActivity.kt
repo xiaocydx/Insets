@@ -8,6 +8,7 @@ import com.xiaocydx.insets.sample.compat.FullscreenCompatActivity
 import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
 import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
 import com.xiaocydx.insets.sample.databinding.ActivityMainBinding
+import com.xiaocydx.insets.sample.insetter.InsetterActivity
 import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
 import com.xiaocydx.insets.sample.systembar.SystemBarRestoreActivity
 import com.xiaocydx.insets.sample.systembar.SystemBarVp2Activity
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
             btnImeAnimationCompat.onClick { startActivity<ImeAnimationCompatActivity>() }
             btnFullscreenCompat.onClick { startActivity<FullscreenCompatActivity>() }
             btnImmutableCompat.onClick { startActivity<ImmutableCompatActivity>() }
+            btnInsetter.onClick { startActivity<InsetterActivity>() }
             btnSystemBarBasic.onClick { startActivity<SystemBarBasicActivity>() }
             btnSystemBarRestore.onClick { startActivity<SystemBarRestoreActivity>() }
             btnSystemBarVp2.onClick { startActivity<SystemBarVp2Activity>() }
