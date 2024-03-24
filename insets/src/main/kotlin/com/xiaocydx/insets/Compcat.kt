@@ -31,9 +31,20 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType
 
 /**
  * 禁用`window.decorView`实现的消费逻辑和间距逻辑，让视图树自行处理[WindowInsets]
+ *
+ * @param consumeTypeMask [WindowInsets]的消费类型，对`window.decorView`传入消费结果
  */
-fun Window.disableDecorFitsSystemWindows() {
-    disableDecorFitsSystemWindowsInternal(consumeTypeMask = 0)
+fun Window.disableDecorFitsSystemWindows(
+    @InsetsType consumeTypeMask: Int = 0
+) = ReflectCompat {
+    setDecorFitsSystemWindowsCompat(false)
+    @Suppress("DEPRECATION")
+    setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
+    decorView.setOnApplyWindowInsetsListenerImmutable { _, insets ->
+        checkDispatchApplyInsetsCompatibility()
+        decorView.onApplyWindowInsetsCompat(insets.consumeInsets(consumeTypeMask))
+        insets
+    }
 }
 
 fun Window.setDecorFitsSystemWindowsCompat(decorFitsSystemWindows: Boolean) {
@@ -94,19 +105,6 @@ fun displayCutout() = WindowInsetsCompat.Type.displayCutout()
 
 @InsetsType
 fun systemBars() = WindowInsetsCompat.Type.systemBars()
-
-internal fun Window.disableDecorFitsSystemWindowsInternal(
-    @InsetsType consumeTypeMask: Int
-) = ReflectCompat {
-    setDecorFitsSystemWindowsCompat(false)
-    @Suppress("DEPRECATION")
-    setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
-    decorView.setOnApplyWindowInsetsListenerImmutable { _, insets ->
-        checkDispatchApplyInsetsCompatibility()
-        decorView.onApplyWindowInsetsCompat(insets.consumeInsets(consumeTypeMask))
-        insets
-    }
-}
 
 private fun Window.checkDispatchApplyInsetsCompatibility() {
     check(!isFloating) {
