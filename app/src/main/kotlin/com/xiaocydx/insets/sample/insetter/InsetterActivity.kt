@@ -20,7 +20,7 @@ import com.xiaocydx.insets.systembar.SystemBar
 class InsetterActivity : AppCompatActivity() {
 
     /**
-     * **注意**：当使用[SystemBar]时，第1步都不需要做，[SystemBar]的实现已做处理
+     * **注意**：当使用[SystemBar]时，第1步不需要做，[SystemBar]的实现已做处理
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
