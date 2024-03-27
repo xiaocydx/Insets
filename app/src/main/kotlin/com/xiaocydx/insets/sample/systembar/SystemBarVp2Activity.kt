@@ -6,16 +6,15 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.xiaocydx.insets.doOnApplyWindowInsets
+import com.xiaocydx.insets.insets
 import com.xiaocydx.insets.sample.databinding.ActivitySystemBarVp2Binding
 import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
 import com.xiaocydx.insets.sample.onClick
-import com.xiaocydx.insets.statusBarHeight
+import com.xiaocydx.insets.statusBars
 import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
 
@@ -82,11 +81,8 @@ class PageFragment : BaseFragment() {
         root.setBackgroundColor(0xFFAABBC4.toInt())
         root.onClick { requireActivity().addFragment<NotPageFragment>() }
         tvCenter.text = "PageFragment${page.name}\n\n点击添加NotPageFragment"
+        statusBar.insets().dimension(statusBars())
         statusBar.setBackgroundColor(page.statusBarColor)
-        statusBar.doOnApplyWindowInsets { view, insets, initialState ->
-            val height = initialState.params.height + insets.statusBarHeight
-            if (height != view.layoutParams.height) view.updateLayoutParams { this.height = height }
-        }
     }
 
     companion object {
