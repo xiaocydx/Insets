@@ -42,7 +42,7 @@ fun Window.disableDecorFitsSystemWindows(
     setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
     decorView.setOnApplyWindowInsetsListenerImmutable { _, insets ->
         checkDispatchApplyInsetsCompatibility()
-        decorView.onApplyWindowInsetsCompat(insets.consumeInsets(consumeTypeMask))
+        decorView.onApplyWindowInsetsCompat(insets.decorInsets(consumeTypeMask))
         insets
     }
 }

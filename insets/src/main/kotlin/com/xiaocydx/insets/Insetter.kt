@@ -17,7 +17,6 @@
 package com.xiaocydx.insets
 
 import android.graphics.Rect
-import android.os.Build.VERSION
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -73,39 +72,46 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
 }
 
 /**
- * 消费指定类型集的Insets
+ * 消费指定类型集的Insets，消费结果可作为`DecorView.onApplyWindowInsets()`的入参
+ *
+ * **注意**：
+ * 消费结果不能作为`DecorView.onApplyWindowInsets()`的返回值，该函数跟[consumeInsets]的区别，
+ * 是调用了`WindowInsetsCompat.Builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)`，
+ * 目的是兼容Android 11及以上，`DecorView.onApplyWindowInsets()`处理[WindowInsets]的逻辑，
+ * 确保`DecorView`不处理[typeMask]的数值。
  *
  * ```
- * val typeMask = WindowInsetsCompat.Type.statusBars()
- * val outcome = insets.consumeInsets(typeMask)
- * outcome.getInsets(typeMask) // 返回Insets.NONE
- * outcome.getInsetsIgnoringVisibility(typeMask) // 返回Insets.NONE
- * outcome.isVisible(typeMask) // 不改变isVisible结果
+ * decorView.setOnApplyWindowInsetsListenerCompat { _, insets ->
+ *     val typeMask = statusBars()
+ *     val outcome = insets.decorInsets(typeMask)
+ *     decorView.onApplyWindowInsetsCompat(outcome)
+ *     // 注意，不能返回outcome
+ *     insets
+ * }
  * ```
  */
 @CheckResult
-@Suppress("DEPRECATION")
+fun WindowInsetsCompat.decorInsets(@InsetsType typeMask: Int): WindowInsetsCompat {
+    return InsetsConsumer(this).decorInsets(typeMask)
+}
+
+/**
+ * 消费指定类型集的Insets，消费结果可作为[View.onApplyWindowInsets]的返回值
+ *
+ * ```
+ * view.setOnApplyWindowInsetsListenerCompat { _, insets ->
+ *     val typeMask = statusBars()
+ *     val outcome = insets.consumeInsets(typeMask)
+ *     outcome.getInsets(typeMask) // 改变Insets结果，返回Insets.NONE
+ *     outcome.getInsetsIgnoringVisibility(typeMask) // 不改变Insets结果
+ *     outcome.isVisible(typeMask) // 不改变isVisible结果
+ *     outcome
+ * }
+ * ```
+ */
+@CheckResult
 fun WindowInsetsCompat.consumeInsets(@InsetsType typeMask: Int): WindowInsetsCompat {
-    if (typeMask == 0) return this
-    var builder = WindowInsetsCompat.Builder(this)
-    builder.setInsets(typeMask, Insets.NONE)
-    if (typeMask != ime()) {
-        // 当typeMask等于ime()时，会抛出IllegalArgumentException
-        builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)
-    }
-    if (VERSION.SDK_INT < 30) {
-        // Android 11以下需要修正stableInsets，getInsetsIgnoringVisibility()才返回Insets.NONE
-        builder.setStableInsets(getInsets(systemBars() and typeMask.inv()))
-        val systemWindowInsets = getInsets(systemBars() or ime() and typeMask.inv())
-        if (!systemWindowInsets.isEmpty) {
-            // Android 11以下的systemWindowInsets包含ime，但在调用builder.setInsets()后，
-            // builder.build()会替换systemWindowInsets，只剩下statusBars和navigationBars，
-            // 这会导致判断systemWindowInsets的代码出现异常，因此需要修正systemWindowInsets。
-            builder = WindowInsetsCompat.Builder(builder.build())
-            builder.setSystemWindowInsets(systemWindowInsets)
-        }
-    }
-    return builder.build()
+    return InsetsConsumer(this).consumeInsets(typeMask)
 }
 
 /**
