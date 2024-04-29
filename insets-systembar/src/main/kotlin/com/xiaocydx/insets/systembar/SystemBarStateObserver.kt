@@ -48,7 +48,6 @@ internal class SystemBarStateObserver private constructor(
     private val window: Window,
     private val lifecycle: Lifecycle,
     private val activeState: Lifecycle.State,
-    private val container: SystemBarContainer,
     private val stateHolder: SystemBarStateHolder,
     private val isSaveStated: () -> Boolean,
     private val canRemoveState: () -> Boolean
@@ -95,7 +94,6 @@ internal class SystemBarStateObserver private constructor(
     }
 
     fun setNavigationBarColor(color: Int) {
-        container.navigationBarColor = color
         stateHolder.peekState(who)?.navigationBarColor = color
         applyCurrentState()
     }
@@ -127,28 +125,24 @@ internal class SystemBarStateObserver private constructor(
             get() = ViewModelProvider(this)[SystemBarStateHolder::class.java]
 
         fun create(
-            activity: FragmentActivity,
-            container: SystemBarContainer
+            activity: FragmentActivity
         ) = SystemBarStateObserver(
             who = "Activity",
             window = activity.window,
             lifecycle = activity.lifecycle,
             activeState = STARTED,
-            container = container,
             stateHolder = activity.stateHolder,
             isSaveStated = { activity.isStateSaved },
             canRemoveState = { false }
         )
 
         fun create(
-            fragment: Fragment,
-            container: SystemBarContainer
+            fragment: Fragment
         ) = SystemBarStateObserver(
             who = fragment.mWho,
             window = fragment.requireActivity().window,
             lifecycle = fragment.lifecycle,
             activeState = RESUMED,
-            container = container,
             stateHolder = fragment.requireActivity().stateHolder,
             isSaveStated = { fragment.requireActivity().isStateSaved },
             canRemoveState = { !fragment.isAdded && !fragment.isInBackStack }

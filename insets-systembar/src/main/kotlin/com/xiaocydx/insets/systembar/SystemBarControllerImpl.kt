@@ -64,6 +64,7 @@ internal sealed class SystemBarControllerImpl : SystemBarController {
         set(value) {
             field = value
             hasNavigationBarColor = true
+            container?.navigationBarColor = value
             observer?.setNavigationBarColor(value)
         }
 
@@ -144,7 +145,7 @@ internal class ActivitySystemBarController(
                     // 后注入的SystemBarController不做任何处理。
                     return
                 }
-                observer = SystemBarStateObserver.create(activity, container!!)
+                observer = SystemBarStateObserver.create(activity)
                 applyPendingSystemBarConfig()
             }
         })
@@ -200,7 +201,7 @@ internal class FragmentSystemBarController(
                         fragment.viewLifecycleOwnerLiveData.removeObserver(this)
                         return
                     }
-                    observer = SystemBarStateObserver.create(fragment, container!!)
+                    observer = SystemBarStateObserver.create(fragment)
                     applyPendingSystemBarConfig()
                 }
             }
