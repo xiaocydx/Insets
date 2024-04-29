@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("SystemBarObserverInternalKt")
+@file:JvmName("SystemBarStateEnforcerInternalKt")
 @file:Suppress("PackageDirectoryMismatch")
 
 package androidx.fragment.app
@@ -35,7 +35,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.xiaocydx.insets.systembar.SystemBarContainer
 
 /**
  * 负责应用和恢复[SystemBarState]
@@ -43,6 +42,47 @@ import com.xiaocydx.insets.systembar.SystemBarContainer
  * @author xcc
  * @date 2023/12/22
  */
+internal open class SystemBarStateEnforcer(private val window: Window) {
+    private val controller = WindowInsetsControllerCompat(window, window.decorView)
+    private var currentState = SystemBarState()
+
+    open fun remove() = Unit
+
+    open fun setAppearanceLightStatusBar(isLight: Boolean) {
+        currentState.isAppearanceLightStatusBar = isLight
+        applyCurrentState()
+    }
+
+    open fun setAppearanceLightNavigationBar(isLight: Boolean) {
+        currentState.isAppearanceLightNavigationBar = isLight
+        applyCurrentState()
+    }
+
+    open fun setNavigationBarColor(color: Int) {
+        currentState.navigationBarColor = color
+        applyCurrentState()
+    }
+
+    private fun applyCurrentState() {
+        currentState.isApplied = true
+        applyState(currentState)
+    }
+
+    protected fun applyState(state: SystemBarState) = with(state) {
+        if (controller.isAppearanceLightStatusBars != isAppearanceLightStatusBar) {
+            controller.isAppearanceLightStatusBars = isAppearanceLightStatusBar
+        }
+        if (controller.isAppearanceLightNavigationBars != isAppearanceLightNavigationBar) {
+            controller.isAppearanceLightNavigationBars = isAppearanceLightNavigationBar
+        }
+        if (!isAppearanceLightNavigationBar && window.navigationBarColor != navigationBarColor) {
+            // 部分机型设置navigationBarColor，isAppearanceLightNavigationBar = false才会生效，
+            // 当state.navigationBarColor是InitialColor时，navigationBarColor可能会被特殊处理。
+            window.navigationBarColor = navigationBarColor
+        }
+    }
+}
+
 internal class SystemBarStateObserver private constructor(
     private val who: String,
     private val window: Window,
@@ -51,8 +91,7 @@ internal class SystemBarStateObserver private constructor(
     private val stateHolder: SystemBarStateHolder,
     private val isSaveStated: () -> Boolean,
     private val canRemoveState: () -> Boolean
-) : LifecycleEventObserver {
-    private val controller = WindowInsetsControllerCompat(window, window.decorView)
+) : SystemBarStateEnforcer(window), LifecycleEventObserver {
 
     init {
         if (lifecycle.currentState !== DESTROYED) {
@@ -75,7 +114,7 @@ internal class SystemBarStateObserver private constructor(
         }
     }
 
-    fun remove() {
+    override fun remove() {
         lifecycle.removeObserver(this)
         if (canRemoveState()) {
             stateHolder.applyPrevState(who)?.let(::applyState)
@@ -83,17 +122,17 @@ internal class SystemBarStateObserver private constructor(
         }
     }
 
-    fun setAppearanceLightStatusBar(isLight: Boolean) {
+    override fun setAppearanceLightStatusBar(isLight: Boolean) {
         stateHolder.peekState(who)?.isAppearanceLightStatusBar = isLight
         applyCurrentState()
     }
 
-    fun setAppearanceLightNavigationBar(isLight: Boolean) {
+    override fun setAppearanceLightNavigationBar(isLight: Boolean) {
         stateHolder.peekState(who)?.isAppearanceLightNavigationBar = isLight
         applyCurrentState()
     }
 
-    fun setNavigationBarColor(color: Int) {
+    override fun setNavigationBarColor(color: Int) {
         stateHolder.peekState(who)?.navigationBarColor = color
         applyCurrentState()
     }
@@ -101,20 +140,6 @@ internal class SystemBarStateObserver private constructor(
     private fun applyCurrentState() {
         if (lifecycle.currentState.isAtLeast(activeState)) {
             stateHolder.applyState(who)?.let(::applyState)
-        }
-    }
-
-    private fun applyState(state: SystemBarState) = with(state) {
-        if (controller.isAppearanceLightStatusBars != isAppearanceLightStatusBar) {
-            controller.isAppearanceLightStatusBars = isAppearanceLightStatusBar
-        }
-        if (controller.isAppearanceLightNavigationBars != isAppearanceLightNavigationBar) {
-            controller.isAppearanceLightNavigationBars = isAppearanceLightNavigationBar
-        }
-        if (!isAppearanceLightNavigationBar && window.navigationBarColor != navigationBarColor) {
-            // 部分机型设置navigationBarColor，isAppearanceLightNavigationBar = false才会生效，
-            // 当state.navigationBarColor是InitialColor时，navigationBarColor可能会被特殊处理。
-            window.navigationBarColor = navigationBarColor
         }
     }
 

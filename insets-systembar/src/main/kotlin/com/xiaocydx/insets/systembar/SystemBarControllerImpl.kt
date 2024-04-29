@@ -19,6 +19,7 @@
 
 package androidx.fragment.app
 
+import android.app.Dialog
 import android.view.ViewGroup
 import android.view.Window
 import androidx.core.view.ViewCompat
@@ -37,9 +38,11 @@ import com.xiaocydx.insets.doOnAttach
 import com.xiaocydx.insets.systembar.SystemBar
 import com.xiaocydx.insets.systembar.SystemBarContainer
 import com.xiaocydx.insets.systembar.SystemBarController
+import com.xiaocydx.insets.systembar.disableDecorFitsSystemWindows
 import com.xiaocydx.insets.systembar.hostName
 import com.xiaocydx.insets.systembar.initialState
 import com.xiaocydx.insets.systembar.name
+import com.xiaocydx.insets.systembar.recordSystemBarInitialColor
 
 /**
  * @author xcc
@@ -50,7 +53,7 @@ internal sealed class SystemBarControllerImpl : SystemBarController {
     private var hasStatusBarColor = default.statusBarColor != null
     private var hasNavigationBarColor = default.navigationBarColor != null
     protected var container: SystemBarContainer? = null
-    protected var observer: SystemBarStateObserver? = null
+    protected var enforcer: SystemBarStateEnforcer? = null
     protected abstract val window: Window?
 
     override var statusBarColor = default.statusBarColor ?: 0
@@ -65,7 +68,7 @@ internal sealed class SystemBarControllerImpl : SystemBarController {
             field = value
             hasNavigationBarColor = true
             container?.navigationBarColor = value
-            observer?.setNavigationBarColor(value)
+            enforcer?.setNavigationBarColor(value)
         }
 
     override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
@@ -83,13 +86,13 @@ internal sealed class SystemBarControllerImpl : SystemBarController {
     override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
         set(value) {
             field = value
-            observer?.setAppearanceLightStatusBar(value)
+            enforcer?.setAppearanceLightStatusBar(value)
         }
 
     override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
         set(value) {
             field = value
-            observer?.setAppearanceLightNavigationBar(value)
+            enforcer?.setAppearanceLightNavigationBar(value)
         }
 
     protected fun applyPendingSystemBarConfig() {
@@ -145,7 +148,7 @@ internal class ActivitySystemBarController(
                     // 后注入的SystemBarController不做任何处理。
                     return
                 }
-                observer = SystemBarStateObserver.create(activity)
+                enforcer = SystemBarStateObserver.create(activity)
                 applyPendingSystemBarConfig()
             }
         })
@@ -184,8 +187,8 @@ internal class FragmentSystemBarController(
             override fun onChanged(owner: LifecycleOwner?) {
                 if (owner == null) {
                     container = null
-                    observer?.remove()
-                    observer = null
+                    enforcer?.remove()
+                    enforcer = null
                     return
                 }
                 if (container == null) {
@@ -201,7 +204,7 @@ internal class FragmentSystemBarController(
                         fragment.viewLifecycleOwnerLiveData.removeObserver(this)
                         return
                     }
-                    observer = SystemBarStateObserver.create(fragment)
+                    enforcer = SystemBarStateObserver.create(fragment)
                     applyPendingSystemBarConfig()
                 }
             }
@@ -237,6 +240,44 @@ internal class FragmentSystemBarController(
             ViewTreeSavedStateRegistryOwner.set(this, owner as? SavedStateRegistryOwner)
             doOnAttach(ViewCompat::requestApplyInsets)
         }
+        return container
+    }
+}
+
+internal class DialogSystemBarController(
+    private val dialog: Dialog,
+    private val repeatThrow: Boolean
+): SystemBarControllerImpl() {
+    override val window: Window?
+        get() = dialog.window
+    private val dialogName: String
+        get() = dialog.javaClass.canonicalName ?: ""
+
+    override fun onAttach() {
+        window?.recordSystemBarInitialColor()
+        window?.disableDecorFitsSystemWindows()
+        window?.decorView?.doOnAttach {
+            container = createContainerThrowOrNull() ?: return@doOnAttach
+            enforcer = SystemBarStateEnforcer(requireNotNull(window))
+            applyPendingSystemBarConfig()
+        }
+    }
+
+    private fun createContainerThrowOrNull(): SystemBarContainer? {
+        val contentParent = window?.findViewById<ViewGroup>(android.R.id.content) ?: return null
+        for (index in 0 until contentParent.childCount) {
+            if (contentParent.getChildAt(index) !is SystemBarContainer) continue
+            check(!repeatThrow) { "${dialogName}只能关联一个${SystemBarController.name}" }
+            return null
+        }
+        val container = SystemBarContainer(contentParent.context)
+        while (contentParent.childCount > 0) {
+            val child = contentParent.getChildAt(0)
+            contentParent.removeViewAt(0)
+            container.addView(child)
+        }
+        contentParent.addView(container)
+        container.doOnAttach(ViewCompat::requestApplyInsets)
         return container
     }
 }

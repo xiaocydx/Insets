@@ -17,13 +17,17 @@
 package com.xiaocydx.insets.systembar
 
 import android.app.Application
+import android.app.Dialog
+import androidx.annotation.StyleRes
 import androidx.fragment.app.ActivitySystemBarController
+import androidx.fragment.app.DialogSystemBarController
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentSystemBarController
 import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
 import androidx.lifecycle.Lifecycle.State.RESUMED
+import com.xiaocydx.insets.ExperimentalApi
 
 /**
  * 对[FragmentActivity]和[Fragment]注入[SystemBar]的实现
@@ -130,8 +134,21 @@ interface SystemBar {
         FragmentSystemBarController(this, repeatThrow = true).attach(initializer)
     }
 
+    @ExperimentalApi
+    fun <D> D.systemBarController(
+        initializer: (SystemBarController.() -> Unit)? = null
+    ): SystemBarController where D : Dialog, D : SystemBar = run {
+        require(!isShowing) { "只能在${javaClass.canonicalName}的构造阶段获取${SystemBarController.name}" }
+        DialogSystemBarController(this, repeatThrow = true).attach(initializer)
+    }
+
     companion object
 }
+
+@ExperimentalApi
+@get:StyleRes
+val SystemBar.Companion.dialogTheme: Int
+    get() = R.style.SystemBarDialog
 
 internal val SystemBar.Companion.name: String
     get() = SystemBar::class.java.simpleName
