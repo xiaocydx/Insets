@@ -26,6 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
+import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -42,7 +43,6 @@ import com.xiaocydx.insets.systembar.disableDecorFitsSystemWindows
 import com.xiaocydx.insets.systembar.hostName
 import com.xiaocydx.insets.systembar.initialState
 import com.xiaocydx.insets.systembar.name
-import com.xiaocydx.insets.systembar.recordSystemBarInitialColor
 
 /**
  * @author xcc
@@ -125,10 +125,10 @@ internal class ActivitySystemBarController(
     private val activity: FragmentActivity,
     private val repeatThrow: Boolean
 ) : SystemBarControllerImpl() {
-    override val window: Window?
-        get() = activity.window
     private val activityName: String
         get() = activity.javaClass.canonicalName ?: ""
+    override val window: Window?
+        get() = activity.window
 
     override fun onAttach() {
         activity.lifecycle.addObserver(object : LifecycleEventObserver {
@@ -177,12 +177,18 @@ internal class FragmentSystemBarController(
     private val fragment: Fragment,
     private val repeatThrow: Boolean
 ) : SystemBarControllerImpl() {
-    override val window: Window?
-        get() = fragment.activity?.window
     private val fragmentName: String
         get() = fragment.javaClass.canonicalName ?: ""
+    override val window: Window?
+        get() = getWindowOrNull()
 
     override fun onAttach() {
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (!fragment.lifecycle.currentState.isAtLeast(RESUMED)) return
+                checkFragmentViewOnResume()
+            }
+        })
         fragment.mViewLifecycleOwnerLiveData.observeForever(object : Observer<LifecycleOwner?> {
             override fun onChanged(owner: LifecycleOwner?) {
                 if (owner == null) {
@@ -197,6 +203,7 @@ internal class FragmentSystemBarController(
                     // 2. fragment.mView.setViewTreeXXXOwner(fragment.mViewLifecycleOwner)
                     // 3. fragment.mViewLifecycleOwnerLiveData.setValue(fragment.mViewLifecycleOwner)
                     // 第3步执行到此处，将fragment.mView替换为container，并对container设置mViewLifecycleOwner。
+                    // TODO: 支持点击dismiss DialogFragment
                     container = createContainerThrowOrNull(owner)
                     if (container == null) {
                         // Fragment构造阶段已创建SystemBarController，
@@ -204,11 +211,32 @@ internal class FragmentSystemBarController(
                         fragment.viewLifecycleOwnerLiveData.removeObserver(this)
                         return
                     }
-                    enforcer = SystemBarStateObserver.create(fragment)
+                    enforcer = createSystemBarStateEnforcer()
+                    disableDecorFitsSystemWindows()
                     applyPendingSystemBarConfig()
                 }
             }
         })
+    }
+
+    private fun getWindowOrNull() = when (fragment) {
+        !is DialogFragment -> fragment.activity?.window
+        else -> fragment.dialog?.window
+    }
+
+    private fun checkFragmentViewOnResume() {
+        if (fragment !is DialogFragment) return
+        check(fragment.mView is SystemBarContainer) { "${fragmentName}未创建view" }
+    }
+
+    private fun disableDecorFitsSystemWindows() {
+        if (fragment !is DialogFragment) return
+        requireNotNull(window).disableDecorFitsSystemWindows()
+    }
+
+    private fun createSystemBarStateEnforcer() = when (fragment) {
+        !is DialogFragment -> SystemBarStateObserver.create(fragment)
+        else -> SystemBarStateEnforcer(requireNotNull(window))
     }
 
     private fun createContainerThrowOrNull(owner: LifecycleOwner): SystemBarContainer? {
@@ -247,16 +275,16 @@ internal class FragmentSystemBarController(
 internal class DialogSystemBarController(
     private val dialog: Dialog,
     private val repeatThrow: Boolean
-): SystemBarControllerImpl() {
-    override val window: Window?
-        get() = dialog.window
+) : SystemBarControllerImpl() {
     private val dialogName: String
         get() = dialog.javaClass.canonicalName ?: ""
+    override val window: Window?
+        get() = dialog.window
 
     override fun onAttach() {
-        window?.recordSystemBarInitialColor()
         window?.disableDecorFitsSystemWindows()
         window?.decorView?.doOnAttach {
+            // TODO: 支持点击dismiss Dialog
             container = createContainerThrowOrNull() ?: return@doOnAttach
             enforcer = SystemBarStateEnforcer(requireNotNull(window))
             applyPendingSystemBarConfig()

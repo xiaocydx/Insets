@@ -19,9 +19,9 @@ package com.xiaocydx.insets.systembar
 import android.app.Activity
 import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.ActivitySystemBarController
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -47,9 +47,7 @@ internal object ActivitySystemBarInstaller : ActivityLifecycleCallbacks {
             }
             "${activityName}需要是${componentName}，才能实现${systemBarName}"
         }
-        val window = activity.window
-        window.recordSystemBarInitialColor()
-        window.disableDecorFitsSystemWindows()
+        activity.window.disableDecorFitsSystemWindows()
         if (activity is SystemBar) {
             ActivitySystemBarController(activity, repeatThrow = false).attach()
         }
@@ -74,12 +72,11 @@ internal object FragmentSystemBarInstaller : FragmentLifecycleCallbacks() {
         fm.registerFragmentLifecycleCallbacks(this, true)
     }
 
-    override fun onFragmentCreated(fm: FragmentManager, f: Fragment, savedInstanceState: Bundle?) {
+    override fun onFragmentPreAttached(fm: FragmentManager, f: Fragment, context: Context) {
+        // DialogFragment在Fragment.onAttach()添加了mObserver，
+        // mObserver会将Fragment.mView设为Dialog的contentView，
+        // onFragmentPreAttached()比Fragment.onAttach()先执行。
         if (f !is SystemBar) return
-        require(f !is DialogFragment) {
-            val fragmentName = f.javaClass.canonicalName
-            "${fragmentName}为DialogFragment，${SystemBar.name}未支持DialogFragment"
-        }
         FragmentSystemBarController(f, repeatThrow = false).attach()
     }
 }
