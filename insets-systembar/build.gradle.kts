@@ -50,5 +50,6 @@ android {
 dependencies {
     compileOnly(project(":insets"))
     implementation("androidx.core:core:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.fragment:fragment:1.3.6")
 }
