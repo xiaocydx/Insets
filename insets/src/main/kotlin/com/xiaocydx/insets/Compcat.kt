@@ -106,7 +106,7 @@ fun displayCutout() = WindowInsetsCompat.Type.displayCutout()
 @InsetsType
 fun systemBars() = WindowInsetsCompat.Type.systemBars()
 
-private fun Window.checkDispatchApplyInsetsCompatibility() {
+internal fun Window.checkDispatchApplyInsetsCompatibility() {
     check(!isFloating) {
         """window.isFloating = true
            |    需要主题的windowIsFloating = false，否则会导致视图树没有WindowInsets分发

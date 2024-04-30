@@ -20,6 +20,7 @@ import android.app.Application
 import android.app.Dialog
 import androidx.annotation.StyleRes
 import androidx.fragment.app.ActivitySystemBarController
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.DialogSystemBarController
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -27,7 +28,6 @@ import androidx.fragment.app.FragmentSystemBarController
 import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
 import androidx.lifecycle.Lifecycle.State.RESUMED
-import com.xiaocydx.insets.ExperimentalApi
 
 /**
  * 对[FragmentActivity]和[Fragment]注入[SystemBar]的实现
@@ -54,7 +54,7 @@ fun SystemBar.Companion.install(
 
 /**
  * ### 使用方式
- * [FragmentActivity]和[Fragment]使用[SystemBar]有三种方式，以[Fragment]为例：
+ * [SystemBar]有三种使用方式，以[Fragment]为例：
  * ```
  * // 1. 实现SystemBar，应用默认配置
  * class SystemBarDefaultFragment : Fragment(), SystemBar
@@ -80,7 +80,7 @@ fun SystemBar.Companion.install(
  * class MainActivity : AppCompatActivity(), SystemBar.Host
  *
  * // 有contentView，实现SystemBar，跟SystemBar.Host没有冲突
- * class MainActivity : AppCompatActivity(), SystemBar, SystemBar.Host
+ * class MainActivity : AppCompatActivity(), SystemBar.Host, SystemBar
  * ```
  *
  * ### 替换`Fragment.view`
@@ -102,7 +102,7 @@ fun SystemBar.Companion.install(
  * * [SystemBarController.isAppearanceLightStatusBar]。
  * * [SystemBarController.isAppearanceLightNavigationBar]。
  *
- * 以上两个配置项需要设置window属性：
+ * 以上两个配置项会设置window属性：
  * 1. [FragmentActivity]设置window属性的时机早于[Fragment]。
  * 2. 当`fragment.lifecycle`的状态转换为[RESUMED]时，按当前配置设置window属性。
  * 3. 当`fragment.lifecycle`的状态转换为[DESTROYED]时，按之前配置恢复window属性。
@@ -125,6 +125,18 @@ interface SystemBar {
         ActivitySystemBarController(this, repeatThrow = true).attach(initializer)
     }
 
+    /**
+     * [DialogFragment]使用[SystemBar]：
+     * 1. Dialog主题需要`windowIsFloating = false`，可直接使用[DialogTheme]。
+     * 2. 支持[SystemBar]的全部使用方式，跟Fragment一致。
+     * 3. 需要通过[Fragment.onCreateView]创建`contentView`。
+     *
+     * ```
+     * class SystemBarDialogFragment : DialogFragment(contentLayoutId), SystemBar {
+     *      override fun getTheme() = SystemBar.DialogTheme
+     * }
+     * ```
+     */
     fun <F> F.systemBarController(
         initializer: (SystemBarController.() -> Unit)? = null
     ): SystemBarController where F : Fragment, F : SystemBar = run {
@@ -134,7 +146,18 @@ interface SystemBar {
         FragmentSystemBarController(this, repeatThrow = true).attach(initializer)
     }
 
-    @ExperimentalApi
+    /**
+     * [Dialog]使用[SystemBar]：
+     * 1. Dialog主题需要`windowIsFloating = false`，可直接使用[DialogTheme]。
+     * 2. 不支持[SystemBar]的应用默认配置使用方式，需要调用该函数。
+     * ```
+     * class SystemBarDialog(context: Context) : Dialog(context, SystemBar.DialogTheme), SystemBar {
+     *      init {
+     *          systemBarController {...}
+     *      }
+     * }
+     * ```
+     */
     fun <D> D.systemBarController(
         initializer: (SystemBarController.() -> Unit)? = null
     ): SystemBarController where D : Dialog, D : SystemBar = run {
@@ -145,9 +168,11 @@ interface SystemBar {
     companion object
 }
 
-@ExperimentalApi
+/**
+ * 用于[Dialog]和[DialogFragment]的主题
+ */
 @get:StyleRes
-val SystemBar.Companion.dialogTheme: Int
+val SystemBar.Companion.DialogTheme: Int
     get() = R.style.SystemBarDialog
 
 internal val SystemBar.Companion.name: String

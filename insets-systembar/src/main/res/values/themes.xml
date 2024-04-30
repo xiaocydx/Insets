@@ -2,7 +2,9 @@
 <resources>
 
     <style name="SystemBarDialog" parent="ThemeOverlay.AppCompat.Dialog">
+        <!--DecorView全屏，且有WindowInsets分发-->
         <item name="android:windowIsFloating">false</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--去除默认背景，默认背景自带间距-->
+        <item name="android:windowBackground">@null</item>
     </style>
 </resources>

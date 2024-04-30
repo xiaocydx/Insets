@@ -21,6 +21,7 @@ package com.xiaocydx.insets.systembar
 import android.view.Window
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import com.xiaocydx.insets.checkDispatchApplyInsetsCompatibility
 import com.xiaocydx.insets.disableDecorFitsSystemWindows as disableDecorFitsSystemWindowsImpl
 
 private val initialKey: Int
@@ -42,4 +43,5 @@ internal fun Window.disableDecorFitsSystemWindows() {
     // 执行完decorView创建流程，才能获取到背景色。
     decorView.setTag(initialKey, WindowInitialState(this))
     disableDecorFitsSystemWindowsImpl(consumeTypeMask = statusBars() or navigationBars())
+    checkDispatchApplyInsetsCompatibility()
 }
