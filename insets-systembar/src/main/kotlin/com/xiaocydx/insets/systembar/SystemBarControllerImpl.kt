@@ -21,6 +21,7 @@ package androidx.fragment.app
 
 import android.app.Dialog
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
@@ -39,6 +40,7 @@ import com.xiaocydx.insets.doOnAttach
 import com.xiaocydx.insets.systembar.SystemBar
 import com.xiaocydx.insets.systembar.SystemBarContainer
 import com.xiaocydx.insets.systembar.SystemBarController
+import com.xiaocydx.insets.systembar.SystemBarDialogCompat
 import com.xiaocydx.insets.systembar.disableDecorFitsSystemWindows
 import com.xiaocydx.insets.systembar.hostName
 import com.xiaocydx.insets.systembar.initialState
@@ -177,6 +179,7 @@ internal class FragmentSystemBarController(
     private val fragment: Fragment,
     private val repeatThrow: Boolean
 ) : SystemBarControllerImpl() {
+    private var dialogCompat: SystemBarDialogCompat? = null
     private val fragmentName: String
         get() = fragment.javaClass.canonicalName ?: ""
     override val window: Window?
@@ -195,6 +198,8 @@ internal class FragmentSystemBarController(
                     container = null
                     enforcer?.remove()
                     enforcer = null
+                    dialogCompat?.detach()
+                    dialogCompat = null
                     return
                 }
                 if (container == null) {
@@ -203,7 +208,6 @@ internal class FragmentSystemBarController(
                     // 2. fragment.mView.setViewTreeXXXOwner(fragment.mViewLifecycleOwner)
                     // 3. fragment.mViewLifecycleOwnerLiveData.setValue(fragment.mViewLifecycleOwner)
                     // 第3步执行到此处，将fragment.mView替换为container，并对container设置mViewLifecycleOwner。
-                    // TODO: 支持点击dismiss DialogFragment
                     container = createContainerThrowOrNull(owner)
                     if (container == null) {
                         // Fragment构造阶段已创建SystemBarController，
@@ -259,10 +263,25 @@ internal class FragmentSystemBarController(
             check(!repeatThrow) { "${fragmentName}只能关联一个${SystemBarController.name}" }
             return null
         }
+
+        if (fragment is DialogFragment && dialogCompat == null) {
+            dialogCompat = SystemBarDialogCompat(requireNotNull(fragment.dialog))
+            dialogCompat!!.attach()
+        }
+
         val container = SystemBarContainer(view.context)
         fragment.mView = container.apply {
-            addView(view)
-            enableConsumeTouchEvent()
+            if (fragment !is DialogFragment) {
+                addView(view)
+                enableConsumeTouchEvent()
+            } else {
+                if (view.layoutParams != null) {
+                    addView(view)
+                } else {
+                    addView(view, WRAP_CONTENT, WRAP_CONTENT)
+                }
+                dialogCompat?.setContentView(view)
+            }
             ViewTreeLifecycleOwner.set(this, owner)
             ViewTreeViewModelStoreOwner.set(this, owner as? ViewModelStoreOwner)
             ViewTreeSavedStateRegistryOwner.set(this, owner as? SavedStateRegistryOwner)
@@ -276,33 +295,44 @@ internal class DialogSystemBarController(
     private val dialog: Dialog,
     private val repeatThrow: Boolean
 ) : SystemBarControllerImpl() {
+    private var dialogCompat: SystemBarDialogCompat? = null
     private val dialogName: String
         get() = dialog.javaClass.canonicalName ?: ""
     override val window: Window?
         get() = dialog.window
 
     override fun onAttach() {
-        window?.disableDecorFitsSystemWindows()
-        window?.decorView?.doOnAttach {
-            // TODO: 支持点击dismiss Dialog
+        val window = requireNotNull(window)
+        window.disableDecorFitsSystemWindows()
+        window.decorView.doOnAttach {
             container = createContainerThrowOrNull() ?: return@doOnAttach
-            enforcer = SystemBarStateEnforcer(requireNotNull(window))
+            enforcer = SystemBarStateEnforcer(window)
             applyPendingSystemBarConfig()
         }
     }
 
     private fun createContainerThrowOrNull(): SystemBarContainer? {
-        val contentParent = window?.findViewById<ViewGroup>(android.R.id.content) ?: return null
+        val window = requireNotNull(window)
+        val contentParent = window.findViewById<ViewGroup>(android.R.id.content) ?: return null
         for (index in 0 until contentParent.childCount) {
             if (contentParent.getChildAt(index) !is SystemBarContainer) continue
             check(!repeatThrow) { "${dialogName}只能关联一个${SystemBarController.name}" }
             return null
         }
+
+        if (dialogCompat == null) {
+            dialogCompat = SystemBarDialogCompat(dialog)
+            dialogCompat!!.attach()
+        }
+
+        var isFistChild = true
         val container = SystemBarContainer(contentParent.context)
         while (contentParent.childCount > 0) {
             val child = contentParent.getChildAt(0)
             contentParent.removeViewAt(0)
             container.addView(child)
+            if (isFistChild) dialogCompat?.setContentView(child)
+            isFistChild = false
         }
         contentParent.addView(container)
         container.doOnAttach(ViewCompat::requestApplyInsets)
