@@ -44,4 +44,8 @@ dependencies {
     implementation("androidx.transition:transition:1.4.1")
     implementation("com.google.android.material:material:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    val version = "1.5.4"
+    implementation("com.github.xiaocydx.CXRV:cxrv:${version}")
+    implementation("com.github.xiaocydx.CXRV:cxrv-binding:${version}")
 }

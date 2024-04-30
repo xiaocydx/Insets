@@ -20,7 +20,7 @@ import com.xiaocydx.insets.systembar.SystemBarController
  * * [SystemBarController.isAppearanceLightStatusBar]。
  * * [SystemBarController.isAppearanceLightNavigationBar]。
  *
- * 以上两个配置项需要设置window属性：
+ * 以上两个配置项会设置window属性：
  * 1. [FragmentActivity]设置window属性的时机早于[Fragment]。
  * 2. 当`fragment.lifecycle`的状态转换为[RESUMED]时，按当前配置设置window属性。
  * 3. 当`fragment.lifecycle`的状态转换为[DESTROYED]时，按之前配置恢复window属性。

@@ -15,7 +15,7 @@ import com.xiaocydx.insets.systembar.SystemBar
 /**
  * [SystemBar]的基本使用
  *
- * [FragmentActivity]和[Fragment]使用[SystemBar]有三种方式，以[Fragment]为例：
+ * [SystemBar]有三种使用方式，以[Fragment]为例：
  * 1. [SystemBarDefaultFragment]：实现[SystemBar]，应用默认配置。
  * 2. [SystemBarConstructorFragment]：实现[SystemBar]，构造声明配置。
  * 3. [SystemBarModifyFragment]：实现[SystemBar]，动态修改配置。
@@ -26,7 +26,7 @@ import com.xiaocydx.insets.systembar.SystemBar
  * @author xcc
  * @date 2023/12/27
  */
-class SystemBarBasicActivity : AppCompatActivity(), SystemBar, SystemBar.Host {
+class SystemBarBasicActivity : AppCompatActivity(), SystemBar.Host, SystemBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

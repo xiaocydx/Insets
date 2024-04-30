@@ -1,41 +1,71 @@
 package com.xiaocydx.insets.sample
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.xiaocydx.insets.sample.compat.FullscreenCompatActivity
-import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
-import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
-import com.xiaocydx.insets.sample.databinding.ActivityMainBinding
-import com.xiaocydx.insets.sample.insetter.InsetterActivity
-import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
-import com.xiaocydx.insets.sample.systembar.SystemBarRestoreActivity
-import com.xiaocydx.insets.sample.systembar.SystemBarVp2Activity
+import androidx.recyclerview.widget.RecyclerView
+import com.xiaocydx.cxrv.binding.bindingDelegate
+import com.xiaocydx.cxrv.concat.Concat
+import com.xiaocydx.cxrv.concat.toAdapter
+import com.xiaocydx.cxrv.divider.divider
+import com.xiaocydx.cxrv.itemclick.doOnSimpleItemClick
+import com.xiaocydx.cxrv.list.adapter
+import com.xiaocydx.cxrv.list.linear
+import com.xiaocydx.cxrv.list.submitList
+import com.xiaocydx.cxrv.multitype.listAdapter
+import com.xiaocydx.cxrv.multitype.register
+import com.xiaocydx.insets.sample.databinding.ItemSampleCategoryBinding
+import com.xiaocydx.insets.sample.databinding.ItemSampleElementBinding
+import com.xiaocydx.insets.sample.databinding.SmapleHeaderBinding
+import com.xiaocydx.insets.systembar.SystemBar
 
 /**
  * @author xcc
  * @date 2023/12/26
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SystemBar.Host, SystemBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(contentView())
     }
 
-    private fun contentView() = ActivityMainBinding
-        .inflate(layoutInflater).apply {
-            btnImeAnimationCompat.onClick { startActivity<ImeAnimationCompatActivity>() }
-            btnFullscreenCompat.onClick { startActivity<FullscreenCompatActivity>() }
-            btnImmutableCompat.onClick { startActivity<ImmutableCompatActivity>() }
-            btnInsetter.onClick { startActivity<InsetterActivity>() }
-            btnSystemBarBasic.onClick { startActivity<SystemBarBasicActivity>() }
-            btnSystemBarRestore.onClick { startActivity<SystemBarRestoreActivity>() }
-            btnSystemBarVp2.onClick { startActivity<SystemBarVp2Activity>() }
-        }.root
+    private fun contentView(): View {
+        val header = SmapleHeaderBinding
+            .inflate(layoutInflater).root
+            .layoutParams(matchParent, 100.dp)
+            .toAdapter()
 
-    private inline fun <reified T : Activity> startActivity() {
-        startActivity(Intent(this, T::class.java))
+        val sampleList = SampleList()
+        val content = listAdapter {
+            submitList(sampleList.filter())
+            register(bindingDelegate(
+                uniqueId = SampleItem.Category::title,
+                inflate = ItemSampleCategoryBinding::inflate
+            ) {
+                onBindView {
+                    tvTitle.text = it.title
+                    ivSelected.setImageResource(it.selectedResId)
+                }
+                getChangePayload(sampleList::categoryPayload)
+                doOnSimpleItemClick { submitList(sampleList.toggle(it)) }
+            })
+
+            register(bindingDelegate(
+                uniqueId = SampleItem.Element::title,
+                inflate = ItemSampleElementBinding::inflate
+            ) {
+                onBindView {
+                    tvTitle.text = it.title
+                    tvDesc.text = it.desc
+                }
+                doOnSimpleItemClick { it.perform(this@MainActivity) }
+            })
+        }
+
+        return RecyclerView(this)
+            .linear().divider(height = 2.dp)
+            .layoutParams(matchParent, matchParent)
+            .adapter(Concat.header(header).content(content).concat())
     }
 }
