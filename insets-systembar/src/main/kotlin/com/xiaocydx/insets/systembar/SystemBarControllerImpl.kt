@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.SystemBarControllerImpl.Companion.Default
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
@@ -50,7 +51,7 @@ import com.xiaocydx.insets.systembar.name
  * @author xcc
  * @date 2023/12/24
  */
-internal sealed class SystemBarControllerImpl : SystemBarController {
+internal abstract class SystemBarControllerImpl : SystemBarController {
     private val default = Default
     private var hasStatusBarColor = default.statusBarColor != null
     private var hasNavigationBarColor = default.navigationBarColor != null
@@ -338,4 +339,14 @@ internal class DialogSystemBarController(
         container.doOnAttach(ViewCompat::requestApplyInsets)
         return container
     }
+}
+
+internal class NopSystemBarController : SystemBarController {
+    private val default = Default
+    override var statusBarColor = default.statusBarColor ?: 0
+    override var navigationBarColor = default.navigationBarColor ?: 0
+    override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
+    override var navigationBarEdgeToEdge = default.navigationBarEdgeToEdge
+    override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
+    override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
 }

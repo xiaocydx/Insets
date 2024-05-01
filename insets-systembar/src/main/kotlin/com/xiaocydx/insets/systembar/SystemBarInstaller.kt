@@ -48,7 +48,7 @@ internal object ActivitySystemBarInstaller : ActivityLifecycleCallbacks {
             "${activityName}需要是${componentName}，才能实现${systemBarName}"
         }
         activity.window.disableDecorFitsSystemWindows()
-        if (activity is SystemBar) {
+        if (activity is SystemBar && activity !is SystemBar.None) {
             ActivitySystemBarController(activity, repeatThrow = false).attach()
         }
         if (activity is SystemBar.Host) {
@@ -76,7 +76,7 @@ internal object FragmentSystemBarInstaller : FragmentLifecycleCallbacks() {
         // DialogFragment在Fragment.onAttach()添加了mObserver，
         // mObserver会将Fragment.mView设为Dialog的contentView，
         // onFragmentPreAttached()比Fragment.onAttach()先执行。
-        if (f !is SystemBar) return
+        if (f !is SystemBar || f is SystemBar.None) return
         FragmentSystemBarController(f, repeatThrow = false).attach()
     }
 }

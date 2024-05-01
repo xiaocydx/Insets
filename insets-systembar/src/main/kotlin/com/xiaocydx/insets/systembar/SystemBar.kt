@@ -25,6 +25,7 @@ import androidx.fragment.app.DialogSystemBarController
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentSystemBarController
+import androidx.fragment.app.NopSystemBarController
 import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -111,10 +112,19 @@ fun SystemBar.Companion.install(
  * 系统配置更改、进程被杀掉导致[FragmentActivity]重建，第3点也仍然满足。
  *
  * **注意**：第3点仅支持`A -> B -> C`的前进，以及`A <- B <- C`或`A <- C`（B被移除）的后退。
+ *
+ * ### [SystemBar.None]
+ * 当父类实现了[SystemBar]，子类不需要[SystemBar]时，子类可以实现[SystemBar.None]：
+ * ```
+ * open class SuperFragment : Fragment(), SystemBar
+ * class SubFragment : SuperFragment(), SystemBar.None
+ * ```
  */
 interface SystemBar {
 
     interface Host
+
+    interface None
 
     fun <A> A.systemBarController(
         initializer: (SystemBarController.() -> Unit)? = null
@@ -122,6 +132,7 @@ interface SystemBar {
         require(window == null && lifecycle.currentState === INITIALIZED) {
             "只能在${javaClass.canonicalName}的构造阶段获取${SystemBarController.name}"
         }
+        if (this is None) return@run NopSystemBarController()
         ActivitySystemBarController(this, repeatThrow = true).attach(initializer)
     }
 
@@ -143,6 +154,7 @@ interface SystemBar {
         require(activity == null && lifecycle.currentState === INITIALIZED) {
             "只能在${javaClass.canonicalName}的构造阶段获取${SystemBarController.name}"
         }
+        if (this is None) return@run NopSystemBarController()
         FragmentSystemBarController(this, repeatThrow = true).attach(initializer)
     }
 
@@ -162,6 +174,7 @@ interface SystemBar {
         initializer: (SystemBarController.() -> Unit)? = null
     ): SystemBarController where D : Dialog, D : SystemBar = run {
         require(!isShowing) { "只能在${javaClass.canonicalName}的构造阶段获取${SystemBarController.name}" }
+        if (this is None) return@run NopSystemBarController()
         DialogSystemBarController(this, repeatThrow = true).attach(initializer)
     }
 
