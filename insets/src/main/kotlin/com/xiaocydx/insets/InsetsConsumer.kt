@@ -72,7 +72,7 @@ internal value class InsetsConsumer(private val insets: WindowInsetsCompat) {
      *     val outcome = insets.consumeInsets(typeMask)
      *     outcome.getInsets(typeMask) // 改变Insets结果，返回Insets.NONE
      *     outcome.getInsetsIgnoringVisibility(typeMask) // 不改变Insets结果
-     *     outcome.isVisible(typeMask) // 不改变isVisible结果
+     *     outcome.isVisible(typeMask) // 改变isVisible结果，返回false
      *     outcome
      * }
      * ```
@@ -124,9 +124,8 @@ internal value class InsetsConsumer(private val insets: WindowInsetsCompat) {
      *
      * 为了统一全版本的消费表现，仅调用`WindowInsetsCompat.Builder.setInsets(typeMask, Insets.NONE)`。
      */
-    private fun newBuilder(@InsetsType typeMask: Int): WindowInsetsCompat.Builder {
-        return WindowInsetsCompat.Builder(insets).setInsets(typeMask, Insets.NONE)
-    }
+    private fun newBuilder(@InsetsType typeMask: Int) = WindowInsetsCompat.Builder(insets)
+        .setInsets(typeMask, Insets.NONE).setVisible(typeMask, false)
 
     /**
      * ### Android 11及以上

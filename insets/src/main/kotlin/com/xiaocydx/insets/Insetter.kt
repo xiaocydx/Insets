@@ -104,7 +104,7 @@ fun WindowInsetsCompat.decorInsets(@InsetsType typeMask: Int): WindowInsetsCompa
  *     val outcome = insets.consumeInsets(typeMask)
  *     outcome.getInsets(typeMask) // 改变Insets结果，返回Insets.NONE
  *     outcome.getInsetsIgnoringVisibility(typeMask) // 不改变Insets结果
- *     outcome.isVisible(typeMask) // 不改变isVisible结果
+ *     outcome.isVisible(typeMask) // 改变isVisible结果，返回false
  *     outcome
  * }
  * ```
