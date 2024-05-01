@@ -25,6 +25,7 @@ import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType
+import androidx.core.view.WindowInsetsControllerCompat
 
 /**
  * 状态栏高度
@@ -47,18 +48,66 @@ val WindowInsetsCompat.imeHeight: Int
     get() = getInsets(ime()).bottom
 
 /**
+ * 状态栏是否被隐藏
+ *
+ * 该函数可用于判断[WindowInsetsControllerCompat.hide]的隐藏结果：
+ * ```
+ * WindowInsetsControllerCompat(window, view).hide(statusBars())
+ * view.doOnApplyWindowInsets { _, insets, initialState ->
+ *     val hidden = insets.isStatusBarHidden(view) // 返回false
+ * }
+ * ```
+ */
+fun WindowInsetsCompat.isStatusBarHidden(view: View): Boolean {
+    return InsetsInspector(this).isStatusBarHidden(view)
+}
+
+/**
+ * 导航栏是否被隐藏
+ *
+ * 该函数可用于判断[WindowInsetsControllerCompat.hide]的隐藏结果：
+ * ```
+ * WindowInsetsControllerCompat(window, view).hide(navigationBars())
+ * view.doOnApplyWindowInsets { _, insets, initialState ->
+ *     val hidden = insets.isNavigationBarHidden(view) // 返回false
+ * }
+ * ```
+ */
+fun WindowInsetsCompat.isNavigationBarHidden(view: View): Boolean {
+    return InsetsInspector(this).isNavigationBarHidden(view)
+}
+
+/**
  * 是否为手势导航栏
  *
  * **注意**：若导航栏被隐藏，则该函数返回`true`，此时导航栏高度为0，
  * 实际场景可以将隐藏的导航栏，当作手势导航栏来处理，通常不会有问题。
+ * ```
+ * view.doOnApplyWindowInsets { _, insets, initialState ->
+ *     val isGesture = insets.isGestureNavigationBar(view)
+ * }
+ * ```
  */
 fun WindowInsetsCompat.isGestureNavigationBar(view: View): Boolean {
-    val threshold = (24 * view.resources.displayMetrics.density).toInt()
-    return navigationBarHeight <= threshold.coerceAtLeast(66)
+    return InsetsInspector(this).isGestureNavigationBar(view)
+}
+
+/**
+ * 获取状态栏和导航栏被隐藏的消费类型集
+ */
+@InsetsType
+fun WindowInsetsCompat.getSystemBarHiddenConsumeTypeMask(view: View): Int {
+    return InsetsInspector(this).getSystemBarHiddenConsumeTypeMask(view)
 }
 
 /**
  * 获取`contentView`的IME偏移，可用于设置`contentView`间距的场景
+ *
+ * ```
+ * view.doOnApplyWindowInsets { _, insets, initialState ->
+ *     view.updatePadding(bottom = insets.getImeOffset(view))
+ * }
+ * ```
  */
 fun WindowInsetsCompat.getImeOffset(view: View): Int {
     val imeHeight = imeHeight.takeIf { it > 0 } ?: return 0
@@ -74,12 +123,7 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
 /**
  * 消费指定类型集的Insets，消费结果可作为`DecorView.onApplyWindowInsets()`的入参
  *
- * **注意**：
- * 消费结果不能作为`DecorView.onApplyWindowInsets()`的返回值，该函数跟[consumeInsets]的区别，
- * 是调用了`WindowInsetsCompat.Builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)`，
- * 目的是兼容Android 11及以上，`DecorView.onApplyWindowInsets()`处理[WindowInsets]的逻辑，
- * 确保`DecorView`不处理[typeMask]的数值。
- *
+ * **注意**：消费结果不能作为`DecorView.onApplyWindowInsets()`的返回值
  * ```
  * decorView.setOnApplyWindowInsetsListenerCompat { _, insets ->
  *     val typeMask = statusBars()
@@ -141,29 +185,17 @@ fun View.doOnApplyWindowInsets(block: (view: View, insets: WindowInsetsCompat, i
 }
 
 /**
- * 当附加到window时，申请[WindowInsets]分发
+ * 当首次或再次附加到window时，申请[WindowInsets]分发
  */
 fun View.requestApplyInsetsOnAttach() {
-    if (isAttachedToWindow) requestApplyInsetsCompat()
-    removeRequestApplyInsetsOnAttach()
-    val listener = object : View.OnAttachStateChangeListener {
-        override fun onViewAttachedToWindow(view: View) {
-            view.requestApplyInsetsCompat()
-        }
-
-        override fun onViewDetachedFromWindow(view: View) = Unit
-    }
-    setTag(R.id.tag_view_request_apply_insets, listener)
-    addOnAttachStateChangeListener(listener)
+    InsetsRequester(this).requestApplyInsetsOnAttach()
 }
 
 /**
  * 移除[requestApplyInsetsOnAttach]的设置
  */
 fun View.removeRequestApplyInsetsOnAttach() {
-    getTag(R.id.tag_view_request_apply_insets)
-        ?.let { it as? View.OnAttachStateChangeListener }
-        ?.let(::removeOnAttachStateChangeListener)
+    InsetsRequester(this).removeRequestApplyInsetsOnAttach()
 }
 
 /**
@@ -193,14 +225,11 @@ fun View.handleGestureNavBarEdgeToEdge(insets: WindowInsetsCompat, initialState:
     val navigationBarHeight = insets.navigationBarHeight
     val isGestureNavigationBar = insets.isGestureNavigationBar(this)
     // 1. 若当前是手势导航栏，则增加高度，否则保持初始高度
-    val height = when {
+    updateLayoutSize(height = when {
         initialState.params.height < 0 -> initialState.params.height
         !isGestureNavigationBar -> initialState.params.height
         else -> initialState.params.height + navigationBarHeight
-    }
-    if (layoutParams != null && layoutParams.height != height) {
-        updateLayoutParams { this.height = height }
-    }
+    })
     // 2. 若当前是手势导航栏，则增加paddingBottom，否则保持初始paddingBottom
     updatePadding(bottom = when {
         !isGestureNavigationBar -> initialState.paddings.bottom

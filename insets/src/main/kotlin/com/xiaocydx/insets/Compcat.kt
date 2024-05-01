@@ -19,6 +19,7 @@ package com.xiaocydx.insets
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
+import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
 import android.view.animation.Interpolator
 import android.widget.EditText
@@ -43,7 +44,7 @@ fun Window.disableDecorFitsSystemWindows(
     decorView.setOnApplyWindowInsetsListenerImmutable { _, insets ->
         checkDispatchApplyInsetsCompatibility()
         decorView.onApplyWindowInsetsCompat(insets.decorInsets(consumeTypeMask))
-        insets
+        insets.consumeInsets(insets.getSystemBarHiddenConsumeTypeMask(decorView))
     }
 }
 
@@ -52,7 +53,10 @@ fun Window.setDecorFitsSystemWindowsCompat(decorFitsSystemWindows: Boolean) {
 }
 
 /**
- * Android 11以下，`WindowInsetsControllerCompat.show(ime())`需要[view]为[EditText]
+ * Android 11以下，当[View]不是[EditText]时，调用`WindowInsetsControllerCompat.show(ime())`之前的步骤：
+ * 1. 需要[View.hasWindowFocus]为`true`，若不为`true`，则可以调用[View.doOnHasWindowFocus]等待为`true`。
+ * 2. 在第1步之后，调用[View.setFocusable]和[View.setFocusableInTouchMode]传入`true`。
+ * 3. 在第2步之后，调用[View.requestFocus]获取焦点。
  */
 fun Window.getInsetsControllerCompat(view: View) = WindowCompat.getInsetsController(this, view)
 
@@ -106,6 +110,21 @@ fun displayCutout() = WindowInsetsCompat.Type.displayCutout()
 @InsetsType
 fun systemBars() = WindowInsetsCompat.Type.systemBars()
 
+/**
+ * 检查Android 11以下`ViewRootImpl.dispatchApplyInsets()`的兼容性
+ *
+ * 以Android 10显示IME为例：
+ * 1. IME进程调用`WindowManagerService.setInsetsWindow()`，
+ * 进而调用`DisplayPolicy.layoutWindowLw()`计算各项`insets`。
+ *
+ * 2. `window.attributes.flags`包含[FLAG_FULLSCREEN]，
+ * 或`window.attributes.softInputMode`不包含[SOFT_INPUT_ADJUST_RESIZE]，
+ * `DisplayPolicy.layoutWindowLw()`计算的`contentInsets`不会包含IME的数值。
+ *
+ * 3. `WindowManagerService`通知应用进程的`ViewRootImpl`重新设置`mPendingContentInsets`的数值，
+ * 并申请下一帧布局，下一帧由于`mPendingContentInsets`跟`mAttachInfo.mContentInsets`的数值相等，
+ * 因此不调用`ViewRootImpl.dispatchApplyInsets()`。
+ */
 internal fun Window.checkDispatchApplyInsetsCompatibility() {
     check(!isFloating) {
         """window.isFloating = true

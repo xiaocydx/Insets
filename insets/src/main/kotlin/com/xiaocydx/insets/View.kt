@@ -38,6 +38,20 @@ fun View.updateMargins(
 }
 
 /**
+ * 更新`layoutParams`的尺寸，有改变才申请重新布局
+ */
+fun View.updateLayoutSize(
+    width: Int = layoutParams?.width ?: 0,
+    height: Int = layoutParams?.height ?: 0
+) {
+    val params = layoutParams ?: return
+    val changed = params.width != width || params.height != height
+    params.width = width
+    params.height = height
+    if (changed) layoutParams = params
+}
+
+/**
  * [View]的状态，可用于记录初始状态
  */
 data class ViewState(

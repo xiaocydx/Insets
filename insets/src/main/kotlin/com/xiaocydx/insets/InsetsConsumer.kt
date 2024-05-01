@@ -25,7 +25,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType
 
 /**
- * [WindowInsetsCompat.decorInsets]和[WindowInsetsCompat.consumeInsets]的实现类
+ * [WindowInsetsCompat]的消费函数，负责兼容版本和处理细节问题
  *
  * @author xcc
  * @date 2024/4/28
