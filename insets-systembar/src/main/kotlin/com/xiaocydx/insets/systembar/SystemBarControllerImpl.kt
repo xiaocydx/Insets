@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.SystemBarControllerImpl.Companion.Default
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
@@ -59,14 +58,14 @@ internal abstract class SystemBarControllerImpl : SystemBarController {
     protected var enforcer: SystemBarStateEnforcer? = null
     protected abstract val window: Window?
 
-    override var statusBarColor = default.statusBarColor ?: 0
+    final override var statusBarColor = default.statusBarColor ?: 0
         set(value) {
             field = value
             hasStatusBarColor = true
             container?.statusBarColor = value
         }
 
-    override var navigationBarColor = default.navigationBarColor ?: 0
+    final override var navigationBarColor = default.navigationBarColor ?: 0
         set(value) {
             field = value
             hasNavigationBarColor = true
@@ -74,29 +73,34 @@ internal abstract class SystemBarControllerImpl : SystemBarController {
             enforcer?.setNavigationBarColor(value)
         }
 
-    override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
+    final override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
         set(value) {
             field = value
             container?.statusBarEdgeToEdge = value
         }
 
-    override var navigationBarEdgeToEdge = default.navigationBarEdgeToEdge
+    final override var navigationBarEdgeToEdge = default.navigationBarEdgeToEdge
         set(value) {
             field = value
             container?.navigationBarEdgeToEdge = value
         }
 
-    override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
+    final override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
         set(value) {
             field = value
             enforcer?.setAppearanceLightStatusBar(value)
         }
 
-    override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
+    final override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
         set(value) {
             field = value
             enforcer?.setAppearanceLightNavigationBar(value)
         }
+
+    fun attach(initializer: (SystemBarController.() -> Unit)? = null) =
+            apply { initializer?.invoke(this) }.apply { onAttach() }
+
+    protected abstract fun onAttach()
 
     protected fun applyPendingSystemBarConfig() {
         val window = requireNotNull(window)
@@ -114,14 +118,14 @@ internal abstract class SystemBarControllerImpl : SystemBarController {
         isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
     }
 
-    fun attach(initializer: (SystemBarController.() -> Unit)? = null) =
-            apply { initializer?.invoke(this) }.apply { onAttach() }
-
-    protected abstract fun onAttach()
-
     companion object {
         @Volatile var Default = SystemBarController.Default()
     }
+}
+
+internal class NopSystemBarController : SystemBarControllerImpl() {
+    override val window = null
+    override fun onAttach() = Unit
 }
 
 internal class ActivitySystemBarController(
@@ -339,14 +343,4 @@ internal class DialogSystemBarController(
         container.doOnAttach(ViewCompat::requestApplyInsets)
         return container
     }
-}
-
-internal class NopSystemBarController : SystemBarController {
-    private val default = Default
-    override var statusBarColor = default.statusBarColor ?: 0
-    override var navigationBarColor = default.navigationBarColor ?: 0
-    override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
-    override var navigationBarEdgeToEdge = default.navigationBarEdgeToEdge
-    override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
-    override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
 }

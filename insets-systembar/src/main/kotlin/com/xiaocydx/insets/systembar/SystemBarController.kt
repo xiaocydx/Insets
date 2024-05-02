@@ -60,7 +60,7 @@ interface SystemBarController {
      * 3. [Gesture]：作用等于[Enabled]，[Gesture]仅对[navigationBarEdgeToEdge]有区分。
      *
      * [Disabled]消费[WindowInsets]的状态栏Insets，目的是避免子View重复处理状态栏Insets，设置高度间距，
-     * 子View处理[WindowInsets]，若需要获取状态栏高度，则可以通过[View.getRootWindowInsetsCompat]获取。
+     * 子View处理[WindowInsets]，仍需要获取状态栏高度，则可以通过[View.getRootWindowInsetsCompat]获取。
      */
     var statusBarEdgeToEdge: EdgeToEdge
 
@@ -72,7 +72,7 @@ interface SystemBarController {
      * 3. [Gesture]：当前为手势导航栏时，作用等于[Enabled]，否则作用等于[Disabled]。
      *
      * [Disabled]消费[WindowInsets]的导航栏Insets，目的是避免子View重复处理导航栏Insets，设置高度间距，
-     * 子View处理[WindowInsets]，若需要获取导航栏高度，则可以通过[View.getRootWindowInsetsCompat]获取。
+     * 子View处理[WindowInsets]，仍需要获取导航栏高度，则可以通过[View.getRootWindowInsetsCompat]获取。
      */
     var navigationBarEdgeToEdge: EdgeToEdge
 
