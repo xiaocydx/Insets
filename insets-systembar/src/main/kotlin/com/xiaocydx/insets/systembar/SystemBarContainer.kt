@@ -34,6 +34,7 @@ import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import com.xiaocydx.insets.consumeInsets
 import com.xiaocydx.insets.isGestureNavigationBar
 import com.xiaocydx.insets.navigationBarHeight
+import com.xiaocydx.insets.requestApplyInsetsOnAttach
 import com.xiaocydx.insets.statusBarHeight
 import com.xiaocydx.insets.toWindowInsetsCompat
 import com.xiaocydx.insets.updatePadding
@@ -51,6 +52,7 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
 
     init {
         setWillNotDraw(false)
+        requestApplyInsetsOnAttach()
     }
 
     var statusBarColor: Int

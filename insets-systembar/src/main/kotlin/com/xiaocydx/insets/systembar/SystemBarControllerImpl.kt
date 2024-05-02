@@ -23,7 +23,6 @@ import android.app.Dialog
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
-import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
@@ -147,15 +146,15 @@ internal class ActivitySystemBarController(
                 // 2. activity.dispatchActivityPostCreated()
                 // 第2步执行到此处，将contentView的contentParent替换为container，
                 // 此时containerId为android.R.id.content的Fragment还未创建view。
-                // 第2步之后，不需要支持能再次调用activity.setContentView()，
-                // 因为这是错误的调用情况，会导致已添加的Fragment.view被移除。
+                // 第2步之后，不需要支持再次调用activity.setContentView()，
+                // 因为这是不合理的做法，会导致已添加的Fragment.view被移除。
                 container = createContainerThrowOrNull()
                 if (container == null) {
                     // Activity构造阶段已创建SystemBarController，
                     // 后注入的SystemBarController不做任何处理。
                     return
                 }
-                enforcer = SystemBarStateObserver.create(activity)
+                enforcer = BackStackStateEnforcer.create(activity)
                 applyPendingSystemBarConfig()
             }
         })
@@ -175,7 +174,6 @@ internal class ActivitySystemBarController(
             container.addView(child)
         }
         contentParent.addView(container)
-        container.doOnAttach(ViewCompat::requestApplyInsets)
         return container
     }
 }
@@ -191,13 +189,7 @@ internal class FragmentSystemBarController(
         get() = getWindowOrNull()
 
     override fun onAttach() {
-        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
-            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                if (!fragment.lifecycle.currentState.isAtLeast(RESUMED)) return
-                checkFragmentViewOnResume()
-            }
-        })
-        fragment.mViewLifecycleOwnerLiveData.observeForever(object : Observer<LifecycleOwner?> {
+        fragment.viewLifecycleOwnerLiveData.observeForever(object : Observer<LifecycleOwner?> {
             override fun onChanged(owner: LifecycleOwner?) {
                 if (owner == null) {
                     container = null
@@ -226,6 +218,14 @@ internal class FragmentSystemBarController(
                 }
             }
         })
+
+        fragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (!fragment.lifecycle.currentState.isAtLeast(RESUMED)) return
+                fragment.lifecycle.removeObserver(this)
+                if (container != null) checkFragmentOnResume()
+            }
+        })
     }
 
     private fun getWindowOrNull() = when (fragment) {
@@ -233,9 +233,9 @@ internal class FragmentSystemBarController(
         else -> fragment.dialog?.window
     }
 
-    private fun checkFragmentViewOnResume() {
+    private fun checkFragmentOnResume() {
         if (fragment !is DialogFragment) return
-        check(fragment.mView is SystemBarContainer) { "${fragmentName}未创建view" }
+        check(fragment.mView != null) { "${fragmentName}未创建view" }
     }
 
     private fun disableDecorFitsSystemWindows() {
@@ -244,26 +244,26 @@ internal class FragmentSystemBarController(
     }
 
     private fun createSystemBarStateEnforcer() = when (fragment) {
-        !is DialogFragment -> SystemBarStateObserver.create(fragment)
-        else -> SystemBarStateEnforcer(requireNotNull(window))
+        !is DialogFragment -> BackStackStateEnforcer.create(fragment)
+        else -> SingleStateEnforcer(requireNotNull(window))
     }
 
     private fun createContainerThrowOrNull(owner: LifecycleOwner): SystemBarContainer? {
         val activity = fragment.requireActivity()
+        val view = fragment.mView
         check(activity is SystemBar.Host) {
             "${activity.javaClass.canonicalName}需要实现${SystemBar.hostName}"
         }
         check(owner.lifecycle.currentState === INITIALIZED) {
             "只能在${fragmentName}的构造阶段获取${SystemBarController.name}"
         }
-        check(fragment.mView != null) {
+        check(view != null) {
             "${fragmentName}的生命周期状态转换出现异常情况"
         }
-        check(fragment.mView.parent == null) {
+        check(view.parent == null) {
             "${fragmentName}的view已有parent，不支持替换parent"
         }
 
-        val view = fragment.mView
         if (view is SystemBarContainer) {
             check(!repeatThrow) { "${fragmentName}只能关联一个${SystemBarController.name}" }
             return null
@@ -290,7 +290,6 @@ internal class FragmentSystemBarController(
             ViewTreeLifecycleOwner.set(this, owner)
             ViewTreeViewModelStoreOwner.set(this, owner as? ViewModelStoreOwner)
             ViewTreeSavedStateRegistryOwner.set(this, owner as? SavedStateRegistryOwner)
-            doOnAttach(ViewCompat::requestApplyInsets)
         }
         return container
     }
@@ -311,7 +310,7 @@ internal class DialogSystemBarController(
         window.disableDecorFitsSystemWindows()
         window.decorView.doOnAttach {
             container = createContainerThrowOrNull() ?: return@doOnAttach
-            enforcer = SystemBarStateEnforcer(window)
+            enforcer = SingleStateEnforcer(window)
             applyPendingSystemBarConfig()
         }
     }
@@ -340,7 +339,6 @@ internal class DialogSystemBarController(
             isFistChild = false
         }
         contentParent.addView(container)
-        container.doOnAttach(ViewCompat::requestApplyInsets)
         return container
     }
 }

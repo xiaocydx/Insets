@@ -42,31 +42,16 @@ import androidx.lifecycle.ViewModelProvider
  * @author xcc
  * @date 2023/12/22
  */
-internal open class SystemBarStateEnforcer(private val window: Window) {
+internal abstract class SystemBarStateEnforcer(private val window: Window) {
     private val controller = WindowInsetsControllerCompat(window, window.decorView)
-    private var currentState = SystemBarState()
 
     open fun remove() = Unit
 
-    open fun setAppearanceLightStatusBar(isLight: Boolean) {
-        currentState.isAppearanceLightStatusBar = isLight
-        applyCurrentState()
-    }
+    abstract fun setAppearanceLightStatusBar(isLight: Boolean)
 
-    open fun setAppearanceLightNavigationBar(isLight: Boolean) {
-        currentState.isAppearanceLightNavigationBar = isLight
-        applyCurrentState()
-    }
+    abstract fun setAppearanceLightNavigationBar(isLight: Boolean)
 
-    open fun setNavigationBarColor(color: Int) {
-        currentState.navigationBarColor = color
-        applyCurrentState()
-    }
-
-    private fun applyCurrentState() {
-        currentState.isApplied = true
-        applyState(currentState)
-    }
+    abstract fun setNavigationBarColor(color: Int)
 
     protected fun applyState(state: SystemBarState) = with(state) {
         if (controller.isAppearanceLightStatusBars != isAppearanceLightStatusBar) {
@@ -83,7 +68,31 @@ internal open class SystemBarStateEnforcer(private val window: Window) {
     }
 }
 
-internal class SystemBarStateObserver private constructor(
+internal class SingleStateEnforcer(window: Window) : SystemBarStateEnforcer(window) {
+    private var currentState = SystemBarState()
+
+    override fun setAppearanceLightStatusBar(isLight: Boolean) {
+        currentState.isAppearanceLightStatusBar = isLight
+        applyCurrentState()
+    }
+
+    override fun setAppearanceLightNavigationBar(isLight: Boolean) {
+        currentState.isAppearanceLightNavigationBar = isLight
+        applyCurrentState()
+    }
+
+    override fun setNavigationBarColor(color: Int) {
+        currentState.navigationBarColor = color
+        applyCurrentState()
+    }
+
+    private fun applyCurrentState() {
+        currentState.isApplied = true
+        applyState(currentState)
+    }
+}
+
+internal class BackStackStateEnforcer private constructor(
     private val who: String,
     private val window: Window,
     private val lifecycle: Lifecycle,
@@ -151,7 +160,7 @@ internal class SystemBarStateObserver private constructor(
 
         fun create(
             activity: FragmentActivity
-        ) = SystemBarStateObserver(
+        ) = BackStackStateEnforcer(
             who = "Activity",
             window = activity.window,
             lifecycle = activity.lifecycle,
@@ -163,7 +172,7 @@ internal class SystemBarStateObserver private constructor(
 
         fun create(
             fragment: Fragment
-        ) = SystemBarStateObserver(
+        ) = BackStackStateEnforcer(
             who = fragment.mWho,
             window = fragment.requireActivity().window,
             lifecycle = fragment.lifecycle,
