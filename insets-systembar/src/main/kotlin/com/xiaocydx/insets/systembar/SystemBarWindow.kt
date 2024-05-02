@@ -27,21 +27,19 @@ import com.xiaocydx.insets.disableDecorFitsSystemWindows as disableDecorFitsSyst
 private val initialKey: Int
     get() = R.id.tag_decor_window_initial_state
 
-private val Window.initialized: Boolean
+private val Window.isInitialized: Boolean
     get() = decorView.getTag(initialKey) != null
 
 internal val Window.initialState: WindowInitialState
     get() = requireNotNull(decorView.getTag(initialKey) as? WindowInitialState) { "未完成初始化" }
 
-internal data class WindowInitialState(val statusBarColor: Int, val navigationBarColor: Int) {
-    constructor(window: Window) : this(window.statusBarColor, window.navigationBarColor)
-}
+internal data class WindowInitialState(val statusBarColor: Int, val navigationBarColor: Int)
 
 internal fun Window.disableDecorFitsSystemWindows() {
-    if (initialized) return
+    if (isInitialized) return
     // 记录StatusBar和NavigationBar的初始背景色，
     // 执行完decorView创建流程，才能获取到背景色。
-    decorView.setTag(initialKey, WindowInitialState(this))
+    decorView.setTag(initialKey, WindowInitialState(statusBarColor, navigationBarColor))
     disableDecorFitsSystemWindowsImpl(consumeTypeMask = statusBars() or navigationBars())
     checkDispatchApplyInsetsCompatibility()
 }
