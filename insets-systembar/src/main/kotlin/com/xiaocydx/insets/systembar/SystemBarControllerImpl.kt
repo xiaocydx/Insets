@@ -35,6 +35,7 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.viewpager.widget.ViewPager
 import com.xiaocydx.insets.doOnAttach
 import com.xiaocydx.insets.systembar.SystemBar
 import com.xiaocydx.insets.systembar.SystemBarContainer
@@ -233,11 +234,6 @@ internal class FragmentSystemBarController(
         else -> fragment.dialog?.window
     }
 
-    private fun checkFragmentOnResume() {
-        if (fragment !is DialogFragment) return
-        check(fragment.mView != null) { "${fragmentName}未创建view" }
-    }
-
     private fun disableDecorFitsSystemWindows() {
         if (fragment !is DialogFragment) return
         requireNotNull(window).disableDecorFitsSystemWindows()
@@ -292,6 +288,26 @@ internal class FragmentSystemBarController(
             ViewTreeSavedStateRegistryOwner.set(this, owner as? SavedStateRegistryOwner)
         }
         return container
+    }
+
+    private fun checkFragmentOnResume() {
+        val view = fragment.mView
+        check(view != null) { "${fragmentName}未创建view" }
+        var parent = view.parent as? ViewGroup
+        val contentParentId = android.R.id.content
+        while (parent != null && parent.id != contentParentId) {
+            val name = when {
+                parent is ViewPager -> "ViewPager"
+                parent.javaClass.name == VP2_CLASS_NAME -> "ViewPager2"
+                else -> ""
+            }
+            check(name.isEmpty()) { "${fragmentName}实现了${SystemBar.name}，不支持用于${name}" }
+            parent = parent.parent as? ViewGroup
+        }
+    }
+
+    private companion object {
+        const val VP2_CLASS_NAME = "androidx.viewpager2.widget.ViewPager2"
     }
 }
 

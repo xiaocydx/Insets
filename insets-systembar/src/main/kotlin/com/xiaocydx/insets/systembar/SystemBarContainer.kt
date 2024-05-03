@@ -28,12 +28,12 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowInsets
 import android.widget.FrameLayout
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import com.xiaocydx.insets.consumeInsets
 import com.xiaocydx.insets.isGestureNavigationBar
 import com.xiaocydx.insets.navigationBarHeight
+import com.xiaocydx.insets.requestApplyInsetsCompat
 import com.xiaocydx.insets.requestApplyInsetsOnAttach
 import com.xiaocydx.insets.statusBarHeight
 import com.xiaocydx.insets.toWindowInsetsCompat
@@ -75,14 +75,14 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
         set(value) {
             if (field == value) return
             field = value
-            ViewCompat.requestApplyInsets(this)
+            requestApplyInsetsCompat()
         }
 
     var navigationBarEdgeToEdge: EdgeToEdge = EdgeToEdge.Disabled
         set(value) {
             if (field == value) return
             field = value
-            ViewCompat.requestApplyInsets(this)
+            requestApplyInsetsCompat()
         }
 
     init {
