@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application android:name="com.xiaocydx.insets.systembar.TestApp">
+        <activity
+            android:name="com.xiaocydx.insets.systembar.TestActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name="com.xiaocydx.insets.systembar.TestSystemBarActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name="com.xiaocydx.insets.systembar.TestSystemBarNoneActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name="com.xiaocydx.insets.systembar.TestSystemBarHostActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+    </application>
+</manifest>

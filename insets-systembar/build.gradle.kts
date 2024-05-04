@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.utils.extendsFrom
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -45,6 +47,13 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    testOptions {
+        unitTests { isIncludeAndroidResources = true }
+    }
+    configurations {
+        testImplementation.extendsFrom(compileOnly)
+        androidTestImplementation.extendsFrom(compileOnly)
+    }
 }
 
 dependencies {
@@ -52,4 +61,10 @@ dependencies {
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.fragment:fragment:1.3.6")
+    testImplementation("androidx.viewpager2:viewpager2:1.0.0")
+    testImplementation("com.google.truth:truth:1.1.3")
+    testImplementation("org.robolectric:robolectric:4.10.3")
+    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("junit:junit:4.13.2")
 }
