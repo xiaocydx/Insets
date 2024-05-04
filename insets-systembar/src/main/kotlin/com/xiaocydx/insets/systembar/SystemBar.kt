@@ -127,7 +127,7 @@ interface SystemBar {
     fun <A> A.systemBarController(
         initializer: (SystemBarController.() -> Unit)? = null
     ): SystemBarController where A : FragmentActivity, A : SystemBar = run {
-        ActivitySystemBarController.create(this, fromInstaller = false).attach(initializer)
+        ActivitySystemBarController.create(this).attach(initializer)
     }
 
     /**
@@ -145,7 +145,7 @@ interface SystemBar {
     fun <F> F.systemBarController(
         initializer: (SystemBarController.() -> Unit)? = null
     ): SystemBarController where F : Fragment, F : SystemBar = run {
-        FragmentSystemBarController.create(this, fromInstaller = false).attach(initializer)
+        FragmentSystemBarController.create(this).attach(initializer)
     }
 
     /**
@@ -163,7 +163,7 @@ interface SystemBar {
     fun <D> D.systemBarController(
         initializer: (SystemBarController.() -> Unit)? = null
     ): SystemBarController where D : Dialog, D : SystemBar = run {
-        DialogSystemBarController.create(this, fromInstaller = false).attach(initializer)
+        DialogSystemBarController.create(this).attach(initializer)
     }
 
     companion object

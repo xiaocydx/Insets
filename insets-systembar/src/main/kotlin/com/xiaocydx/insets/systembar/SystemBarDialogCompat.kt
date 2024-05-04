@@ -112,7 +112,7 @@ private class DialogAttributesDeliver(
 }
 
 /**
- * 兼容[Dialog.setCanceledOnTouchOutside]
+ * 兼容[Dialog.setCancelable]和[Dialog.setCanceledOnTouchOutside]
  */
 private class DialogTouchOutsideDeliver(
     private val dialog: Dialog

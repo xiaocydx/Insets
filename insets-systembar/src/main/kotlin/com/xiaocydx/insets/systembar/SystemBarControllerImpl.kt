@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import androidx.annotation.CallSuper
+import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.ActivitySystemBarController.Companion.name
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
@@ -61,7 +62,7 @@ internal abstract class SystemBarControllerImpl(
     private var hasStatusBarColor = default.statusBarColor != null
     private var hasNavigationBarColor = default.navigationBarColor != null
     protected var container: SystemBarContainer? = null
-    protected var enforcer: SystemBarStateEnforcer? = null
+    protected var enforcer: SystemBarWindowEnforcer? = null
     protected abstract val window: Window?
 
     final override var statusBarColor = default.statusBarColor ?: 0
@@ -157,7 +158,8 @@ internal class ActivitySystemBarController private constructor(
                     // Installer后创建的SystemBarController不做任何处理。
                     return
                 }
-                enforcer = BackStackStateEnforcer.create(activity)
+                enforcer = BackStackWindowEnforcer.create(activity)
+                enforcer!!.attach()
                 applyPendingSystemBarConfig()
             }
         })
@@ -190,7 +192,7 @@ internal class ActivitySystemBarController private constructor(
             }
         }
 
-        fun create(activity: FragmentActivity, fromInstaller: Boolean) = run {
+        fun create(activity: FragmentActivity, fromInstaller: Boolean = false) = run {
             if (!fromInstaller) activity.checkStateOnCreate()
             ActivitySystemBarController(activity, fromInstaller)
         }
@@ -225,6 +227,7 @@ internal open class FragmentSystemBarController private constructor(
                         return
                     }
                     enforcer = createEnforcer()
+                    enforcer!!.attach()
                     applyPendingSystemBarConfig()
                 }
             }
@@ -234,20 +237,27 @@ internal open class FragmentSystemBarController private constructor(
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 if (!fragment.lifecycle.currentState.isAtLeast(RESUMED)) return
                 fragment.lifecycle.removeObserver(this)
-                if (container != null) checkFragmentOnResume()
+                checkFragmentViewOnResume()
+                if (container != null) checkUnsupportedOnResume()
             }
         })
     }
 
+    @VisibleForTesting
+    fun hasContainer() = container != null
+
+    @VisibleForTesting
+    fun hasEnforcer() = enforcer != null
+
     @CallSuper
     protected open fun clear() {
         container = null
-        enforcer?.remove()
+        enforcer?.detach()
         enforcer = null
     }
 
-    protected open fun createEnforcer(): SystemBarStateEnforcer {
-        return BackStackStateEnforcer.create(fragment)
+    protected open fun createEnforcer(): SystemBarWindowEnforcer {
+        return BackStackWindowEnforcer.create(fragment)
     }
 
     protected open fun createContainer(view: View): SystemBarContainer {
@@ -276,10 +286,14 @@ internal open class FragmentSystemBarController private constructor(
         return container
     }
 
-    private fun checkFragmentOnResume() {
+    private fun checkFragmentViewOnResume() {
         val view = fragment.mView
         check(view != null) { "${fragment.name}未创建view" }
-        var parent = view.parent as? ViewGroup
+    }
+
+    private fun checkUnsupportedOnResume() {
+        val view = fragment.mView
+        var parent = view?.parent as? ViewGroup
         val contentParentId = android.R.id.content
         while (parent != null && parent.id != contentParentId) {
             val message = when {
@@ -327,7 +341,7 @@ internal open class FragmentSystemBarController private constructor(
             }
         }
 
-        fun create(fragment: Fragment, fromInstaller: Boolean) = run {
+        fun create(fragment: Fragment, fromInstaller: Boolean = false) = run {
             if (!fromInstaller) fragment.checkStateOnCreate()
             when (fragment) {
                 is DialogFragment -> DialogFragmentSystemBarController(fragment, fromInstaller)
@@ -350,7 +364,8 @@ internal class DialogSystemBarController private constructor(
         window.disableDecorFitsSystemWindows()
         window.decorView.doOnAttach {
             container = createContainerThrowOrNull() ?: return@doOnAttach
-            enforcer = SingleStateEnforcer(window)
+            enforcer = SimpleWindowEnforcer(window)
+            enforcer!!.attach()
             applyPendingSystemBarConfig()
         }
     }
@@ -390,7 +405,7 @@ internal class DialogSystemBarController private constructor(
             check(!isShowing) { "只能在${name}的构造阶段获取${SystemBarController.name}" }
         }
 
-        fun create(dialog: Dialog, fromInstaller: Boolean) = run {
+        fun create(dialog: Dialog, fromInstaller: Boolean = false) = run {
             if (!fromInstaller) dialog.checkStateOnCreate()
             DialogSystemBarController(dialog, fromInstaller)
         }
@@ -411,10 +426,10 @@ private class DialogFragmentSystemBarController(
         compat = null
     }
 
-    override fun createEnforcer(): SystemBarStateEnforcer {
+    override fun createEnforcer(): SystemBarWindowEnforcer {
         val window = requireNotNull(window)
         window.disableDecorFitsSystemWindows()
-        return SingleStateEnforcer(window)
+        return SimpleWindowEnforcer(window)
     }
 
     override fun createContainer(view: View): SystemBarContainer {
