@@ -20,6 +20,7 @@
 package androidx.fragment.app
 
 import android.view.Window
+import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.ON_CREATE
@@ -37,15 +38,34 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 /**
- * 负责应用和恢复[SystemBarState]
+ * 负责应用和恢复[WindowState]
  *
  * @author xcc
  * @date 2023/12/22
  */
-internal abstract class SystemBarStateEnforcer(private val window: Window) {
-    private val controller = WindowInsetsControllerCompat(window, window.decorView)
+internal abstract class SystemBarWindowEnforcer(private val window: Window) {
+    private var applyStateCount = 0
+    private var isAttached = false
+    private var detachedAction: (() -> Unit)? = null
+    private val insetsController = WindowInsetsControllerCompat(window, window.decorView)
 
-    open fun remove() = Unit
+    fun attach() {
+        if (isAttached) return
+        isAttached = true
+        onAttach()
+    }
+
+    fun detach() {
+        if (!isAttached) return
+        isAttached = false
+        onDetach()
+        detachedAction?.invoke()
+        detachedAction = null
+    }
+
+    protected open fun onAttach() = Unit
+
+    protected open fun onDetach() = Unit
 
     abstract fun setAppearanceLightStatusBar(isLight: Boolean)
 
@@ -53,12 +73,13 @@ internal abstract class SystemBarStateEnforcer(private val window: Window) {
 
     abstract fun setNavigationBarColor(color: Int)
 
-    protected fun applyState(state: SystemBarState) = with(state) {
-        if (controller.isAppearanceLightStatusBars != isAppearanceLightStatusBar) {
-            controller.isAppearanceLightStatusBars = isAppearanceLightStatusBar
+    protected fun applyState(state: WindowState) = with(state) {
+        applyStateCount++
+        if (insetsController.isAppearanceLightStatusBars != isAppearanceLightStatusBar) {
+            insetsController.isAppearanceLightStatusBars = isAppearanceLightStatusBar
         }
-        if (controller.isAppearanceLightNavigationBars != isAppearanceLightNavigationBar) {
-            controller.isAppearanceLightNavigationBars = isAppearanceLightNavigationBar
+        if (insetsController.isAppearanceLightNavigationBars != isAppearanceLightNavigationBar) {
+            insetsController.isAppearanceLightNavigationBars = isAppearanceLightNavigationBar
         }
         if (!isAppearanceLightNavigationBar && window.navigationBarColor != navigationBarColor) {
             // 部分机型设置navigationBarColor，isAppearanceLightNavigationBar = false才会生效，
@@ -66,10 +87,25 @@ internal abstract class SystemBarStateEnforcer(private val window: Window) {
             window.navigationBarColor = navigationBarColor
         }
     }
+
+    @VisibleForTesting
+    fun isAttached() = isAttached
+
+    @VisibleForTesting
+    fun applyStateCount() = applyStateCount
+
+    @VisibleForTesting
+    abstract fun copyState(): WindowState?
+
+    @VisibleForTesting
+    fun doOnDetached(action: () -> Unit) {
+        if (!isAttached) return action()
+        detachedAction = action
+    }
 }
 
-internal class SingleStateEnforcer(window: Window) : SystemBarStateEnforcer(window) {
-    private var currentState = SystemBarState()
+internal class SimpleWindowEnforcer(window: Window) : SystemBarWindowEnforcer(window) {
+    private var currentState = WindowState()
 
     override fun setAppearanceLightStatusBar(isLight: Boolean) {
         currentState.isAppearanceLightStatusBar = isLight
@@ -90,23 +126,48 @@ internal class SingleStateEnforcer(window: Window) : SystemBarStateEnforcer(wind
         currentState.isApplied = true
         applyState(currentState)
     }
+
+    override fun copyState() = currentState.copy()
 }
 
-internal class BackStackStateEnforcer private constructor(
+internal class BackStackWindowEnforcer private constructor(
     private val who: String,
     private val window: Window,
     private val lifecycle: Lifecycle,
     private val activeState: Lifecycle.State,
-    private val stateHolder: SystemBarStateHolder,
+    private val stateHolder: WindowStateHolder,
     private val isSaveStated: () -> Boolean,
     private val canRemoveState: () -> Boolean
-) : SystemBarStateEnforcer(window), LifecycleEventObserver {
+) : SystemBarWindowEnforcer(window), LifecycleEventObserver {
 
-    init {
+    override fun onAttach() {
         if (lifecycle.currentState !== DESTROYED) {
             stateHolder.ensureState(who, isSaveStated())
             lifecycle.addObserver(this)
         }
+    }
+
+    override fun onDetach() {
+        lifecycle.removeObserver(this)
+        if (canRemoveState()) {
+            stateHolder.applyPrevState(who)?.let(::applyState)
+            stateHolder.removeState(who, isSaveStated())
+        }
+    }
+
+    override fun setAppearanceLightStatusBar(isLight: Boolean) {
+        peekCurrentState()?.isAppearanceLightStatusBar = isLight
+        applyCurrentState()
+    }
+
+    override fun setAppearanceLightNavigationBar(isLight: Boolean) {
+        peekCurrentState()?.isAppearanceLightNavigationBar = isLight
+        applyCurrentState()
+    }
+
+    override fun setNavigationBarColor(color: Int) {
+        peekCurrentState()?.navigationBarColor = color
+        applyCurrentState()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -118,32 +179,13 @@ internal class BackStackStateEnforcer private constructor(
         }
         when (event) {
             applyEvent -> applyCurrentState()
-            ON_DESTROY -> remove()
+            ON_DESTROY -> detach()
             else -> return
         }
     }
 
-    override fun remove() {
-        lifecycle.removeObserver(this)
-        if (canRemoveState()) {
-            stateHolder.applyPrevState(who)?.let(::applyState)
-            stateHolder.removeState(who, isSaveStated())
-        }
-    }
-
-    override fun setAppearanceLightStatusBar(isLight: Boolean) {
-        stateHolder.peekState(who)?.isAppearanceLightStatusBar = isLight
-        applyCurrentState()
-    }
-
-    override fun setAppearanceLightNavigationBar(isLight: Boolean) {
-        stateHolder.peekState(who)?.isAppearanceLightNavigationBar = isLight
-        applyCurrentState()
-    }
-
-    override fun setNavigationBarColor(color: Int) {
-        stateHolder.peekState(who)?.navigationBarColor = color
-        applyCurrentState()
+    private fun peekCurrentState(): WindowState? {
+        return stateHolder.peekState(who)
     }
 
     private fun applyCurrentState() {
@@ -152,15 +194,17 @@ internal class BackStackStateEnforcer private constructor(
         }
     }
 
+    override fun copyState() = peekCurrentState()?.copy()
+
     companion object {
         private val FragmentActivity.isStateSaved: Boolean
             get() = supportFragmentManager.isStateSaved
-        private val FragmentActivity.stateHolder: SystemBarStateHolder
-            get() = ViewModelProvider(this)[SystemBarStateHolder::class.java]
+        private val FragmentActivity.stateHolder: WindowStateHolder
+            get() = ViewModelProvider(this)[WindowStateHolder::class.java]
 
         fun create(
             activity: FragmentActivity
-        ) = BackStackStateEnforcer(
+        ) = BackStackWindowEnforcer(
             who = "Activity",
             window = activity.window,
             lifecycle = activity.lifecycle,
@@ -172,7 +216,7 @@ internal class BackStackStateEnforcer private constructor(
 
         fun create(
             fragment: Fragment
-        ) = BackStackStateEnforcer(
+        ) = BackStackWindowEnforcer(
             who = fragment.mWho,
             window = fragment.requireActivity().window,
             lifecycle = fragment.lifecycle,
@@ -184,21 +228,24 @@ internal class BackStackStateEnforcer private constructor(
     }
 }
 
-internal class SystemBarState(
+/**
+ * [navigationBarColor]用于兼容[isAppearanceLightNavigationBar]
+ */
+internal data class WindowState(
     var isApplied: Boolean = false,
     var isAppearanceLightStatusBar: Boolean = false,
     var isAppearanceLightNavigationBar: Boolean = false,
     var navigationBarColor: Int = 0
 )
 
-internal class SystemBarStateHolder(savaStateHandle: SavedStateHandle) : ViewModel() {
+internal class WindowStateHolder(savaStateHandle: SavedStateHandle) : ViewModel() {
     /**
      * `savaStateHandle`仅保存[backStack]，不需要保存[stateStore]，
-     * 当页面重建时，会再次调用[ensureState]构建[SystemBarState]，
+     * 当页面重建时，会再次调用[ensureState]构建[WindowState]，
      * 页面构造阶段声明的配置，会通过[peekState]进行赋值。
      */
     private val backStack: ArrayList<String>
-    private val stateStore = mutableMapOf<String, SystemBarState>()
+    private val stateStore = mutableMapOf<String, WindowState>()
 
     init {
         val value = savaStateHandle.get<ArrayList<String>>(BACK_STACK_KEY)
@@ -217,27 +264,28 @@ internal class SystemBarStateHolder(savaStateHandle: SavedStateHandle) : ViewMod
         }
         var state = stateStore[who]
         if (state == null) {
-            state = SystemBarState()
+            state = WindowState()
             stateStore[who] = state
         }
-        // isApplied用于避免先应用默认值，再应用当前值
+        // 重建的页面，可能还未执行到修改默认值的生命周期回调函数，
+        // 栈顶页面退出，不应当按默认值恢复，需要用isApplied过滤。
         state.isApplied = false
     }
 
-    fun peekState(who: String): SystemBarState? {
+    fun peekState(who: String): WindowState? {
         return stateStore[who]
     }
 
-    fun applyState(who: String): SystemBarState? {
+    fun applyState(who: String): WindowState? {
         val index = backStack.indexOf(who)
         val state = stateStore[who]
         state?.isApplied = true
         return if (isLastApply(index)) state else null
     }
 
-    fun applyPrevState(who: String): SystemBarState? {
+    fun applyPrevState(who: String): WindowState? {
         val index = backStack.indexOf(who)
-        var prevState: SystemBarState? = null
+        var prevState: WindowState? = null
         if (isLastApply(index)) {
             val prevWho = backStack.getOrNull(index - 1)
             if (prevWho != null) prevState = stateStore[prevWho]
@@ -245,7 +293,7 @@ internal class SystemBarStateHolder(savaStateHandle: SavedStateHandle) : ViewMod
         return prevState?.takeIf { it.isApplied }
     }
 
-    fun removeState(who: String, isStateSaved: Boolean): SystemBarState? {
+    fun removeState(who: String, isStateSaved: Boolean): WindowState? {
         checkStateSaved(isStateSaved)
         backStack.remove(who)
         return stateStore.remove(who)
