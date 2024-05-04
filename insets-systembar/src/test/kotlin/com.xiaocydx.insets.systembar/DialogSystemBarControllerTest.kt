@@ -20,7 +20,6 @@ import android.os.Build
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogSystemBarController
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.launch

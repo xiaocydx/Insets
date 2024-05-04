@@ -20,7 +20,6 @@ package com.xiaocydx.insets.systembar
 
 import android.os.Build
 import android.os.Looper
-import androidx.fragment.app.FragmentSystemBarController
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.launch

@@ -21,12 +21,10 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.ActivitySystemBarController
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
-import androidx.fragment.app.FragmentSystemBarController
 
 internal object ActivitySystemBarInstaller : ActivityLifecycleCallbacks {
 

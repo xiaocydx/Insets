@@ -19,12 +19,9 @@ package com.xiaocydx.insets.systembar
 import android.app.Application
 import android.app.Dialog
 import androidx.annotation.StyleRes
-import androidx.fragment.app.ActivitySystemBarController
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.DialogSystemBarController
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentSystemBarController
 import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 

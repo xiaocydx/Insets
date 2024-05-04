@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-@file:JvmName("SystemBarControllerImplInternalKt")
-@file:Suppress("PackageDirectoryMismatch", "INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 
-package androidx.fragment.app
+package com.xiaocydx.insets.systembar
 
 import android.app.Dialog
 import android.view.View
@@ -26,7 +25,11 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
-import androidx.fragment.app.ActivitySystemBarController.Companion.name
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.getViewInternal
+import androidx.fragment.app.setViewInternal
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.INITIALIZED
@@ -41,14 +44,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.viewpager.widget.ViewPager
 import com.xiaocydx.insets.doOnAttach
-import com.xiaocydx.insets.systembar.SystemBar
-import com.xiaocydx.insets.systembar.SystemBarContainer
-import com.xiaocydx.insets.systembar.SystemBarController
-import com.xiaocydx.insets.systembar.SystemBarDialogCompat
-import com.xiaocydx.insets.systembar.disableDecorFitsSystemWindows
-import com.xiaocydx.insets.systembar.hostName
-import com.xiaocydx.insets.systembar.initialState
-import com.xiaocydx.insets.systembar.name
+import com.xiaocydx.insets.systembar.ActivitySystemBarController.Companion.name
 
 /**
  * @author xcc
@@ -269,7 +265,7 @@ internal open class FragmentSystemBarController private constructor(
 
     private fun createContainerThrowOrNull(owner: LifecycleOwner): SystemBarContainer? {
         val activity = fragment.requireActivity()
-        val view = fragment.mView
+        val view = fragment.getViewInternal()
         check(activity is SystemBar.Host) { "${activity.name}需要实现${SystemBar.hostName}" }
         check(view != null) { "${fragment.name}的生命周期状态转换出现异常情况" }
         check(view.parent == null) { "${fragment.name}的view已有parent，不支持替换parent" }
@@ -279,7 +275,7 @@ internal open class FragmentSystemBarController private constructor(
         }
 
         val container = createContainer(view)
-        fragment.mView = container
+        fragment.setViewInternal(container)
         ViewTreeLifecycleOwner.set(container, owner)
         ViewTreeViewModelStoreOwner.set(container, owner as? ViewModelStoreOwner)
         ViewTreeSavedStateRegistryOwner.set(container, owner as? SavedStateRegistryOwner)
@@ -287,12 +283,12 @@ internal open class FragmentSystemBarController private constructor(
     }
 
     private fun checkFragmentViewOnResume() {
-        val view = fragment.mView
+        val view = fragment.getViewInternal()
         check(view != null) { "${fragment.name}未创建view" }
     }
 
     private fun checkUnsupportedOnResume() {
-        val view = fragment.mView
+        val view = fragment.getViewInternal()
         var parent = view?.parent as? ViewGroup
         val contentParentId = android.R.id.content
         while (parent != null && parent.id != contentParentId) {

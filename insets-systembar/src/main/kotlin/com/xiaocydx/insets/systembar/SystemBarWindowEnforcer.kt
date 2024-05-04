@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-@file:JvmName("SystemBarStateEnforcerInternalKt")
-@file:Suppress("PackageDirectoryMismatch")
-
-package androidx.fragment.app
+package com.xiaocydx.insets.systembar
 
 import android.view.Window
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.getWhoInternal
+import androidx.fragment.app.isInBackStackInternal
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.ON_CREATE
 import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
@@ -217,13 +218,13 @@ internal class BackStackWindowEnforcer private constructor(
         fun create(
             fragment: Fragment
         ) = BackStackWindowEnforcer(
-            who = fragment.mWho,
+            who = fragment.getWhoInternal(),
             window = fragment.requireActivity().window,
             lifecycle = fragment.lifecycle,
             activeState = RESUMED,
             stateHolder = fragment.requireActivity().stateHolder,
             isSaveStated = { fragment.requireActivity().isStateSaved },
-            canRemoveState = { !fragment.isAdded && !fragment.isInBackStack }
+            canRemoveState = { !fragment.isAdded && !fragment.isInBackStackInternal() }
         )
     }
 }

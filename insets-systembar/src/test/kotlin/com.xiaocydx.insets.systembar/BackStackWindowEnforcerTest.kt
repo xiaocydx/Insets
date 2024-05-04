@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-@file:Suppress("KDocUnresolvedReference")
-
 package com.xiaocydx.insets.systembar
 
 import android.os.Build
 import android.os.Looper
 import android.view.Window
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.fragment.app.BackStackWindowEnforcer
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.WindowState
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.lifecycle.Lifecycle.State.STARTED

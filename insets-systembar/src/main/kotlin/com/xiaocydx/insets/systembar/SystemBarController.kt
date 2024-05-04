@@ -23,7 +23,6 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.view.WindowInsets
 import androidx.annotation.ColorInt
-import androidx.fragment.app.SystemBarControllerImpl
 import com.xiaocydx.insets.getRootWindowInsetsCompat
 import com.xiaocydx.insets.systembar.EdgeToEdge.Disabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Enabled

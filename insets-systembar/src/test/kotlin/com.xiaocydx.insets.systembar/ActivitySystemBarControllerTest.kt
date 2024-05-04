@@ -19,7 +19,6 @@ package com.xiaocydx.insets.systembar
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.ActivitySystemBarController
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.launch
