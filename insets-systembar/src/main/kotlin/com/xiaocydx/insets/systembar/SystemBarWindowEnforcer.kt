@@ -278,17 +278,16 @@ internal class WindowStateHolder(savaStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun applyState(who: String): WindowState? {
-        val index = backStack.indexOf(who)
         val state = stateStore[who]
         state?.isApplied = true
-        return if (isLastApply(index)) state else null
+        return if (isLastState(who)) state else null
     }
 
     fun applyPrevState(who: String): WindowState? {
-        val index = backStack.indexOf(who)
         var prevState: WindowState? = null
-        if (isLastApply(index)) {
-            val prevWho = backStack.getOrNull(index - 1)
+        if (isLastState(who)) {
+            val prevIndex = backStack.lastIndex - 1
+            val prevWho = backStack.getOrNull(prevIndex)
             if (prevWho != null) prevState = stateStore[prevWho]
         }
         return prevState?.takeIf { it.isApplied }
@@ -304,8 +303,8 @@ internal class WindowStateHolder(savaStateHandle: SavedStateHandle) : ViewModel(
         check(!isStateSaved) { "SavedStateHandle已保存，不允许再修改" }
     }
 
-    private fun isLastApply(index: Int): Boolean {
-        return index >= 0 && index == backStack.lastIndex
+    private fun isLastState(who: String): Boolean {
+        return backStack.lastOrNull() == who
     }
 
     private companion object {
