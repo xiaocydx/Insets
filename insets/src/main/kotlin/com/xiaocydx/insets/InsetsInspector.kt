@@ -36,12 +36,12 @@ internal value class InsetsInspector(private val insets: WindowInsetsCompat) {
 
     fun isStatusBarHidden(view: View) = when {
         !isCompatNeeded -> !insets.isVisible(statusBars())
-        else -> view.containsFlag(statusBarHiddenFlag) || !insets.isVisible(statusBars())
+        else -> !insets.isVisible(statusBars()) || view.containsFlag(statusBarHiddenFlag)
     }
 
     fun isNavigationBarHidden(view: View) = when {
         !isCompatNeeded -> !insets.isVisible(navigationBars())
-        else -> view.containsFlag(navigationBarHiddenFlag) || !insets.isVisible(navigationBars())
+        else -> !insets.isVisible(navigationBars()) || view.containsFlag(navigationBarHiddenFlag)
     }
 
     fun isGestureNavigationBar(view: View): Boolean {

@@ -28,27 +28,27 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType
 import androidx.core.view.WindowInsetsControllerCompat
 
 /**
- * 状态栏高度
+ * 当前[WindowInsetsCompat]的[statusBars]高度
  */
 val WindowInsetsCompat.statusBarHeight: Int
     get() = getInsets(statusBars()).top
 
 /**
- * 导航栏高度
+ * 当前[WindowInsetsCompat]的[navigationBars]高度
  */
 val WindowInsetsCompat.navigationBarHeight: Int
     get() = getInsets(navigationBars()).bottom
 
 /**
- * IME高度
+ * 当前[WindowInsetsCompat]的[ime]高度
  *
- * **注意**：IME高度包含导航栏高度。
+ * **注意**：[ime]高度包含[navigationBars]高度。
  */
 val WindowInsetsCompat.imeHeight: Int
     get() = getInsets(ime()).bottom
 
 /**
- * 状态栏是否被隐藏
+ * 当前[WindowInsetsCompat]的[statusBars]是否被隐藏
  *
  * 该函数可用于判断[WindowInsetsControllerCompat.hide]的隐藏结果：
  * ```
@@ -63,7 +63,7 @@ fun WindowInsetsCompat.isStatusBarHidden(view: View): Boolean {
 }
 
 /**
- * 导航栏是否被隐藏
+ * 当前[WindowInsetsCompat]的[navigationBars]是否被隐藏
  *
  * 该函数可用于判断[WindowInsetsControllerCompat.hide]的隐藏结果：
  * ```
@@ -78,10 +78,8 @@ fun WindowInsetsCompat.isNavigationBarHidden(view: View): Boolean {
 }
 
 /**
- * 是否为手势导航栏
+ * 当前[WindowInsetsCompat]的[navigationBars]是否为手势导航栏
  *
- * **注意**：若导航栏被隐藏，则该函数返回`true`，此时导航栏高度为0，
- * 实际场景可以将隐藏的导航栏，当作手势导航栏来处理，通常不会有问题。
  * ```
  * view.doOnApplyWindowInsets { _, insets, initialState ->
  *     val isGesture = insets.isGestureNavigationBar(view)
@@ -93,7 +91,7 @@ fun WindowInsetsCompat.isGestureNavigationBar(view: View): Boolean {
 }
 
 /**
- * 获取状态栏和导航栏被隐藏的消费类型集
+ * 获取当前[WindowInsetsCompat]的[systemBars]被隐藏的消费类型集
  */
 @InsetsType
 fun WindowInsetsCompat.getSystemBarHiddenConsumeTypeMask(view: View): Int {
@@ -101,23 +99,25 @@ fun WindowInsetsCompat.getSystemBarHiddenConsumeTypeMask(view: View): Int {
 }
 
 /**
- * 获取`contentView`的IME偏移，可用于设置`contentView`间距的场景
+ * 获取当前[WindowInsetsCompat]的[ime]偏移，可作为`contentView`的间距
  *
  * ```
- * view.doOnApplyWindowInsets { _, insets, initialState ->
- *     view.updatePadding(bottom = insets.getImeOffset(view))
+ * contentView.doOnApplyWindowInsets { _, insets, initialState ->
+ *     contentView.updatePadding(bottom = insets.getImeOffset(contentView))
  * }
  * ```
  */
 fun WindowInsetsCompat.getImeOffset(view: View): Int {
     val imeHeight = imeHeight.takeIf { it > 0 } ?: return 0
-    var navigationBarHeight = navigationBarHeight
-    if (navigationBarHeight <= 0) {
-        // 父View可能消费了导航栏Insets，尝试通过rootInsets获取导航栏高度
-        val rootInsets = view.getRootWindowInsetsCompat()
-        navigationBarHeight = rootInsets?.navigationBarHeight ?: 0
+    val rootInsets = view.getRootWindowInsetsCompat()
+    return when {
+        rootInsets == null -> imeHeight
+        rootInsets.isNavigationBarHidden(view) -> imeHeight
+        // 父级View未消费导航栏的Insets，可能是EdgeToEdge场景
+        rootInsets.navigationBarHeight == navigationBarHeight -> imeHeight
+        // 父级View已消费导航栏的Insets，可能不是EdgeToEdge场景
+        else -> (imeHeight - rootInsets.navigationBarHeight).coerceAtLeast(0)
     }
-    return (imeHeight - navigationBarHeight).coerceAtLeast(0)
 }
 
 /**
