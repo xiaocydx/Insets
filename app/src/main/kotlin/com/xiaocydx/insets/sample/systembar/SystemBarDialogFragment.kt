@@ -1,5 +1,6 @@
 package com.xiaocydx.insets.sample.systembar
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -8,11 +9,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.xiaocydx.insets.insets
-import com.xiaocydx.insets.navigationBars
 import com.xiaocydx.insets.sample.R
+import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
+import com.xiaocydx.insets.sample.dp
 import com.xiaocydx.insets.sample.layoutParams
 import com.xiaocydx.insets.sample.matchParent
-import com.xiaocydx.insets.sample.wrapContent
 import com.xiaocydx.insets.systembar.DialogTheme
 import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
@@ -26,13 +27,13 @@ import com.xiaocydx.insets.systembar.SystemBar
  * @author xcc
  * @date 2024/4/30
  */
-class SystemBarDialogFragment : DialogFragment(R.layout.dialog_system_bar), SystemBar {
+class SystemBarDialogFragment : DialogFragment(), SystemBar {
 
     init {
         systemBarController {
             statusBarEdgeToEdge = EdgeToEdge.Enabled
             navigationBarEdgeToEdge = EdgeToEdge.Gesture
-            navigationBarColor = 0xFFD8DDD8.toInt()
+            navigationBarColor = 0xFFC4B9BA.toInt()
             isAppearanceLightNavigationBar = true
         }
     }
@@ -45,13 +46,22 @@ class SystemBarDialogFragment : DialogFragment(R.layout.dialog_system_bar), Syst
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
-        view?.insets()?.paddings(navigationBars())
-        view?.layoutParams(matchParent, wrapContent)
-        // 对window设置的Gravity，会传递给view
+    ): View {
+        // window的Gravity会传递给contentView
         dialog?.window?.setGravity(Gravity.BOTTOM)
         dialog?.window?.setWindowAnimations(R.style.PopAnim)
-        return view
+        return contentView(inflater, container)
     }
+
+    @SuppressLint("SetTextI18n")
+    private fun contentView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+    ) = LayoutBaseBinding
+        .inflate(inflater, container, false).apply {
+            root.layoutParams(matchParent, 300.dp)
+            root.setBackgroundColor(0xFF91A1AA.toInt())
+            root.insets().gestureNavBarEdgeToEdge()
+            tvCenter.text = " Dialog\n\n导航栏浅色背景，深色前景"
+        }.root
 }

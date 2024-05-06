@@ -7,9 +7,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.xiaocydx.insets.insets
 import com.xiaocydx.insets.sample.databinding.ActivitySystemBarBasicBinding
 import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
 import com.xiaocydx.insets.sample.onClick
+import com.xiaocydx.insets.statusBars
+import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
 
 /**
@@ -53,7 +56,7 @@ class SystemBarConstructorFragment : BaseFragment(), SystemBar {
 
     init {
         systemBarController {
-            statusBarColor = 0xFFC4B9BA.toInt()
+            statusBarEdgeToEdge = EdgeToEdge.Enabled
             navigationBarColor = 0xFFC4B9BA.toInt()
             isAppearanceLightStatusBar = true
             isAppearanceLightNavigationBar = true
@@ -61,6 +64,7 @@ class SystemBarConstructorFragment : BaseFragment(), SystemBar {
     }
 
     override fun LayoutBaseBinding.initView() {
+        root.insets().paddings(statusBars())
         root.setBackgroundColor(0xFF91A1AA.toInt())
         tvCenter.text = "实现SystemBar，构造声明配置"
     }
@@ -70,15 +74,17 @@ class SystemBarModifyFragment : BaseFragment(), SystemBar {
     private val controller = systemBarController()
 
     override fun LayoutBaseBinding.initView() {
+        root.insets().paddings(statusBars())
         root.setBackgroundColor(0xFF91A1AA.toInt())
         tvCenter.onClick {
             controller.apply {
-                statusBarColor = 0xFFC4B9BA.toInt()
+                statusBarEdgeToEdge = EdgeToEdge.Enabled
                 navigationBarColor = 0xFFC4B9BA.toInt()
                 isAppearanceLightStatusBar = true
                 isAppearanceLightNavigationBar = true
             }
         }
-        tvCenter.text = "实现SystemBar，动态修改配置\n\n点击修改系统栏背景色和前景色"
+        tvCenter.text = "实现SystemBar，动态修改配置\n\n" +
+                "点击启用状态栏Edge-to-Edge\n修改系统栏背景色和前景色"
     }
 }
