@@ -32,7 +32,7 @@ fun View.updateMargins(
 ) {
     val params = layoutParams as? ViewGroup.MarginLayoutParams ?: return
     val changed = left != marginLeft || top != marginTop
-            || right != marginTop || bottom != marginBottom
+            || right != marginRight || bottom != marginBottom
     params.setMargins(left, top, right, bottom)
     if (changed) layoutParams = params
 }
