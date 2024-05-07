@@ -13,6 +13,7 @@ import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
 import com.xiaocydx.insets.sample.onClick
 import com.xiaocydx.insets.systembar.SystemBar
 import com.xiaocydx.insets.systembar.SystemBarController
+import com.xiaocydx.insets.systembar.systemBarController
 
 /**
  * [SystemBar]恢复window属性
@@ -34,7 +35,7 @@ import com.xiaocydx.insets.systembar.SystemBarController
  * @author xcc
  * @date 2023/12/28
  */
-class SystemBarRestoreActivity : AppCompatActivity(), SystemBar, SystemBar.Host {
+class SystemBarRestoreActivity : AppCompatActivity(), SystemBar.Host, SystemBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

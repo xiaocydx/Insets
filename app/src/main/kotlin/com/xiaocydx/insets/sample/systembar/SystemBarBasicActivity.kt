@@ -14,6 +14,7 @@ import com.xiaocydx.insets.sample.onClick
 import com.xiaocydx.insets.statusBars
 import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
+import com.xiaocydx.insets.systembar.systemBarController
 
 /**
  * [SystemBar]的基本使用

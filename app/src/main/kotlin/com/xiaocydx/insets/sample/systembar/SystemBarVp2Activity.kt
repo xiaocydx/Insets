@@ -17,6 +17,7 @@ import com.xiaocydx.insets.sample.onClick
 import com.xiaocydx.insets.statusBars
 import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
+import com.xiaocydx.insets.systembar.systemBarController
 
 /**
  * 在[ViewPager2]场景下使用[SystemBar]：

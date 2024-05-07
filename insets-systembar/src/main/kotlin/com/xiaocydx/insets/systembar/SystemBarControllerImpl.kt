@@ -54,7 +54,7 @@ internal abstract class SystemBarControllerImpl(
     private val systemBarTarget: Any,
     protected val fromInstaller: Boolean
 ) : SystemBarController {
-    private val default = Default
+    private val default = SystemBarController.default
     private var hasStatusBarColor = default.statusBarColor != null
     private var hasNavigationBarColor = default.navigationBarColor != null
     protected var container: SystemBarContainer? = null
@@ -122,10 +122,6 @@ internal abstract class SystemBarControllerImpl(
         navigationBarEdgeToEdge = navigationBarEdgeToEdge
         isAppearanceLightStatusBar = isAppearanceLightStatusBar
         isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
-    }
-
-    companion object {
-        @Volatile var Default = SystemBarController.Default()
     }
 }
 

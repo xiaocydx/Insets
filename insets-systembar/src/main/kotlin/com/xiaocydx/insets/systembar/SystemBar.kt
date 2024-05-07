@@ -44,7 +44,7 @@ fun SystemBar.Companion.install(
     application: Application,
     default: SystemBarController.Default = SystemBarController.Default()
 ) {
-    SystemBarController.setDefault(default)
+    SystemBarController.default = default
     ActivitySystemBarInstaller.register(application)
 }
 
@@ -121,48 +121,6 @@ interface SystemBar {
 
     interface None
 
-    fun <A> A.systemBarController(
-        initializer: (SystemBarController.() -> Unit)? = null
-    ): SystemBarController where A : FragmentActivity, A : SystemBar = run {
-        ActivitySystemBarController.create(this).attach(initializer)
-    }
-
-    /**
-     * [DialogFragment]使用[SystemBar]：
-     * 1. Dialog主题需要`windowIsFloating = false`，可直接使用[DialogTheme]。
-     * 2. 支持[SystemBar]的全部使用方式，跟Fragment一致。
-     * 3. 需要通过[Fragment.onCreateView]创建`contentView`。
-     *
-     * ```
-     * class SystemBarDialogFragment : DialogFragment(contentLayoutId), SystemBar {
-     *      override fun getTheme() = SystemBar.DialogTheme
-     * }
-     * ```
-     */
-    fun <F> F.systemBarController(
-        initializer: (SystemBarController.() -> Unit)? = null
-    ): SystemBarController where F : Fragment, F : SystemBar = run {
-        FragmentSystemBarController.create(this).attach(initializer)
-    }
-
-    /**
-     * [Dialog]使用[SystemBar]：
-     * 1. Dialog主题需要`windowIsFloating = false`，可直接使用[DialogTheme]。
-     * 2. 不支持[SystemBar]的应用默认配置使用方式，需要调用该函数。
-     * ```
-     * class SystemBarDialog(context: Context) : Dialog(context, SystemBar.DialogTheme), SystemBar {
-     *      init {
-     *          systemBarController {...}
-     *      }
-     * }
-     * ```
-     */
-    fun <D> D.systemBarController(
-        initializer: (SystemBarController.() -> Unit)? = null
-    ): SystemBarController where D : Dialog, D : SystemBar = run {
-        DialogSystemBarController.create(this).attach(initializer)
-    }
-
     companion object
 }
 
@@ -173,8 +131,52 @@ interface SystemBar {
 val SystemBar.Companion.DialogTheme: Int
     get() = R.style.SystemBarDialog
 
-internal val SystemBar.Companion.name: String
+val SystemBar.Companion.name: String
     get() = SystemBar::class.java.simpleName
 
-internal val SystemBar.Companion.hostName: String
+val SystemBar.Companion.hostName: String
     get() = "${name}.${SystemBar.Host::class.java.simpleName}"
+
+fun <A> A.systemBarController(
+    initializer: (SystemBarController.() -> Unit)? = null
+): SystemBarController where A : FragmentActivity, A : SystemBar = run {
+    ActivitySystemBarController.create(this).attach(initializer)
+}
+
+/**
+ * [DialogFragment]使用[SystemBar]：
+ * 1. Dialog主题需要`windowIsFloating = false`，可直接使用[DialogTheme]。
+ * 2. 支持[SystemBar]的全部使用方式，跟Fragment一致。
+ * 3. 需要通过[Fragment.onCreateView]创建`contentView`。
+ *
+ * ```
+ * class SystemBarDialogFragment : DialogFragment(contentLayoutId), SystemBar {
+ *      override fun getTheme() = SystemBar.DialogTheme
+ * }
+ * ```
+ */
+fun <F> F.systemBarController(
+    initializer: (SystemBarController.() -> Unit)? = null
+): SystemBarController where F : Fragment, F : SystemBar = run {
+    FragmentSystemBarController.create(this).attach(initializer)
+}
+
+/**
+ * [Dialog]使用[SystemBar]：
+ * 1. Dialog主题需要`windowIsFloating = false`，可直接使用[DialogTheme]。
+ * 2. 不支持[SystemBar]的应用默认配置使用方式，需要调用该函数。
+ * ```
+ * class SystemBarDialog(
+ *     context: Context
+ * ) : Dialog(context, SystemBar.DialogTheme), SystemBar {
+ *      init {
+ *          systemBarController {...}
+ *      }
+ * }
+ * ```
+ */
+fun <D> D.systemBarController(
+    initializer: (SystemBarController.() -> Unit)? = null
+): SystemBarController where D : Dialog, D : SystemBar = run {
+    DialogSystemBarController.create(this).attach(initializer)
+}

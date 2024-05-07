@@ -15,6 +15,7 @@ import com.xiaocydx.insets.sample.matchParent
 import com.xiaocydx.insets.systembar.DialogTheme
 import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
+import com.xiaocydx.insets.systembar.systemBarController
 
 /**
  * [Dialog]使用[SystemBar]：

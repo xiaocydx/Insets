@@ -27,7 +27,6 @@ import com.xiaocydx.insets.getRootWindowInsetsCompat
 import com.xiaocydx.insets.systembar.EdgeToEdge.Disabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Enabled
 import com.xiaocydx.insets.systembar.EdgeToEdge.Gesture
-import com.xiaocydx.insets.systembar.SystemBarController.Default
 
 /**
  * [SystemBar]控制器
@@ -101,18 +100,16 @@ interface SystemBarController {
         val isAppearanceLightNavigationBar: Boolean = false
     )
 
-    companion object
+    companion object {
+        @Volatile internal var default = Default()
+    }
 }
+
+val SystemBarController.Companion.name: String
+    get() = SystemBarController::class.java.simpleName
 
 sealed class EdgeToEdge {
     object Disabled : EdgeToEdge()
     object Enabled : EdgeToEdge()
     object Gesture : EdgeToEdge()
-}
-
-internal val SystemBarController.Companion.name: String
-    get() = SystemBarController::class.java.simpleName
-
-internal fun SystemBarController.Companion.setDefault(default: Default) {
-    SystemBarControllerImpl.Default = default
 }
