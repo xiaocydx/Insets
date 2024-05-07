@@ -51,24 +51,21 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
     private var consumeTouchEvent = false
 
     init {
-        setWillNotDraw(false)
+        statusBarDrawable.callback = this
+        navigationBarDrawable.callback = this
         requestApplyInsetsOnAttach()
     }
 
     var statusBarColor: Int
         get() = statusBarDrawable.color
         set(value) {
-            if (statusBarDrawable.color == value) return
             statusBarDrawable.color = value
-            invalidateDrawable(statusBarDrawable)
         }
 
     var navigationBarColor: Int
         get() = navigationBarDrawable.color
         set(value) {
-            if (navigationBarDrawable.color == value) return
             navigationBarDrawable.color = value
-            invalidateDrawable(navigationBarDrawable)
         }
 
     var statusBarEdgeToEdge: EdgeToEdge = EdgeToEdge.Disabled
@@ -123,11 +120,11 @@ internal class SystemBarContainer(context: Context) : FrameLayout(context) {
             paddingBottom = applyInsets.navigationBarHeight
         }
         updatePadding(top = paddingTop, bottom = paddingBottom)
+        setWillNotDraw(paddingTop == 0 && paddingBottom == 0)
         return applyInsets.consumeInsets(typeMask).toWindowInsets()!!
     }
 
-    override fun draw(canvas: Canvas) {
-        super.draw(canvas)
+    override fun onDraw(canvas: Canvas) {
         statusBarDrawable.setBounds(0, 0, width, paddingTop)
         navigationBarDrawable.setBounds(0, height - paddingBottom, width, height)
         statusBarDrawable.takeIf { it.bounds.height() > 0 }?.draw(canvas)
