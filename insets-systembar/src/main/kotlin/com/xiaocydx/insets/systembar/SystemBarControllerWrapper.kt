@@ -17,6 +17,8 @@
 package com.xiaocydx.insets.systembar
 
 /**
+ * [SystemBarController]的包装类，可用于扩展`systemBarController()`的Receiver
+ *
  * @author xcc
  * @date 2024/5/7
  */
@@ -70,7 +72,7 @@ open class SystemBarControllerWrapper : SystemBarController {
             delegate?.isAppearanceLightNavigationBar = value
         }
 
-    fun setDelegate(delegate: SystemBarController) {
+    fun attachDelegate(delegate: SystemBarController) {
         check(this.delegate == null) { "已设置delegate" }
         applyPendingSystemBarConfig(delegate)
         this.delegate = delegate
