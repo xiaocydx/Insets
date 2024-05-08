@@ -41,21 +41,21 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.Q])
 @RunWith(RobolectricTestRunner::class)
 internal class DialogFragmentSystemBarControllerTest {
-    private lateinit var hostScenario: ActivityScenario<TestSystemBarHostActivity>
+    private lateinit var systemBarScenario: ActivityScenario<TestSystemBarActivity>
 
     @Before
     fun setup() {
-        hostScenario = launch(TestSystemBarHostActivity::class.java).moveToState(RESUMED)
+        systemBarScenario = launch(TestSystemBarActivity::class.java).moveToState(RESUMED)
     }
 
     @After
     fun release() {
-        hostScenario.close()
+        systemBarScenario.close()
     }
 
     @Test
     fun notCreateViewThrowException() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarDialogFragment()
             fragment.createView = false
             val result = runCatching {
@@ -68,7 +68,7 @@ internal class DialogFragmentSystemBarControllerTest {
 
     @Test
     fun errorThemeThrowException() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarDialogFragment()
             fragment.theme = 0
             val result = runCatching {
@@ -81,7 +81,7 @@ internal class DialogFragmentSystemBarControllerTest {
 
     @Test
     fun afterInitializedThrowException() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarDialogFragment()
             fragment.show(it.supportFragmentManager, null)
             shadowOf(Looper.getMainLooper()).idle()
@@ -92,7 +92,7 @@ internal class DialogFragmentSystemBarControllerTest {
 
     @Test
     fun replaceFragmentViewAfterCreated() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarDialogFragment()
             fragment.show(it.supportFragmentManager, null)
             shadowOf(Looper.getMainLooper()).idle()
@@ -104,7 +104,7 @@ internal class DialogFragmentSystemBarControllerTest {
 
     @Test
     fun implementSystemBarNone() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarNoneDialogFragment()
             fragment.show(it.supportFragmentManager, null)
             shadowOf(Looper.getMainLooper()).idle()
@@ -115,7 +115,7 @@ internal class DialogFragmentSystemBarControllerTest {
 
     @Test
     fun recreateFragmentView() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarDialogFragment()
             val controller = FragmentSystemBarController.create(fragment)
             controller.attach()

@@ -48,8 +48,7 @@ internal open class TestActivity : AppCompatActivity() {
 }
 
 internal open class TestSystemBarActivity : TestActivity(), SystemBar
-internal class TestSystemBarHostActivity : TestSystemBarActivity(), SystemBar.Host
-internal class TestSystemBarNoneActivity : TestSystemBarActivity(), SystemBar.Host, SystemBar.None
+internal class TestSystemBarNoneActivity : TestSystemBarActivity(), SystemBar.None
 
 internal fun TestActivity.addFragment(fragment: Fragment, id: Int = contentParent.id) = run {
     supportFragmentManager.beginTransaction().add(id, fragment)

@@ -48,21 +48,21 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.Q])
 @RunWith(RobolectricTestRunner::class)
 internal class FragmentSystemBarControllerTest {
-    private lateinit var hostScenario: ActivityScenario<TestSystemBarHostActivity>
+    private lateinit var systemBarScenario: ActivityScenario<TestSystemBarActivity>
 
     @Before
     fun setup() {
-        hostScenario = launch(TestSystemBarHostActivity::class.java).moveToState(RESUMED)
+        systemBarScenario = launch(TestSystemBarActivity::class.java).moveToState(RESUMED)
     }
 
     @After
     fun release() {
-        hostScenario.close()
+        systemBarScenario.close()
     }
 
     @Test
-    fun noSystemBarHostThrowException() {
-        launch(TestSystemBarActivity::class.java)
+    fun noSystemBarThrowException() {
+        launch(TestActivity::class.java)
             .moveToState(RESUMED).onActivity {
                 val fragment = TestSystemBarFragment()
                 FragmentSystemBarController.create(fragment).attach()
@@ -75,7 +75,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun afterInitializedThrowException() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarFragment()
             it.addFragment(fragment).commitNow()
             val result = runCatching { FragmentSystemBarController.create(fragment).attach() }
@@ -85,7 +85,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun replaceFragmentViewAfterCreated() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarFragment()
             it.addFragment(fragment).commitNow()
             assertThat(fragment.view!!.isAttachedToWindow).isTrue()
@@ -96,7 +96,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun implementSystemBarNone() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestSystemBarNoneFragment()
             it.addFragment(fragment).commitNow()
             assertThat(fragment.view!!.isAttachedToWindow).isTrue()
@@ -106,7 +106,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun recreateFragmentView() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val fragment = TestFragment()
             val controller = FragmentSystemBarController.create(fragment)
             controller.attach()
@@ -126,7 +126,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun unsupportedNested() {
-        launch(TestSystemBarHostActivity::class.java)
+        launch(TestSystemBarActivity::class.java)
             .moveToState(RESUMED).onActivity { parent ->
                 val child = TestSystemBarFragment()
                 val transaction = parent.addFragment(child, id = parent.contentView.id)
@@ -150,7 +150,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun unsupportedViewPager() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val viewPager = ViewPager(it)
             viewPager.id = ViewCompat.generateViewId()
             it.contentParent.addView(viewPager)
@@ -161,7 +161,7 @@ internal class FragmentSystemBarControllerTest {
             assertThat(result.exceptionOrNull()).isInstanceOf(UnsupportedOperationException::class.java)
             it.removeAllFragment().commitNow()
         }
-        hostScenario.recreate().onActivity {
+        systemBarScenario.recreate().onActivity {
             val viewPager = ViewPager(it)
             viewPager.id = ViewCompat.generateViewId()
             it.contentParent.addView(viewPager)
@@ -176,7 +176,7 @@ internal class FragmentSystemBarControllerTest {
 
     @Test
     fun unsupportedViewPager2() {
-        hostScenario.onActivity {
+        systemBarScenario.onActivity {
             val viewPager2 = ViewPager2(it)
             it.contentParent.addView(viewPager2)
             val result = runCatching {

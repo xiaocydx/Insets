@@ -262,7 +262,7 @@ internal open class FragmentSystemBarController private constructor(
     private fun createContainerThrowOrNull(owner: LifecycleOwner): SystemBarContainer? {
         val activity = fragment.requireActivity()
         val view = fragment.getViewInternal()
-        check(activity is SystemBar.Host) { "${activity.name}需要实现${SystemBar.hostName}" }
+        check(activity is SystemBar) { "${activity.name}作为宿主需要实现${SystemBar.name}" }
         check(view != null) { "${fragment.name}的生命周期状态转换出现异常情况" }
         check(view.parent == null) { "${fragment.name}的view已有parent，不支持替换parent" }
         if (view is SystemBarContainer) {

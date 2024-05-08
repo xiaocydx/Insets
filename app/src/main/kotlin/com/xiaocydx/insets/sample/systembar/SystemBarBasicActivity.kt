@@ -24,13 +24,13 @@ import com.xiaocydx.insets.systembar.systemBarController
  * 2. [SystemBarConstructorFragment]：实现[SystemBar]，构造声明配置。
  * 3. [SystemBarModifyFragment]：实现[SystemBar]，动态修改配置。
  *
- * 作为宿主的[FragmentActivity]，需要实现[SystemBar.Host]，
- * 当宿主没有自己的`contentView`时，可以不实现[SystemBar]。
+ * 作为宿主的[FragmentActivity]，需要实现[SystemBar]，
+ * 当宿主没有`contentView`时，可以实现[SystemBar.None]。
  *
  * @author xcc
  * @date 2023/12/27
  */
-class SystemBarBasicActivity : AppCompatActivity(), SystemBar.Host, SystemBar {
+class SystemBarBasicActivity : AppCompatActivity(), SystemBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -23,7 +23,7 @@ import com.xiaocydx.insets.systembar.SystemBar
  * @author xcc
  * @date 2023/12/26
  */
-class MainActivity : AppCompatActivity(), SystemBar.Host, SystemBar {
+class MainActivity : AppCompatActivity(), SystemBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

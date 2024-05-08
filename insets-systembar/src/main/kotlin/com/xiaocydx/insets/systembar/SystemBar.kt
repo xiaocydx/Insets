@@ -69,14 +69,10 @@ fun SystemBar.Companion.install(
  * ```
  *
  * ### 宿主[FragmentActivity]
- * 作为宿主的[FragmentActivity]，需要实现[SystemBar.Host]，
- * 当宿主没有自己的`contentView`时，可以不实现[SystemBar]：
+ * 作为宿主的[FragmentActivity]，需要实现[SystemBar]，
+ * 当宿主没有`contentView`时，可以实现[SystemBar.None]：
  * ```
- * // 没有contentView，实现SystemBar.Host，支持Fragment即可
- * class MainActivity : AppCompatActivity(), SystemBar.Host
- *
- * // 有contentView，实现SystemBar，跟SystemBar.Host没有冲突
- * class MainActivity : AppCompatActivity(), SystemBar.Host, SystemBar
+ * class MainActivity : AppCompatActivity(), SystemBar, SystemBar.None
  * ```
  *
  * ### 替换`Fragment.view`
@@ -107,18 +103,17 @@ fun SystemBar.Companion.install(
  * 系统配置更改、进程被杀掉导致[FragmentActivity]重建，第3点也仍然满足。
  *
  * **注意**：第3点仅支持`A -> B -> C`的前进，以及`A <- B <- C`或`A <- C`（B被移除）的后退。
- *
- * ### [SystemBar.None]
- * 当父类实现了[SystemBar]，子类不需要[SystemBar]时，子类可以实现[SystemBar.None]：
- * ```
- * open class SuperFragment : Fragment(), SystemBar
- * class SubFragment : SuperFragment(), SystemBar.None
- * ```
  */
 interface SystemBar {
 
-    interface Host
-
+    /**
+     * 当不需要[SystemBar]的实现时，可以实现该接口，
+     * 例如父类实现了[SystemBar]，但子类不需要实现：
+     * ```
+     * open class SuperFragment : Fragment(), SystemBar
+     * class SubFragment : SuperFragment(), SystemBar.None
+     * ```
+     */
     interface None
 
     companion object
@@ -133,9 +128,6 @@ val SystemBar.Companion.DialogTheme: Int
 
 val SystemBar.Companion.name: String
     get() = SystemBar::class.java.simpleName
-
-val SystemBar.Companion.hostName: String
-    get() = "${name}.${SystemBar.Host::class.java.simpleName}"
 
 fun <A> A.systemBarController(
     initializer: (SystemBarController.() -> Unit)? = null

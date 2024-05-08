@@ -28,7 +28,7 @@ import com.xiaocydx.insets.systembar.systemBarController
  * @author xcc
  * @date 2023/12/29
  */
-class SystemBarVp2Activity : AppCompatActivity(), SystemBar, SystemBar.Host {
+class SystemBarVp2Activity : AppCompatActivity(), SystemBar {
     private val controller = systemBarController {
         // PageFragment自行处理状态栏Insets
         statusBarEdgeToEdge = EdgeToEdge.Enabled

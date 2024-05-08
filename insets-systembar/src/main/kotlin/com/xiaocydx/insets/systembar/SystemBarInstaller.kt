@@ -34,24 +34,17 @@ internal object ActivitySystemBarInstaller : ActivityLifecycleCallbacks {
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        if (activity !is SystemBar && activity !is SystemBar.Host) return
+        if (activity !is SystemBar) return
         require(activity is FragmentActivity) {
             val activityName = activity.javaClass.canonicalName
             val componentName = FragmentActivity::class.java.canonicalName
-            val systemBarName = when (activity) {
-                is SystemBar -> SystemBar.name
-                is SystemBar.Host -> SystemBar.hostName
-                else -> throw AssertionError()
-            }
-            "${activityName}需要是${componentName}，才能实现${systemBarName}"
+            "${activityName}需要是${componentName}，才能实现${SystemBar.name}"
         }
         activity.window.disableDecorFitsSystemWindows()
-        if (activity is SystemBar && activity !is SystemBar.None) {
+        if (activity !is SystemBar.None) {
             ActivitySystemBarController.create(activity, fromInstaller = true).attach()
         }
-        if (activity is SystemBar.Host) {
-            FragmentSystemBarInstaller.register(activity)
-        }
+        FragmentSystemBarInstaller.register(activity)
     }
 
     override fun onActivityStarted(activity: Activity) = Unit
