@@ -35,17 +35,8 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType
  *
  * @param consumeTypeMask [WindowInsets]的消费类型，对`window.decorView`传入消费结果
  */
-fun Window.disableDecorFitsSystemWindows(
-    @InsetsType consumeTypeMask: Int = 0
-) = ReflectCompat {
-    setDecorFitsSystemWindowsCompat(false)
-    @Suppress("DEPRECATION")
-    setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
-    decorView.setOnApplyWindowInsetsListenerImmutable { _, insets ->
-        checkDispatchApplyInsetsCompatibility()
-        decorView.onApplyWindowInsetsCompat(insets.decorInsets(consumeTypeMask))
-        insets.consumeInsets(insets.getSystemBarHiddenConsumeTypeMask(decorView))
-    }
+fun Window.disableDecorFitsSystemWindows(@InsetsType consumeTypeMask: Int = 0) {
+    disableDecorFitsSystemWindowsInternal(consumeTypeMask, reason = null)
 }
 
 fun Window.setDecorFitsSystemWindowsCompat(decorFitsSystemWindows: Boolean) {
@@ -109,6 +100,36 @@ fun displayCutout() = WindowInsetsCompat.Type.displayCutout()
 
 @InsetsType
 fun systemBars() = WindowInsetsCompat.Type.systemBars()
+
+private val disableKey: Int
+    get() = R.id.tag_disable_decor_fits_system_windows_reason
+
+internal var Window.disableDecorFitsSystemWindowsReason: DisableDecorFitsSystemWindowsReason?
+    get() = decorView.getTag(disableKey) as? DisableDecorFitsSystemWindowsReason
+    set(value) {
+        decorView.setTag(disableKey, value)
+    }
+
+internal fun Window.disableDecorFitsSystemWindowsInternal(
+    @InsetsType consumeTypeMask: Int = 0,
+    reason: DisableDecorFitsSystemWindowsReason?
+) = ReflectCompat {
+    disableDecorFitsSystemWindowsReason?.run()
+    disableDecorFitsSystemWindowsReason = reason
+    setDecorFitsSystemWindowsCompat(false)
+    @Suppress("DEPRECATION")
+    setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
+    decorView.setOnApplyWindowInsetsListenerImmutable { _, insets ->
+        checkDispatchApplyInsetsCompatibility()
+        decorView.onApplyWindowInsetsCompat(insets.decorInsets(consumeTypeMask))
+        insets.consumeInsets(insets.getSystemBarHiddenConsumeTypeMask(decorView))
+    }
+}
+
+internal interface DisableDecorFitsSystemWindowsReason {
+    fun get(): String
+    fun run()
+}
 
 /**
  * 检查Android 11以下`ViewRootImpl.dispatchApplyInsets()`的兼容性

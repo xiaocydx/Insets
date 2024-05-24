@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
 
 package com.xiaocydx.insets.systembar
 
 import android.view.Window
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
+import com.xiaocydx.insets.DisableDecorFitsSystemWindowsReason
 import com.xiaocydx.insets.checkDispatchApplyInsetsCompatibility
-import com.xiaocydx.insets.disableDecorFitsSystemWindows as disableDecorFitsSystemWindowsImpl
+import com.xiaocydx.insets.disableDecorFitsSystemWindowsInternal
 
 private val initialKey: Int
     get() = R.id.tag_decor_window_initial_state
@@ -40,6 +41,17 @@ internal fun Window.disableDecorFitsSystemWindows() {
     // 记录StatusBar和NavigationBar的初始背景色，
     // 执行完decorView创建流程，才能获取到背景色。
     decorView.setTag(initialKey, WindowInitialState(statusBarColor, navigationBarColor))
-    disableDecorFitsSystemWindowsImpl(consumeTypeMask = statusBars() or navigationBars())
+    disableDecorFitsSystemWindowsInternal(
+        consumeTypeMask = statusBars() or navigationBars(),
+        reason = SystemBarDisableDecorFitsSystemWindowsReason
+    )
     checkDispatchApplyInsetsCompatibility()
+}
+
+private object SystemBarDisableDecorFitsSystemWindowsReason : DisableDecorFitsSystemWindowsReason {
+    override fun get(): String = "SystemBar已初始化Window"
+
+    override fun run() {
+        throw UnsupportedOperationException("${get()}，不允许再调用Window.disableDecorFitsSystemWindows()")
+    }
 }
