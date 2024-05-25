@@ -44,12 +44,6 @@ internal abstract class WindowAttacher(protected val window: Window) {
         onDetach()
     }
 
-    fun reattach() {
-        if (listener != null) return
-        isAttached = true
-        doOnAttach { onAttach() }
-    }
-
     protected open fun onAttach() = Unit
 
     protected open fun onDetach() = Unit
