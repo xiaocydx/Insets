@@ -38,14 +38,22 @@ import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
  * 该函数的主要作用是结合实际场景需求，微调IME动画的属性，让Android 11及以上的设备有更好的交互体验，
  * 不支持修改Android 11以下IME动画的属性，原因是Android 11以下无法跟IME完全贴合，保持兼容代码即可。
  *
+ * ### 修改时机
+ * 当[WindowInsetsAnimation.Callback.onPrepare]被调用时，[WindowInsetsAnimation]的属性未被修改，
+ * 当[WindowInsetsAnimation.Callback.onStart]被调用时，[WindowInsetsAnimation]的属性已被修改，
+ * 即在[WindowInsetsAnimation.Callback.onPrepare]之后，[WindowInsetsAnimation.Callback.onStart]之前修改。
+ * 这使得在[WindowInsets]分发的过程中，可以调用该函数修改IME动画的属性。例如，在[WindowInsets]分发的过程中，
+ * 先判断当前是显示IME还是隐藏IME，再将IME动画的属性修改为指定的值。
+ *
  * ### 修改失败
- * 修改IME动画的属性失败一次，应用运行期间不再修改。修改成功或修改失败，都会按[TAG]打印日志。
+ * 修改IME动画的属性失败一次，应用运行期间不再修改，修改成功或修改失败，都会按[TAG]打印日志。
+ * 修改失败可能会导致动画运行过程无法跟IME完全贴合，这取决于如何使用[WindowInsetsAnimation]。
  *
  * ### 兼容场景
- * 当[WindowInsetsAnimationCompat]的初始`durationMillis <= 0`时，不修改`durationMillis`和`interpolator`，
- * 目的是兼容[WindowInsetsControllerCompat.controlWindowInsetsAnimation]的`durationMillis <= 0`的场景，
- * 例如通过[WindowInsetsAnimationControlListenerCompat.onReady]获取[WindowInsetsAnimationControllerCompat]，
- * 调用[WindowInsetsAnimationControllerCompat.setInsetsAndAlpha]实现手势拖动显示IME。
+ * 当[WindowInsetsAnimation]的初始`durationMillis <= 0`时，不修改`durationMillis`和`interpolator`，
+ * 目的是兼容[WindowInsetsController.controlWindowInsetsAnimation]的`durationMillis <= 0`的场景，
+ * 例如通过[WindowInsetsAnimationControlListener.onReady]获取[WindowInsetsAnimationController]，
+ * 调用[WindowInsetsAnimationController.setInsetsAndAlpha]实现手势拖动显示IME。
  *
  * **注意**：若要对`window.decorView`设置[WindowInsetsAnimationCompat.Callback]，
  * 则调用[Window.setWindowInsetsAnimationCallbackCompat]，避免跟该函数产生冲突。
@@ -99,7 +107,7 @@ fun Window.setWindowInsetsAnimationCallbackCompat(callback: WindowInsetsAnimatio
 private val supportModifyInsetsAnimation = Build.VERSION.SDK_INT >= 30
 
 @RequiresApi(30)
-private class InsetsAnimationCompat(window: Window) : WindowAttacher(window) {
+private class InsetsAnimationCompat private constructor(window: Window) : WindowAttacher(window) {
     private var insetsCallback: InsetsAnimationCallback? = null
 
     var typeMask = 0
@@ -128,13 +136,13 @@ private class InsetsAnimationCompat(window: Window) : WindowAttacher(window) {
         insetsCallback!!.durationMillis = durationMillis
         insetsCallback!!.interpolator = interpolator
         // 对视图树的根View（排除ViewRootImpl）decorView设置insetsCallback，
-        // 目的是避免WindowInsetsAnimationCompat.Callback的分发产生歧义，例如：
-        // ViewCompat.setWindowInsetsAnimationCallback(decorView, callback)
-        // ViewCompat.setWindowInsetsAnimationCallback(childView, insetsCallback)
+        // 是为了避免WindowInsetsAnimation.Callback分发的过程产生歧义，例如：
+        // decorView.setWindowInsetsAnimationCallback(callback)
+        // childView.setWindowInsetsAnimationCallback(insetsCallback)
         // 1. callback的dispatchMode是DISPATCH_MODE_CONTINUE_ON_SUBTREE。
         // 2. childView是decorView的间接子View。
-        // callback.onPrepare()分发的WindowInsetsAnimationCompat是原本的属性，
-        // callback.onStart()分发的WindowInsetsAnimationCompat却是修改的属性。
+        // callback.onStart()的WindowInsetsAnimation是原本的属性值，
+        // callback.onProgress()的WindowInsetsAnimation却是修改的属性值。
         decorView.setWindowInsetsAnimationCallback(insetsCallback)
         decorView.viewTreeObserver.addOnDrawListener(insetsCallback)
     }
@@ -197,20 +205,20 @@ private class InsetsAnimationCompat(window: Window) : WindowAttacher(window) {
  * `InsetsController.show()`或`InsetsController.hide()`的执行顺序：
  * 1. 构建`InsetsController.InternalAnimationControlListener`。
  *
- * 2. 构建`InsetsController.InsetsAnimationControlImpl`（因为设置了WindowInsetsAnimationCompat.Callback）。
+ * 2. 构建`InsetsController.InsetsAnimationControlImpl`（因为设置了WindowInsetsAnimation.Callback）。
  *
  * 3. `InsetsController.InsetsAnimationControlImpl`的构造函数调用`InsetsController.startAnimation()`。
  *
- * 4. `InsetsController.startAnimation()`先分发`WindowInsetsAnimationCompat.Callback.onPrepare()`，
- * 然后调用`addOnPreDrawRunnable()`，在`preDraw`分发`WindowInsetsAnimationCompat.Callback.onStart()`。
+ * 4. `InsetsController.startAnimation()`先分发`WindowInsetsAnimation.Callback.onPrepare()`，
+ * 再调用`addOnPreDrawRunnable()`，在`preDraw`分发`WindowInsetsAnimation.Callback.onStart()`。
  *
  * 5. `InsetsController.mRunningAnimations.add()`添加`RunningAnimation`，
  * `RunningAnimation`包含第2步构建的`InsetsController.InsetsAnimationControlImpl`.
  *
- * 6. 到了`preDraw`阶段，先分发`WindowInsetsAnimationCompat.Callback.onStart()`，
- * 然后调用`InsetsController.InternalAnimationControlListener.onReady()`构建属性动画。
+ * 6. `preDraw`执行第4步添加的`Runnable`，先分发`WindowInsetsAnimation.Callback.onStart()`，
+ * 再调用`InsetsController.InternalAnimationControlListener.onReady()`构建并开始属性动画。
  *
- * [onPrepare]修改第4步的[WindowInsetsAnimation]，[onDraw]修改第6步构建的属性动画。
+ * [onStart]修改第4步的[WindowInsetsAnimation]，[onDraw]修改第6步构建的属性动画。
  *
  * 选择在[onDraw]修改第6步构建的属性动画的原因：
  * 最初是在[onStart]修改`InsetsController.SYNC_IME_INTERPOLATOR`，使得第6步获取修改结果构建属性动画，
@@ -231,37 +239,37 @@ private class InsetsAnimationCallback(
     var durationMillis = NO_VALUE
     var interpolator: Interpolator? = null
 
-    /**
-     * 对视图树分发[animation]之前，修改[animation]的属性值
-     */
     override fun onPrepare(animation: WindowInsetsAnimation) {
-        val tracker = createTrackerOrNull(animation)
-        if (tracker?.step === Step.ON_PREPARE) {
-            InsetsAnimationReflection.insetsAnimation?.apply {
-                tracker.trackInterpolator { animation.setInterpolator(it) }
-                tracker.trackDurationMillis { animation.setDurationMillis(it) }
-            }
-            tracker.checkOnPrepare()
-        }
         delegate?.onPrepare(animation)
     }
 
+    /**
+     * 对视图树分发[animation]之前，修改[animation]的属性值
+     */
     override fun onStart(
         animation: WindowInsetsAnimation,
         bounds: WindowInsetsAnimation.Bounds
     ): WindowInsetsAnimation.Bounds {
+        val tracker = createTrackerOrNull(animation)
+        if (tracker?.step === Step.ON_START) {
+            InsetsAnimationReflection.insetsAnimation?.apply {
+                tracker.trackInterpolator { animation.setInterpolator(it) }
+                tracker.trackDurationMillis { animation.setDurationMillis(it) }
+            }
+            tracker.checkOnStart()
+        }
         return delegate?.onStart(animation, bounds) ?: bounds
     }
 
     /**
-     * [onPrepare]更改了[Tracker.step]，该函数的逻辑才会真正执行
+     * [onStart]更改了[Tracker.step]，该函数的逻辑才会真正执行
      */
     override fun onDraw() = with(InsetsAnimationReflection) {
         if (trackers.isEmpty()) return
         val runningAnimations = insetsController?.getRunningAnimations(controller)
         if (runningAnimations.isNullOrEmpty()) return
         trackers.forEach action@{ (animation, tracker) ->
-            if (tracker.step !== Step.ON_START) return@action
+            if (tracker.step !== Step.ON_DRAW) return@action
 
             // 查找跟animation匹配的InsetsAnimationControlImpl对象，
             // 从InsetsAnimationControlImpl对象获取InternalAnimationControlListener对象，
@@ -310,7 +318,7 @@ private class InsetsAnimationCallback(
                     true
                 }
             }
-            tracker.checkOnStart()
+            tracker.checkOnDraw()
         }
         trackers.clear()
     }
@@ -354,7 +362,7 @@ private class InsetsAnimationCallback(
     private class Tracker(private val durationMillis: Long, private val interpolator: Interpolator?) {
         private var interpolatorOutcome = false
         private var durationMillisOutcome = false
-        var step: Step = Step.ON_PREPARE
+        var step: Step = Step.ON_START
             private set
 
         inline fun trackInterpolator(modify: (Interpolator) -> Boolean) {
@@ -365,20 +373,20 @@ private class InsetsAnimationCallback(
             durationMillisOutcome = if (durationMillis <= NO_VALUE) true else modify(durationMillis)
         }
 
-        fun checkOnPrepare() {
-            if (step !== Step.ON_PREPARE) return
-            val outcome = consumeModifyOutcome()
-            if (outcome) step = Step.ON_START
-            val desc = if (outcome) "成功" else "失败"
-            log("onPrepare()修改WindowInsetsAnimation$desc")
-        }
-
         fun checkOnStart() {
             if (step !== Step.ON_START) return
             val outcome = consumeModifyOutcome()
+            if (outcome) step = Step.ON_DRAW
+            val desc = if (outcome) "成功" else "失败"
+            log("onStart()修改WindowInsetsAnimation$desc")
+        }
+
+        fun checkOnDraw() {
+            if (step !== Step.ON_DRAW) return
+            val outcome = consumeModifyOutcome()
             step = Step.COMPLETED
             val desc = if (outcome) "成功" else "失败"
-            log("onStart()修改InternalAnimationControlListener$desc")
+            log("onDraw()修改InternalAnimationControlListener$desc")
         }
 
         private fun consumeModifyOutcome(): Boolean {
@@ -391,7 +399,7 @@ private class InsetsAnimationCallback(
     }
 
     private enum class Step {
-        ON_PREPARE, ON_START, COMPLETED
+        ON_START, ON_DRAW, COMPLETED
     }
 
     private companion object {
