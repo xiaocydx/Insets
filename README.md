@@ -16,7 +16,7 @@ dependencyResolutionManagement {
 2. 在module的build.gradle添加
 ```
 dependencies {
-    def version = "1.2.2"
+    def version = "1.2.3"
     implementation "com.github.xiaocydx.Insets:insets:${version}"
     implementation "com.github.xiaocydx.Insets:insets-compat:${version}"
     implementation "com.github.xiaocydx.Insets:insets-systembar:${version}"
