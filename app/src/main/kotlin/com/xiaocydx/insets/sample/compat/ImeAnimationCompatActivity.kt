@@ -39,6 +39,19 @@ class ImeAnimationCompatActivity : AppCompatActivity() {
         // 该函数能避免跟window.modifyImeAnimation()的实现产生冲突。
         window.setWindowInsetsAnimationCallbackCompat(
             object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_STOP) {
+                override fun onPrepare(animation: WindowInsetsAnimationCompat) {
+                    // 此时未修改animation.durationMillis和animation.interpolator
+                    super.onPrepare(animation)
+                }
+
+                override fun onStart(
+                    animation: WindowInsetsAnimationCompat,
+                    bounds: WindowInsetsAnimationCompat.BoundsCompat
+                ): WindowInsetsAnimationCompat.BoundsCompat {
+                    // 此时已修改animation.durationMillis和animation.interpolator
+                    return super.onStart(animation, bounds)
+                }
+
                 override fun onProgress(
                     insets: WindowInsetsCompat,
                     runningAnimations: MutableList<WindowInsetsAnimationCompat>

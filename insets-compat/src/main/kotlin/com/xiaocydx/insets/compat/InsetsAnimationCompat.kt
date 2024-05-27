@@ -135,8 +135,7 @@ private class InsetsAnimationCompat private constructor(window: Window) : Window
         insetsCallback!!.typeMask = typeMask
         insetsCallback!!.durationMillis = durationMillis
         insetsCallback!!.interpolator = interpolator
-        // 对视图树的根View（排除ViewRootImpl）decorView设置insetsCallback，
-        // 是为了避免WindowInsetsAnimation.Callback分发的过程产生歧义，例如：
+        // 对decorView设置insetsCallback，是为了避免分发产生歧义：
         // decorView.setWindowInsetsAnimationCallback(callback)
         // childView.setWindowInsetsAnimationCallback(insetsCallback)
         // 1. callback的dispatchMode是DISPATCH_MODE_CONTINUE_ON_SUBTREE。
@@ -220,7 +219,7 @@ private class InsetsAnimationCompat private constructor(window: Window) : Window
  *
  * [onStart]修改第4步的[WindowInsetsAnimation]，[onDraw]修改第6步构建的属性动画。
  *
- * 选择在[onDraw]修改第6步构建的属性动画的原因：
+ * 在[onDraw]修改第6步构建的属性动画的原因：
  * 最初是在[onStart]修改`InsetsController.SYNC_IME_INTERPOLATOR`，使得第6步获取修改结果构建属性动画，
  * 但部分设备的`InsetsController.InternalAnimationControlListener.getInsetsInterpolator()`不会获取
  * 修改结果构建属性动画，导致`durationMillis`修改成功，`interpolator`修改失败。
