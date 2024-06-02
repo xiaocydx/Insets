@@ -204,15 +204,15 @@ private class InsetsAnimationCompat private constructor(window: Window) : Window
  * `InsetsController.show()`或`InsetsController.hide()`的执行顺序：
  * 1. 构建`InsetsController.InternalAnimationControlListener`。
  *
- * 2. 构建`InsetsController.InsetsAnimationControlImpl`（因为设置了WindowInsetsAnimation.Callback）。
+ * 2. 构建`InsetsAnimationControlImpl`（因为设置了WindowInsetsAnimation.Callback）。
  *
- * 3. `InsetsController.InsetsAnimationControlImpl`的构造函数调用`InsetsController.startAnimation()`。
+ * 3. `InsetsAnimationControlImpl`的构造函数调用`InsetsController.startAnimation()`。
  *
  * 4. `InsetsController.startAnimation()`先分发`WindowInsetsAnimation.Callback.onPrepare()`，
  * 再调用`addOnPreDrawRunnable()`，在`preDraw`分发`WindowInsetsAnimation.Callback.onStart()`。
  *
  * 5. `InsetsController.mRunningAnimations.add()`添加`RunningAnimation`，
- * `RunningAnimation`包含第2步构建的`InsetsController.InsetsAnimationControlImpl`.
+ * `RunningAnimation`包含第2步构建的`InsetsAnimationControlImpl`。
  *
  * 6. `preDraw`执行第4步添加的`Runnable`，先分发`WindowInsetsAnimation.Callback.onStart()`，
  * 再调用`InsetsController.InternalAnimationControlListener.onReady()`构建并开始属性动画。
@@ -303,7 +303,9 @@ private class InsetsAnimationCallback(
                     }
                     val start = if (show) hiddenInsets else controller.shownStateInsets
                     val end = if (show) controller.shownStateInsets else hiddenInsets
-                    animator.addUpdateListener {
+                    animator.addUpdateListener listener@{
+                        // controller已完成或已取消，调用controller.setInsetsAndAlpha()会抛出异常
+                        if (controller.isFinished || controller.isCancelled) return@listener
                         val rawFraction = it.animatedFraction
                         val insetsFraction = interpolator.getInterpolation(rawFraction)
                         val insets = insetsEvaluator.evaluate(insetsFraction, start, end)
