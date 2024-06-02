@@ -74,7 +74,8 @@ private class FullscreenCompat(window: Window) : WindowAttacher(window) {
 
     override fun onAttach(): Unit = with(ViewRootReflection) {
         if (!reflectSucceed) return
-        window.replaceViewRootOf(ViewRootScroller(), ViewRootHandlerCallback())
+        val delegate = window.getViewRootHandlerCallback()
+        window.replaceViewRootOf(ViewRootScroller(), ViewRootHandlerCallback(delegate))
     }
 
     /**
@@ -151,17 +152,20 @@ private class FullscreenCompat(window: Window) : WindowAttacher(window) {
      * }
      * ```
      */
-    private inner class ViewRootHandlerCallback : Handler.Callback {
-        private val viewRootImpl = decorView.parent
-        private val viewRootHandler = decorView.handler
+    private inner class ViewRootHandlerCallback(
+        private val delegate: Handler.Callback?
+    ) : Handler.Callback {
 
         override fun handleMessage(msg: Message): Boolean {
-            if (msg.what == MSG_RESIZED || msg.what == MSG_RESIZED_REPORT) {
-                viewRootHandler?.handleMessage(msg) ?: return false
+            val viewRootImpl = decorView.parent
+            val viewRootHandler = decorView.handler
+            var intercept = delegate?.handleMessage(msg) ?: false
+            if (viewRootHandler != null && (msg.what == MSG_RESIZED || msg.what == MSG_RESIZED_REPORT)) {
+                viewRootHandler.handleMessage(msg)
                 viewRootImpl?.takeIf { it.isLayoutRequested }?.requestFitSystemWindows()
-                return true
+                intercept = true
             }
-            return false
+            return intercept
         }
     }
 
@@ -193,6 +197,11 @@ private object ViewRootReflection : Reflection {
             mScrollerField = null
             mCallbackField = null
         }
+    }
+
+    fun Window.getViewRootHandlerCallback(): Handler.Callback? {
+        val viewRootHandler = decorView.handler ?: return null
+        return mCallbackField?.get(viewRootHandler) as? Handler.Callback
     }
 
     fun Window.replaceViewRootOf(scroller: Scroller, callback: Handler.Callback) {
