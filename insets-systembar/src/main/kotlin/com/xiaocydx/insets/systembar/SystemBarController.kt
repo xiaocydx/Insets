@@ -20,6 +20,7 @@
 package com.xiaocydx.insets.systembar
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.view.View
 import android.view.WindowInsets
 import androidx.annotation.ColorInt
@@ -37,21 +38,23 @@ import com.xiaocydx.insets.systembar.EdgeToEdge.Gesture
 interface SystemBarController {
 
     /**
-     * 状态栏背景色，默认为`window.statusBarColor`的初始值
+     * 状态栏背景色，默认为`SystemBar.install()`设置的[Default.statusBarColor]，
+     * 若[Default.statusBarColor]为`null`，则为`window.statusBarColor`的初始值。
      */
     @get:ColorInt
     @set:ColorInt
     var statusBarColor: Int
 
     /**
-     * 导航栏背景色，默认为`window.navigationBarColor`的初始值
+     * 导航栏背景色，默认为`SystemBar.install()`设置的[Default.navigationBarColor]，
+     * 若[Default.navigationBarColor]为`null`，则为`window.navigationBarColor`的初始值。
      */
     @get:ColorInt
     @set:ColorInt
     var navigationBarColor: Int
 
     /**
-     * 状态栏EdgeToEdge，默认为[Disabled]
+     * 状态栏EdgeToEdge，默认为`SystemBar.install()`设置的[Default.statusBarEdgeToEdge]
      *
      * 1. [Disabled]：消费[WindowInsets]的状态栏Insets，设置状态栏高度的间距，绘制背景色。
      * 2. [Enabled]：不消费[WindowInsets]的状态栏Insets，不设置状态栏高度的间距，不绘制背景色。
@@ -63,7 +66,7 @@ interface SystemBarController {
     var statusBarEdgeToEdge: EdgeToEdge
 
     /**
-     * 导航栏EdgeToEdge，默认为[Disabled]
+     * 导航栏EdgeToEdge，默认为`SystemBar.install()`设置的[Default.navigationBarEdgeToEdge]
      *
      * 1. [Disabled]：消费[WindowInsets]的导航栏Insets，设置导航栏高度的间距，绘制背景色。
      * 2. [Enabled]：不消费[WindowInsets]的导航栏Insets，不设置导航栏高度的间距，不绘制背景色。
@@ -75,16 +78,24 @@ interface SystemBarController {
     var navigationBarEdgeToEdge: EdgeToEdge
 
     /**
-     * 当状态栏的背景为浅色时，可以将该属性设为true，以便于清楚看到状态栏的图标
+     * 当状态栏的背景为浅色时，可以将该属性设为`true`，以便于清楚看到状态栏的图标
      *
-     * 对应`WindowInsetsControllerCompat.isAppearanceLightStatusBars`，默认为false
+     * 默认为`SystemBar.install()`设置的[Default.isAppearanceLightStatusBar]，
+     * 若[Default.isAppearanceLightStatusBar]为`null`，则调用[isAppearanceLight]，
+     * 传入`window.statusBarColor`的初始值进行推断。
+     *
+     * 对应`WindowInsetsControllerCompat.isAppearanceLightStatusBars`。
      */
     var isAppearanceLightStatusBar: Boolean
 
     /**
-     * 当导航栏的背景为浅色时，可以将该属性设为true，以便于清楚看到导航栏的图标
+     * 当导航栏的背景为浅色时，可以将该属性设为`true`，以便于清楚看到导航栏的图标
      *
-     * 对应`WindowInsetsControllerCompat.isAppearanceLightNavigationBars`，默认为false
+     * 默认为`SystemBar.install()`设置的[Default.isAppearanceLightNavigationBar]，
+     * 若[Default.isAppearanceLightNavigationBar]为`null`，则调用[isAppearanceLight]，
+     * 传入`window.navigationBarColor`的初始值进行推断。
+     *
+     * 对应`WindowInsetsControllerCompat.isAppearanceLightNavigationBars`。
      */
     var isAppearanceLightNavigationBar: Boolean
 
@@ -96,8 +107,8 @@ interface SystemBarController {
         val navigationBarColor: Int? = null,
         val statusBarEdgeToEdge: EdgeToEdge = Disabled,
         val navigationBarEdgeToEdge: EdgeToEdge = Disabled,
-        val isAppearanceLightStatusBar: Boolean = false,
-        val isAppearanceLightNavigationBar: Boolean = false
+        val isAppearanceLightStatusBar: Boolean? = null,
+        val isAppearanceLightNavigationBar: Boolean? = null
     )
 
     companion object {
@@ -112,4 +123,18 @@ sealed class EdgeToEdge {
     object Disabled : EdgeToEdge()
     object Enabled : EdgeToEdge()
     object Gesture : EdgeToEdge()
+}
+
+/**
+ * 若[color]为浅色，则返回`true`，可用于：
+ * ```
+ * val controller: SystemBarController = ...
+ * controller.isAppearanceLightStatusBar = isAppearanceLight(color)
+ * controller.isAppearanceLightNavigationBar = isAppearanceLight(color)
+ * ```
+ */
+fun isAppearanceLight(@ColorInt color: Int): Boolean {
+    val hsv = FloatArray(3)
+    Color.colorToHSV(color, hsv)
+    return hsv[2] > 0.7
 }

@@ -72,8 +72,6 @@ internal abstract class SystemBarWindowEnforcer(private val window: Window) {
 
     abstract fun setAppearanceLightNavigationBar(isLight: Boolean)
 
-    abstract fun setNavigationBarColor(color: Int)
-
     protected fun applyState(state: WindowState) = with(state) {
         applyStateCount++
         if (insetsController.isAppearanceLightStatusBars != isAppearanceLightStatusBar) {
@@ -81,11 +79,6 @@ internal abstract class SystemBarWindowEnforcer(private val window: Window) {
         }
         if (insetsController.isAppearanceLightNavigationBars != isAppearanceLightNavigationBar) {
             insetsController.isAppearanceLightNavigationBars = isAppearanceLightNavigationBar
-        }
-        if (!isAppearanceLightNavigationBar && window.navigationBarColor != navigationBarColor) {
-            // 部分机型设置navigationBarColor，isAppearanceLightNavigationBar = false才会生效，
-            // 当state.navigationBarColor是InitialColor时，navigationBarColor可能会被特殊处理。
-            window.navigationBarColor = navigationBarColor
         }
     }
 
@@ -115,11 +108,6 @@ internal class SimpleWindowEnforcer(window: Window) : SystemBarWindowEnforcer(wi
 
     override fun setAppearanceLightNavigationBar(isLight: Boolean) {
         currentState.isAppearanceLightNavigationBar = isLight
-        applyCurrentState()
-    }
-
-    override fun setNavigationBarColor(color: Int) {
-        currentState.navigationBarColor = color
         applyCurrentState()
     }
 
@@ -163,11 +151,6 @@ internal class BackStackWindowEnforcer private constructor(
 
     override fun setAppearanceLightNavigationBar(isLight: Boolean) {
         peekCurrentState()?.isAppearanceLightNavigationBar = isLight
-        applyCurrentState()
-    }
-
-    override fun setNavigationBarColor(color: Int) {
-        peekCurrentState()?.navigationBarColor = color
         applyCurrentState()
     }
 
@@ -229,14 +212,10 @@ internal class BackStackWindowEnforcer private constructor(
     }
 }
 
-/**
- * [navigationBarColor]用于兼容[isAppearanceLightNavigationBar]
- */
 internal data class WindowState(
     var isApplied: Boolean = false,
     var isAppearanceLightStatusBar: Boolean = false,
-    var isAppearanceLightNavigationBar: Boolean = false,
-    var navigationBarColor: Int = 0
+    var isAppearanceLightNavigationBar: Boolean = false
 )
 
 internal class WindowStateHolder(savaStateHandle: SavedStateHandle) : ViewModel() {

@@ -55,8 +55,7 @@ internal abstract class SystemBarControllerImpl(
     protected val fromInstaller: Boolean
 ) : SystemBarController {
     private val default = SystemBarController.default
-    private var hasStatusBarColor = default.statusBarColor != null
-    private var hasNavigationBarColor = default.navigationBarColor != null
+    private val flags = SystemBarControllerFlags(default)
     protected var container: SystemBarContainer? = null
     protected var enforcer: SystemBarWindowEnforcer? = null
     protected abstract val window: Window?
@@ -64,16 +63,15 @@ internal abstract class SystemBarControllerImpl(
     final override var statusBarColor = default.statusBarColor ?: 0
         set(value) {
             field = value
-            hasStatusBarColor = true
+            flags.setStatusBarColor()
             container?.statusBarColor = value
         }
 
     final override var navigationBarColor = default.navigationBarColor ?: 0
         set(value) {
             field = value
-            hasNavigationBarColor = true
+            flags.setNavigationBarColor()
             container?.navigationBarColor = value
-            enforcer?.setNavigationBarColor(value)
         }
 
     final override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
@@ -88,15 +86,17 @@ internal abstract class SystemBarControllerImpl(
             container?.navigationBarEdgeToEdge = value
         }
 
-    final override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
+    final override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar ?: false
         set(value) {
             field = value
+            flags.setAppearanceLightStatusBar()
             enforcer?.setAppearanceLightStatusBar(value)
         }
 
-    final override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
+    final override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar ?: false
         set(value) {
             field = value
+            flags.setAppearanceLightNavigationBar()
             enforcer?.setAppearanceLightNavigationBar(value)
         }
 
@@ -108,7 +108,7 @@ internal abstract class SystemBarControllerImpl(
 
     protected abstract fun onAttach()
 
-    protected fun applyPendingSystemBarConfig() {
+    protected fun applyPendingSystemBarConfig() = with(flags) {
         val window = requireNotNull(window)
         statusBarColor = when {
             hasStatusBarColor -> statusBarColor
@@ -120,8 +120,14 @@ internal abstract class SystemBarControllerImpl(
         }
         statusBarEdgeToEdge = statusBarEdgeToEdge
         navigationBarEdgeToEdge = navigationBarEdgeToEdge
-        isAppearanceLightStatusBar = isAppearanceLightStatusBar
-        isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
+        isAppearanceLightStatusBar = when {
+            hasAppearanceLightStatusBar -> isAppearanceLightStatusBar
+            else -> isAppearanceLight(window.initialState.statusBarColor)
+        }
+        isAppearanceLightNavigationBar = when {
+            hasAppearanceLightNavigationBar -> isAppearanceLightNavigationBar
+            else -> isAppearanceLight(window.initialState.navigationBarColor)
+        }
     }
 }
 

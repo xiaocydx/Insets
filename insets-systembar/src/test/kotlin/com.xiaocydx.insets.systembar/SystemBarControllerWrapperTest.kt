@@ -57,8 +57,8 @@ internal class SystemBarControllerWrapperTest {
             val wrapper = SystemBarControllerWrapper()
             wrapper.attachDelegate(fragment.systemBarController())
             it.addFragment(fragment).commitNow()
-            assertThat(wrapper.statusBarColor).isEqualTo(it.window.statusBarColor)
-            assertThat(wrapper.navigationBarColor).isEqualTo(it.window.navigationBarColor)
+            assertThat(wrapper.statusBarColor).isEqualTo(it.window.initialState.statusBarColor)
+            assertThat(wrapper.navigationBarColor).isEqualTo(it.window.initialState.navigationBarColor)
         }
     }
 

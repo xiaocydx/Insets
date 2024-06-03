@@ -18,6 +18,7 @@
 
 package com.xiaocydx.insets.systembar
 
+import android.graphics.Color
 import android.view.Window
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
@@ -38,9 +39,14 @@ internal data class WindowInitialState(val statusBarColor: Int, val navigationBa
 
 internal fun Window.disableDecorFitsSystemWindows() {
     if (isInitialized) return
-    // 记录StatusBar和NavigationBar的初始背景色，
-    // 执行完decorView创建流程，才能获取到背景色。
+    // 记录系统栏的初始背景色，执行完decorView创建流程，才能获取到初始背景色
     decorView.setTag(initialKey, WindowInitialState(statusBarColor, navigationBarColor))
+    // navigationBar的背景色会影响isAppearanceLightNavigationBar的实际效果，
+    // 例如某些设备的初始背景色是白色，isAppearanceLightNavigationBar = false，
+    // 但是navigationBar的前景色是isAppearanceLightNavigationBar = true的效果。
+    // 为了解决这种差异，将系统栏背景色设置为透明，由SystemBar的实现控制实际效果。
+    statusBarColor = Color.TRANSPARENT
+    navigationBarColor = Color.TRANSPARENT
     disableDecorFitsSystemWindowsInternal(
         consumeTypeMask = statusBars() or navigationBars(),
         reason = SystemBarDisableDecorFitsSystemWindowsReason

@@ -24,15 +24,14 @@ package com.xiaocydx.insets.systembar
  */
 open class SystemBarControllerWrapper : SystemBarController {
     private val default = SystemBarController.default
-    private var hasStatusBarColor = default.statusBarColor != null
-    private var hasNavigationBarColor = default.navigationBarColor != null
+    private val flags = SystemBarControllerFlags(default)
     private var delegate: SystemBarController? = null
 
     final override var statusBarColor = default.statusBarColor ?: 0
         get() = delegate?.statusBarColor ?: field
         set(value) {
             field = value
-            hasStatusBarColor = true
+            flags.setStatusBarColor()
             delegate?.statusBarColor = value
         }
 
@@ -40,7 +39,7 @@ open class SystemBarControllerWrapper : SystemBarController {
         get() = delegate?.navigationBarColor ?: field
         set(value) {
             field = value
-            hasNavigationBarColor = true
+            flags.setNavigationBarColor()
             delegate?.navigationBarColor = value
         }
 
@@ -58,17 +57,19 @@ open class SystemBarControllerWrapper : SystemBarController {
             delegate?.navigationBarEdgeToEdge = value
         }
 
-    final override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar
+    final override var isAppearanceLightStatusBar = default.isAppearanceLightStatusBar ?: false
         get() = delegate?.isAppearanceLightStatusBar ?: field
         set(value) {
             field = value
+            flags.setAppearanceLightStatusBar()
             delegate?.isAppearanceLightStatusBar = value
         }
 
-    final override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar
+    final override var isAppearanceLightNavigationBar = default.isAppearanceLightNavigationBar ?: false
         get() = delegate?.isAppearanceLightNavigationBar ?: field
         set(value) {
             field = value
+            flags.setAppearanceLightNavigationBar()
             delegate?.isAppearanceLightNavigationBar = value
         }
 
@@ -78,12 +79,12 @@ open class SystemBarControllerWrapper : SystemBarController {
         this.delegate = delegate
     }
 
-    private fun applyPendingSystemBarConfig(delegate: SystemBarController) {
+    private fun applyPendingSystemBarConfig(delegate: SystemBarController) = with(flags) {
         if (hasStatusBarColor) delegate.statusBarColor = statusBarColor
         if (hasNavigationBarColor) delegate.navigationBarColor = navigationBarColor
         delegate.statusBarEdgeToEdge = statusBarEdgeToEdge
         delegate.navigationBarEdgeToEdge = navigationBarEdgeToEdge
-        delegate.isAppearanceLightStatusBar = isAppearanceLightStatusBar
-        delegate.isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
+        if (hasAppearanceLightStatusBar) delegate.isAppearanceLightStatusBar = isAppearanceLightStatusBar
+        if (hasAppearanceLightNavigationBar) delegate.isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
     }
 }
