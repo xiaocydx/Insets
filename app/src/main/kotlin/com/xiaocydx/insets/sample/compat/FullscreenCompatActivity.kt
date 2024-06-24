@@ -6,11 +6,12 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.xiaocydx.insets.compat.enableDispatchApplyInsetsFullscreenCompat
+import com.xiaocydx.insets.onApplyWindowInsetsCompat
 import com.xiaocydx.insets.sample.R
 import com.xiaocydx.insets.sample.databinding.ActivityInsetsCompatBinding
+import com.xiaocydx.insets.setOnApplyWindowInsetsListenerCompat
 
 /**
  * FullscreenCompat的示例代码
@@ -42,7 +43,7 @@ class FullscreenCompatActivity : AppCompatActivity() {
     @Suppress("KotlinConstantConditions")
     private fun handleImeShowOrHideOrChange() {
         var lastImeHeight = 0
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { v, insets ->
+        window.decorView.setOnApplyWindowInsetsListenerCompat { v, insets ->
             val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             when {
                 lastImeHeight == 0 && imeHeight > 0 -> {
@@ -56,7 +57,7 @@ class FullscreenCompatActivity : AppCompatActivity() {
                 }
             }
             lastImeHeight = imeHeight
-            ViewCompat.onApplyWindowInsets(v, insets)
+            v.onApplyWindowInsetsCompat(insets)
         }
     }
 }
