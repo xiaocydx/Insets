@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDialog
 import com.xiaocydx.insets.insets
+import com.xiaocydx.insets.navigationBars
 import com.xiaocydx.insets.sample.R
 import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
 import com.xiaocydx.insets.sample.dp
@@ -39,6 +40,7 @@ class SystemBarDialog(context: Context) : AppCompatDialog(context, SystemBar.Dia
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(contentView())
+        // window的Gravity会传递给contentView
         window?.setGravity(Gravity.BOTTOM)
         window?.setWindowAnimations(R.style.PopAnim)
     }
@@ -48,7 +50,7 @@ class SystemBarDialog(context: Context) : AppCompatDialog(context, SystemBar.Dia
         .inflate(layoutInflater).apply {
             root.layoutParams(matchParent, 300.dp)
             root.setBackgroundColor(0xFF91A1AA.toInt())
-            root.insets().gestureNavBarEdgeToEdge()
+            root.insets().dimension(navigationBars()).paddings(navigationBars())
             tvCenter.text = " Dialog\n\n导航栏浅色背景，深色前景"
         }.root
 }

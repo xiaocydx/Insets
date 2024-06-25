@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.xiaocydx.insets.insets
+import com.xiaocydx.insets.navigationBars
 import com.xiaocydx.insets.sample.R
 import com.xiaocydx.insets.sample.databinding.LayoutBaseBinding
 import com.xiaocydx.insets.sample.dp
@@ -62,7 +63,7 @@ class SystemBarDialogFragment : DialogFragment(), SystemBar {
         .inflate(inflater, container, false).apply {
             root.layoutParams(matchParent, 300.dp)
             root.setBackgroundColor(0xFF91A1AA.toInt())
-            root.insets().gestureNavBarEdgeToEdge()
+            root.insets().dimension(navigationBars()).paddings(navigationBars())
             tvCenter.text = " Dialog\n\n导航栏浅色背景，深色前景"
         }.root
 }
