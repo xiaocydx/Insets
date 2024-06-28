@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.xiaocydx.insets.sample"
     defaultConfig { applicationId = "com.xiaocydx.insets.sample" }
-    kotlinOptions { jvmTarget = "1.8" }
+    kotlinOptions { jvmTarget = Versions.jvmTarget }
     buildFeatures { viewBinding = true }
 }
 
