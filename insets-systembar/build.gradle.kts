@@ -20,13 +20,13 @@ android {
 
 dependencies {
     compileOnly(project(":insets"))
-    implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.fragment:fragment:1.3.6")
-    implementation(Libs.`androidx-core`)
-    testImplementation(Libs.`androidx-viewpager2`)
-    testImplementation(Libs.truth)
-    testImplementation(Libs.robolectric)
-    testImplementation(Libs.mockk)
-    testImplementation(Libs.`androidx-test-core`)
-    testImplementation(Libs.junit)
+    implementation(PublishLibs.`androidx-core`)
+    implementation(PublishLibs.`androidx-appcompat`)
+    testImplementation(PublishLibs.`androidx-viewpager2`)
+    implementation(PublishLibs.`androidx-fragment-new`)
+    testImplementation(PublishLibs.`androidx-test-core`)
+    testImplementation(PublishLibs.truth)
+    testImplementation(PublishLibs.robolectric)
+    testImplementation(PublishLibs.mockk)
+    testImplementation(PublishLibs.junit)
 }

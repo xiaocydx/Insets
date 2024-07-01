@@ -11,6 +11,6 @@ android {
 
 dependencies {
     compileOnly(project(":insets"))
-    implementation(Libs.`androidx-core`)
-    implementation(Libs.hiddenapibypass)
+    implementation(PublishLibs.`androidx-core`)
+    implementation(PublishLibs.hiddenapibypass)
 }

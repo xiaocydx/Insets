@@ -10,5 +10,5 @@ android {
 }
 
 dependencies {
-    implementation(Libs.`androidx-core`)
+    implementation(PublishLibs.`androidx-core`)
 }
