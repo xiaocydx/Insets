@@ -42,9 +42,8 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
-import androidx.viewpager.widget.ViewPager
 import com.xiaocydx.insets.doOnAttach
-import com.xiaocydx.insets.systembar.ActivitySystemBarController.Companion.name
+import com.xiaocydx.insets.systembar.SystemBarExtensions.Companion.name
 
 /**
  * @author xcc
@@ -181,8 +180,6 @@ internal class ActivitySystemBarController private constructor(
     }
 
     companion object {
-        private val FragmentActivity.name: String
-            get() = javaClass.canonicalName ?: ""
 
         private fun FragmentActivity.checkStateOnCreate() {
             check(window == null && lifecycle.currentState === INITIALIZED) {
@@ -293,45 +290,19 @@ internal open class FragmentSystemBarController private constructor(
         val view = fragment.getViewInternal()
         var parent = view?.parent as? ViewGroup
         val contentParentId = android.R.id.content
+        val extensions = SystemBarExtensions.all()
         while (parent != null && parent.id != contentParentId) {
-            val message = when {
-                parent is SystemBarContainer -> {
-                    """使用${SystemBar.name}的Fragment不支持父子级关系
-                       |    Parent ${getParentName(parent)} : ${SystemBar.name}
-                       |    Child ${fragment.name} : ${SystemBar.name}
-                    """.trimMargin()
-                }
-                parent is ViewPager -> {
-                    """使用${SystemBar.name}的Fragment不支持ViewPager
-                       |    ${fragment.name} : ${SystemBar.name}
-                    """.trimMargin()
-                }
-                parent.javaClass.name == VP2_CLASS_NAME -> {
-                    """使用${SystemBar.name}的Fragment不支持ViewPager2
-                       |    ${fragment.name} : ${SystemBar.name}
-                    """.trimMargin()
-                }
-                else -> ""
+            var message: String? = null
+            for (i in extensions.indices) {
+                message = extensions[i].checkUnsupportedOnResume(fragment, parent)
+                if (!message.isNullOrEmpty()) break
             }
-            if (message.isNotEmpty()) throw UnsupportedOperationException(message)
+            if (!message.isNullOrEmpty()) throw UnsupportedOperationException(message)
             parent = parent.parent as? ViewGroup
         }
     }
 
-    private fun getParentName(parentView: View): String {
-        var parent = fragment.parentFragment
-        while (parent != null) {
-            if (parent.view === parentView) return parent.name
-            parent = parent.parentFragment
-        }
-        return fragment.activity?.name ?: ""
-    }
-
     companion object {
-        private const val VP2_CLASS_NAME = "androidx.viewpager2.widget.ViewPager2"
-
-        private val Fragment.name: String
-            get() = javaClass.canonicalName ?: ""
 
         private fun Fragment.checkStateOnCreate() {
             check(activity == null && lifecycle.currentState === INITIALIZED) {
