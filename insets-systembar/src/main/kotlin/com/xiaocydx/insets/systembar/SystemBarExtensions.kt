@@ -33,9 +33,8 @@ import java.util.ServiceLoader
 internal interface SystemBarExtensions {
 
     /**
-     * 检查`fragment.javaClass`是否支持实现[SystemBar]
+     * 检查是否支持[fragment]使用[SystemBar]
      *
-     * @param fragment 实现[SystemBar]的[Fragment]对象
      * @param parent   `fragment.view`的每一级`parent`
      * @return [UnsupportedOperationException]的`message`，返回非空字符串表示不支持
      */
