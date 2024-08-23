@@ -10,8 +10,5 @@
         <activity
             android:name="com.xiaocydx.insets.systembar.TestSystemBarNoneActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-        <activity
-            android:name="com.xiaocydx.insets.systembar.TestSystemBarHostActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
     </application>
 </manifest>
