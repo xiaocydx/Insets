@@ -70,7 +70,8 @@ fun View.setWindowInsetsAnimationCallbackCompat(callback: WindowInsetsAnimationC
 }
 
 /**
- * 传入[view]是为了确保转换出的[WindowInsetsCompat]是正确的结果
+ * 传入[view]能让转换出的[WindowInsetsCompat]包含`mRootWindowInsets`和`mRootViewVisibleInsets`。
+ * [WindowInsetsCompat]缺失`Root数据`，会导致[WindowInsetsCompat.getInsets]获取到错误的数值结果。
  */
 fun WindowInsets.toWindowInsetsCompat(view: View) = WindowInsetsCompat.toWindowInsetsCompat(this, view)
 

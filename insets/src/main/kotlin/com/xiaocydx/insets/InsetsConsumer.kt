@@ -47,8 +47,7 @@ internal value class InsetsConsumer(private val insets: WindowInsetsCompat) {
      *     val typeMask = statusBars()
      *     val outcome = insets.decorInsets(typeMask)
      *     decorView.onApplyWindowInsetsCompat(outcome)
-     *     // 注意，不能返回outcome
-     *     insets
+     *     insets // 注意，不能返回outcome
      * }
      * ```
      */
@@ -112,14 +111,14 @@ internal value class InsetsConsumer(private val insets: WindowInsetsCompat) {
      *
      * ### Android 11以下
      * 调用`WindowInsetsCompat.Builder.setInsetsIgnoringVisibility(typeMask, Insets.NONE)`,
-     * `builder.build()`构建的[WindowInsetsCompat]仍能获取到[typeMask]的数值，不符合消费意图，
+     * `builder.build()`构建的[WindowInsetsCompat]仍能获取到[typeMask]的数值，不符合消费意图。
      * 修改`Root`数据和`mPlatformInsets`能实现效果，但分发过程对子View构建的[WindowInsetsCompat]，
      * 其`Root`数据不受消费逻辑影响，仍不符合消费意图。
      *
      * ### SystemWindowInsets
-     * Android 11及以上，`WindowInsets.systemWindowInsets`不包含[ime]的数值，Android 11以下包含[ime]的数值，
+     * Android 11及以上，`WindowInsets.systemWindowInsets`不包含[ime]的数值，Android 11以下包含[ime]的数值。
      * `builder.build()`构建的[WindowInsetsCompat]会替换`WindowInsets.systemWindowInsets`，去除[ime]的数值，
-     * 不能修正构建结果的`systemWindowInsets`，这会导致[WindowInsetsCompat.getInsets]获取到错误的数值结果，
+     * 不能修正构建结果的`systemWindowInsets`，这会导致[WindowInsetsCompat.getInsets]获取到错误的数值结果。
      * 对构建结果补充`Root`数据，即可让构建结果计算出[ime]的数值，这一步由[copyWindowDataInto]完成。
      *
      * 为了统一全版本的消费表现，仅调用`WindowInsetsCompat.Builder.setInsets(typeMask, Insets.NONE)`。
@@ -133,7 +132,7 @@ internal value class InsetsConsumer(private val insets: WindowInsetsCompat) {
      *
      * ### Android 11以下
      * 构建的[WindowInsetsCompat]需要包含`mRootWindowInsets`和`mRootViewVisibleInsets`，
-     * 才能确保`WindowInsets.systemWindowInsets`去除[ime]的数值后，仍能计算出[ime]的数值，
+     * 才能确保`WindowInsets.systemWindowInsets`去除[ime]的数值后，仍能计算出[ime]的数值。
      * [WindowInsetsCompat.Builder]构建的[WindowInsetsCompat]会缺失`Root`数据，需要补充。
      */
     private fun WindowInsetsCompat.copyWindowDataInto(other: WindowInsetsCompat) {

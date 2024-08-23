@@ -27,7 +27,7 @@ class InsetterActivity : AppCompatActivity() {
         val binding = ActivityInsetterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. 禁用window.decorView实现的消费逻辑和间距逻辑，让视图树自行处理WindowInsets，
+        // 1. 禁用window.decorView实现的消费逻辑和间距逻辑，让视图树自行处理WindowInsets。
         // consumeTypeMask = statusBars()，对window.decorView传入消费状态栏类型的结果，
         // 使得window.decorView不绘制状态栏背景色。
         // 跟消费逻辑同等效果的做法是对window设置透明背景色，消费逻辑更适用于实现框架。

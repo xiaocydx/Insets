@@ -129,8 +129,7 @@ fun WindowInsetsCompat.getImeOffset(view: View): Int {
  *     val typeMask = statusBars()
  *     val outcome = insets.decorInsets(typeMask)
  *     decorView.onApplyWindowInsetsCompat(outcome)
- *     // 注意，不能返回outcome
- *     insets
+ *     insets // 注意，不能返回outcome
  * }
  * ```
  */
@@ -199,7 +198,7 @@ fun View.removeRequestApplyInsetsOnAttach() {
 }
 
 /**
- * 对View调用[doOnApplyWindowInsets]，构建负责处理[WindowInsets]的[InsetsReceiver]，
+ * 对View调用[doOnApplyWindowInsets]，构建负责处理[WindowInsets]的[InsetsReceiver]。
  * [InsetsReceiver]提供常用的[WindowInsets]处理逻辑，例如[InsetsReceiver.paddings]。
  *
  * ```

@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.xiaocydx.insets.compat.setOnApplyWindowInsetsListenerImmutable
 import com.xiaocydx.insets.compat.setWindowInsetsAnimationCallbackImmutable
+import com.xiaocydx.insets.ime
 import com.xiaocydx.insets.sample.R
 
 /**
@@ -29,6 +30,7 @@ class ImmutableCompatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_insets_compat)
+
         val root = findViewById<View>(R.id.root)
         val editText = findViewById<EditText>(R.id.editText)
         editText.setText("ImmutableCompat")
@@ -52,11 +54,11 @@ class ImmutableCompatActivity : AppCompatActivity() {
     }
 
     /**
-     * 符合预期的结果是当首次显示IME时，会因为IME的数值不相同，而设置paddingBottom，
+     * 符合预期的结果是当首次显示IME时，会因为IME的数值不相同，而设置paddingBottom。
      * Android 9.0以下[WindowInsets]可变，[lastInsets]引用了`ViewRootImpl`的最新值，
      * 导致首次判断IME的数值相同，也就不会设置paddingBottom。
      *
-     * 这段代码逻辑正是[ViewCompat.setWindowInsetsAnimationCallback]首次显示IME不运行动画的原因，
+     * 这段代码逻辑正是[ViewCompat.setWindowInsetsAnimationCallback]首次显示IME不运行动画的原因。
      * [setOnApplyWindowInsetsListenerImmutable]和[setWindowInsetsAnimationCallbackImmutable]，
      * 确保传入不可变的[WindowInsets]，这两个函数可用于解决在实际场景中碰到的问题，提高兼容稳定性。
      */
@@ -71,9 +73,8 @@ class ImmutableCompatActivity : AppCompatActivity() {
                 lastInsets = WindowInsetsCompat.Builder(insets).build()
                 return insets
             }
-
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val lastIme = lastInsets?.getInsets(WindowInsetsCompat.Type.ime())
+            val ime = insets.getInsets(ime())
+            val lastIme = lastInsets?.getInsets(ime())
             if (ime != lastIme) {
                 // 2. 这次分发的insets跟lastInsets，IME的数值不相同，设置paddingBottom
                 lastInsets = insets

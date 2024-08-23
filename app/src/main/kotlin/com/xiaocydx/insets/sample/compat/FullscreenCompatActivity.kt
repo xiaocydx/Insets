@@ -6,8 +6,8 @@ import android.util.Log
 import android.view.WindowManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowInsetsCompat
 import com.xiaocydx.insets.compat.enableDispatchApplyInsetsFullscreenCompat
+import com.xiaocydx.insets.ime
 import com.xiaocydx.insets.onApplyWindowInsetsCompat
 import com.xiaocydx.insets.sample.R
 import com.xiaocydx.insets.sample.databinding.ActivityInsetsCompatBinding
@@ -28,6 +28,7 @@ class FullscreenCompatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ActivityInsetsCompatBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_insets_compat)
+
         val editText = findViewById<EditText>(R.id.editText)
         editText.setText("FullscreenCompat")
 
@@ -44,7 +45,7 @@ class FullscreenCompatActivity : AppCompatActivity() {
     private fun handleImeShowOrHideOrChange() {
         var lastImeHeight = 0
         window.decorView.setOnApplyWindowInsetsListenerCompat { v, insets ->
-            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val imeHeight = insets.getInsets(ime()).bottom
             when {
                 lastImeHeight == 0 && imeHeight > 0 -> {
                     Log.e(TAG, "ime show, height = $imeHeight")

@@ -35,7 +35,7 @@ internal interface SystemBarExtensions {
     /**
      * 检查是否支持[fragment]使用[SystemBar]
      *
-     * @param parent   `fragment.view`的每一级`parent`
+     * @param parent `fragment.view`的每一级`parent`
      * @return [UnsupportedOperationException]的`message`，返回非空字符串表示不支持
      */
     fun checkUnsupportedOnResume(fragment: Fragment, parent: ViewGroup): String?
