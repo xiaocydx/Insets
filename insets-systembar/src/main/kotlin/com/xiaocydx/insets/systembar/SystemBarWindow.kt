@@ -85,9 +85,9 @@ private fun Window.newWindowInitialState(): WindowInitialState {
         // 或者创建decorView之前设置了背景色，此时不需要做兼容处理。
     } else {
         // 实现逻辑copy自PhoneWindow.generateLayout()
-        val typedArray = context.obtainStyledAttributes(intArrayOf
-            (android.R.attr.statusBarColor, android.R.attr.navigationBarColor)
-        )
+        val typedArray = context.obtainStyledAttributes(intArrayOf(
+            android.R.attr.statusBarColor, android.R.attr.navigationBarColor
+        ))
         statusBarColor = typedArray.getColor(0, Color.BLACK)
 
         val navBarCompatibleColor = getColor("navigation_bar_compatible")
