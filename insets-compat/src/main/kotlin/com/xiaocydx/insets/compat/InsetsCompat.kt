@@ -55,7 +55,7 @@ object InsetsCompat {
      *
      * **注意**：只能在[Application]初始化阶段调用该函数。
      */
-    fun disableImmutableCompatEnabled() {
+    fun disableImmutableCompat() {
         isImmutableCompatEnabled = false
     }
 
