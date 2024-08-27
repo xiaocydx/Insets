@@ -26,6 +26,7 @@ import android.view.*
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
 import android.widget.Scroller
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import com.xiaocydx.insets.compat.FullscreenCompat.Companion.MSG_RESIZED
@@ -59,7 +60,7 @@ import com.xiaocydx.insets.compat.FullscreenCompat.Companion.MSG_RESIZED_REPORT
  */
 fun Window.enableDispatchApplyInsetsFullscreenCompat() {
     if (isFullscreenCompatEnabled) return
-    if (Build.VERSION.SDK_INT in 21..29) FullscreenCompat(this).attach()
+    if (isFullscreenCompatNeeded) FullscreenCompat(this).attach()
     decorView.setTag(R.id.tag_dispatch_apply_insets_full_screen_enabled, true)
 }
 
@@ -68,6 +69,11 @@ fun Window.enableDispatchApplyInsetsFullscreenCompat() {
  */
 internal val Window.isFullscreenCompatEnabled: Boolean
     get() = decorView.getTag(R.id.tag_dispatch_apply_insets_full_screen_enabled) == true
+
+@get:ChecksSdkIntAtLeast(api = 21)
+private val isFullscreenCompatNeeded: Boolean
+    get() = Build.VERSION.SDK_INT in 21..29
+            && InsetsCompat.isFullScreenCompatEnabled
 
 @RequiresApi(21)
 private class FullscreenCompat(window: Window) : WindowAttacher(window) {

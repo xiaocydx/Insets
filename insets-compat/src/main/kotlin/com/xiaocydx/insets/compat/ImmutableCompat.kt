@@ -59,7 +59,7 @@ fun View.setOnApplyWindowInsetsListenerImmutable(
     listener: OnApplyWindowInsetsListener? = defaultOnApplyWindowInsetsListener
 ) {
     setOnApplyWindowInsetsListenerCompat(listener)
-    if (!isImmutableNeeded || !InsetsCompatReflection.reflectSucceed) return
+    if (!isImmutableCompatNeeded || !InsetsCompatReflection.reflectSucceed) return
     // 确保对匿名View.OnApplyWindowInsetsListener分发不可变的WindowInsets
     immutableListener = listener?.run { setupImmutableListener() }
 }
@@ -73,7 +73,7 @@ fun View.setOnApplyWindowInsetsListenerImmutable(
  */
 fun View.setWindowInsetsAnimationCallbackImmutable(callback: WindowInsetsAnimationCompat.Callback?) {
     setWindowInsetsAnimationCallbackCompat(callback)
-    if (!isImmutableNeeded || !InsetsCompatReflection.reflectSucceed) return
+    if (!isImmutableCompatNeeded || !InsetsCompatReflection.reflectSucceed) return
     if (isAttachedToWindow) {
         // 确保Impl21OnApplyWindowInsetsListener构造函数创建的mLastInsets生成缓存
         getLastInsetsFromProxyListener()?.ensureCreateCache()
@@ -84,15 +84,14 @@ fun View.setWindowInsetsAnimationCallbackImmutable(callback: WindowInsetsAnimati
     }
 }
 
-/**
- * Android 9.0及以上，[WindowInsets]不可变，不需要兼容
- */
-@ChecksSdkIntAtLeast(api = 21)
-private val isImmutableNeeded = Build.VERSION.SDK_INT in 21 until 28
+@get:ChecksSdkIntAtLeast(api = 21)
+private val isImmutableCompatNeeded: Boolean
+    get() = Build.VERSION.SDK_INT in 21 until 28
+            && InsetsCompat.isImmutableCompatEnabled
 
 @Suppress("DEPRECATION")
 private fun WindowInsets.toImmutable(): WindowInsets {
-    if (!isImmutableNeeded || !InsetsCompatReflection.reflectSucceed) return this
+    if (!isImmutableCompatNeeded || !InsetsCompatReflection.reflectSucceed) return this
     // 先创建新的WindowInsets，再反射修改mStableInsets，避免对当前WindowInsets造成影响
     val insets = replaceSystemWindowInsets(
         systemWindowInsetLeft, systemWindowInsetTop,
@@ -105,7 +104,7 @@ private fun WindowInsets.toImmutable(): WindowInsets {
 
 @Suppress("DEPRECATION")
 private fun WindowInsetsCompat.ensureCreateCache() {
-    if (!isImmutableNeeded) return
+    if (!isImmutableCompatNeeded) return
     // 访问一次stableInsets和systemWindowInsets，即可生成缓存，
     // 避免后续因为内部WindowInsets数据改变，而读取到改变后的值。
     apply { stableInsets }.apply { systemWindowInsets }

@@ -70,7 +70,7 @@ fun Window.modifyImeAnimation(
     durationMillis: Long = NO_VALUE,
     interpolator: Interpolator? = null,
 ) {
-    if (!supportModifyInsetsAnimation) return
+    if (!isInsetsAnimationCompatNeeded) return
     val compat = InsetsAnimationCompat.get(this)
     compat.typeMask = ime()
     compat.durationMillis = durationMillis
@@ -81,7 +81,7 @@ fun Window.modifyImeAnimation(
  * 恢复[modifyImeAnimation]修改的`durationMillis`和`interpolator`
  */
 fun Window.restoreImeAnimation() {
-    if (!supportModifyInsetsAnimation) return
+    if (!isInsetsAnimationCompatNeeded) return
     val compat = InsetsAnimationCompat.peek(this)
     compat?.typeMask = 0
     compat?.durationMillis = NO_VALUE
@@ -96,15 +96,16 @@ fun Window.restoreImeAnimation() {
  * ```
  */
 fun Window.setWindowInsetsAnimationCallbackCompat(callback: WindowInsetsAnimationCompat.Callback?) {
-    if (!supportModifyInsetsAnimation) {
+    if (!isInsetsAnimationCompatNeeded) {
         decorView.setWindowInsetsAnimationCallbackCompat(callback)
     } else {
         InsetsAnimationCompat.setDelegate(this, callback)
     }
 }
 
-@ChecksSdkIntAtLeast(api = 30)
-private val supportModifyInsetsAnimation = Build.VERSION.SDK_INT >= 30
+@get:ChecksSdkIntAtLeast(api = 30)
+private val isInsetsAnimationCompatNeeded: Boolean
+    get() = Build.VERSION.SDK_INT >= 30 && InsetsCompat.isInsetsAnimationCompatEnabled
 
 @RequiresApi(30)
 private class InsetsAnimationCompat private constructor(window: Window) : WindowAttacher(window) {
