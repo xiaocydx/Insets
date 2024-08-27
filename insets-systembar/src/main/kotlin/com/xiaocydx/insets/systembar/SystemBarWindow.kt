@@ -18,7 +18,9 @@
 
 package com.xiaocydx.insets.systembar
 
+import android.annotation.SuppressLint
 import android.graphics.Color
+import android.os.Build
 import android.view.Window
 import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
@@ -37,10 +39,14 @@ internal val Window.initialState: WindowInitialState
 
 internal data class WindowInitialState(val statusBarColor: Int, val navigationBarColor: Int)
 
+@Suppress("DEPRECATION")
 internal fun Window.disableDecorFitsSystemWindows() {
     if (isInitialized) return
-    // 记录系统栏的初始背景色，执行完decorView创建流程，才能获取到初始背景色
-    decorView.setTag(initialKey, WindowInitialState(statusBarColor, navigationBarColor))
+    // 记录系统栏的初始背景色
+    decorView.setTag(initialKey, when {
+        Build.VERSION.SDK_INT < 35 -> brokenWindowInitialState()
+        else -> newWindowInitialState()
+    })
     // navigationBar的背景色会影响isAppearanceLightNavigationBar的实际效果，
     // 例如某些设备的初始背景色是白色，isAppearanceLightNavigationBar = false，
     // 但是navigationBar的前景色是isAppearanceLightNavigationBar = true的效果。
@@ -52,6 +58,62 @@ internal fun Window.disableDecorFitsSystemWindows() {
         reason = SystemBarDisableDecorFitsSystemWindowsReason
     )
     checkDispatchApplyInsetsCompatibility()
+}
+
+private fun Window.ensureSystemBarColorInitialized() {
+    // 执行decorView创建流程，确保背景色初始化完成
+    decorView
+}
+
+@Suppress("DEPRECATION")
+private fun Window.brokenWindowInitialState(): WindowInitialState {
+    ensureSystemBarColorInitialized()
+    return WindowInitialState(statusBarColor, navigationBarColor)
+}
+
+@Suppress("DEPRECATION")
+@SuppressLint("ResourceType")
+private fun Window.newWindowInitialState(): WindowInitialState {
+    ensureSystemBarColorInitialized()
+    var statusBarColor = statusBarColor
+    var navigationBarColor = navigationBarColor
+    val maybeEdgeToEdgeEnforced = statusBarColor == Color.TRANSPARENT
+            || navigationBarColor == Color.TRANSPARENT
+    if (!maybeEdgeToEdgeEnforced) {
+        // statusBarColor和navigationBarColor都不为Color.TRANSPARENT,
+        // 表示window主题包含windowOptOutEdgeToEdgeEnforcement = true，
+        // 或者创建decorView之前设置了背景色，此时不需要做兼容处理。
+    } else {
+        // 实现逻辑copy自PhoneWindow.generateLayout()
+        val typedArray = context.obtainStyledAttributes(intArrayOf
+            (android.R.attr.statusBarColor, android.R.attr.navigationBarColor)
+        )
+        statusBarColor = typedArray.getColor(0, Color.BLACK)
+
+        val navBarCompatibleColor = getColor("navigation_bar_compatible")
+        val navBarDefaultColor = getColor("navigation_bar_default")
+        navigationBarColor = typedArray.getColor(1, navBarDefaultColor)
+        typedArray.recycle()
+
+        val navigationBarColorSpecified = navigationBarColor != navBarDefaultColor
+        if (!navigationBarColorSpecified && !getBoolean("config_navBarDefaultTransparent")) {
+            navigationBarColor = navBarCompatibleColor
+        }
+    }
+    return WindowInitialState(statusBarColor, navigationBarColor)
+}
+
+@Suppress("DEPRECATION")
+@SuppressLint("DiscouragedApi")
+private fun Window.getColor(name: String): Int {
+    val resourceId = context.resources.getIdentifier(name, "color", "android")
+    return if (resourceId == 0) 0 else context.resources.getColor(resourceId)
+}
+
+@SuppressLint("DiscouragedApi")
+private fun Window.getBoolean(name: String): Boolean {
+    val resourceId = context.resources.getIdentifier(name, "bool", "android")
+    return if (resourceId == 0) false else context.resources.getBoolean(resourceId)
 }
 
 private object SystemBarDisableDecorFitsSystemWindowsReason : DisableDecorFitsSystemWindowsReason {
