@@ -99,7 +99,7 @@ internal abstract class SystemBarWindowEnforcer(private val window: Window) {
 }
 
 internal class SimpleWindowEnforcer(window: Window) : SystemBarWindowEnforcer(window) {
-    private var currentState = WindowState()
+    private val currentState = WindowState()
 
     override fun setAppearanceLightStatusBar(isLight: Boolean) {
         currentState.isAppearanceLightStatusBar = isLight
