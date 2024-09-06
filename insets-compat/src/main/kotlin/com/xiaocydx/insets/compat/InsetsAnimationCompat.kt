@@ -19,7 +19,6 @@ package com.xiaocydx.insets.compat
 import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.graphics.Insets
 import android.os.Build
 import android.util.Log
 import android.view.*
@@ -29,7 +28,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.core.view.*
 import androidx.core.view.WindowInsetsCompat.Type.ime
+import com.xiaocydx.insets.Insets
 import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
+import android.graphics.Insets as GraphicsInsets
 
 /**
  * 修改Android 11及以上IME动画的`durationMillis`和`interpolator`
@@ -105,7 +106,7 @@ fun Window.setWindowInsetsAnimationCallbackCompat(callback: WindowInsetsAnimatio
 
 @get:ChecksSdkIntAtLeast(api = 30)
 private val isInsetsAnimationCompatNeeded: Boolean
-    get() = Build.VERSION.SDK_INT >= 30 && InsetsCompat.isInsetsAnimationCompatEnabled
+    get() = Build.VERSION.SDK_INT >= 30 && Insets.isInsetsAnimationCompatEnabled()
 
 @RequiresApi(30)
 private class InsetsAnimationCompat private constructor(window: Window) : WindowAttacher(window) {
@@ -297,7 +298,7 @@ private class InsetsAnimationCallback(
                     // insets的计算逻辑copy自InternalAnimationControlListener.onReady()
                     var hiddenInsets = controller.hiddenStateInsets
                     if (hasZeroInsetsIme) {
-                        hiddenInsets = Insets.of(
+                        hiddenInsets = GraphicsInsets.of(
                             hiddenInsets.left, hiddenInsets.top,
                             hiddenInsets.right, floatingImeBottomInset
                         )
@@ -407,8 +408,8 @@ private class InsetsAnimationCallback(
     private companion object {
         @Volatile var wasModifyInsetsAnimationFail = false; private set
 
-        private val insetsEvaluator = TypeEvaluator<Insets> { fraction, start, end ->
-            Insets.of(
+        private val insetsEvaluator = TypeEvaluator<GraphicsInsets> { fraction, start, end ->
+            GraphicsInsets.of(
                 (start.left + fraction * (end.left - start.left)).toInt(),
                 (start.top + fraction * (end.top - start.top)).toInt(),
                 (start.right + fraction * (end.right - start.right)).toInt(),

@@ -29,6 +29,7 @@ import android.widget.Scroller
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
+import com.xiaocydx.insets.Insets
 import com.xiaocydx.insets.compat.FullscreenCompat.Companion.MSG_RESIZED
 import com.xiaocydx.insets.compat.FullscreenCompat.Companion.MSG_RESIZED_REPORT
 
@@ -72,8 +73,7 @@ internal val Window.isFullscreenCompatEnabled: Boolean
 
 @get:ChecksSdkIntAtLeast(api = 21)
 private val isFullscreenCompatNeeded: Boolean
-    get() = Build.VERSION.SDK_INT in 21..29
-            && InsetsCompat.isFullScreenCompatEnabled
+    get() = Build.VERSION.SDK_INT in 21..29 && Insets.isFullScreenCompatEnabled()
 
 @RequiresApi(21)
 private class FullscreenCompat(window: Window) : WindowAttacher(window) {

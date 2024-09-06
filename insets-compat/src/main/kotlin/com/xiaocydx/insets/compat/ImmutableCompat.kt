@@ -29,6 +29,7 @@ import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
+import com.xiaocydx.insets.Insets
 import com.xiaocydx.insets.compat.InsetsCompatReflection.getLastInsetsFromProxyListener
 import com.xiaocydx.insets.compat.InsetsCompatReflection.setStableInsets
 import com.xiaocydx.insets.compat.InsetsCompatReflection.setupImmutableListener
@@ -86,8 +87,7 @@ fun View.setWindowInsetsAnimationCallbackImmutable(callback: WindowInsetsAnimati
 
 @get:ChecksSdkIntAtLeast(api = 21)
 private val isImmutableCompatNeeded: Boolean
-    get() = Build.VERSION.SDK_INT in 21 until 28
-            && InsetsCompat.isImmutableCompatEnabled
+    get() = Build.VERSION.SDK_INT in 21 until 28 && Insets.isImmutableCompatEnabled()
 
 @Suppress("DEPRECATION")
 private fun WindowInsets.toImmutable(): WindowInsets {

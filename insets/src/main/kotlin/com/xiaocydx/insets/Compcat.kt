@@ -169,7 +169,7 @@ internal inline fun <R> ReflectCompat(block: ReflectCompat.() -> R): R = with(re
 internal val reflectCompat: ReflectCompat = try {
     val className = "com.xiaocydx.insets.compat.ReflectCompatImpl"
     val clazz = Class.forName(className, false, ReflectCompat::class.java.classLoader)
-    clazz.asSubclass(ReflectCompat::class.java).newInstance()
+    clazz.asSubclass(ReflectCompat::class.java).getDeclaredConstructor().newInstance()
 } catch (e: Throwable) {
     NotReflectCompat
 }

@@ -28,6 +28,11 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType
 import androidx.core.view.WindowInsetsControllerCompat
 
 /**
+ * 全局配置Receiver
+ */
+object Insets
+
+/**
  * 当前[WindowInsetsCompat]的[statusBars]高度
  */
 val WindowInsetsCompat.statusBarHeight: Int

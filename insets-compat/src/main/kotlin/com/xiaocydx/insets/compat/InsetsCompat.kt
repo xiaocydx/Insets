@@ -14,58 +14,58 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnusedReceiverParameter")
+
 package com.xiaocydx.insets.compat
 
 import android.app.Application
 import android.view.View
 import android.view.Window
+import com.xiaocydx.insets.Insets
 
 /**
- * 兼容方案的全局配置
+ * 全局禁用[Window.enableDispatchApplyInsetsFullscreenCompat]的兼容方案
  *
- * @author xcc
- * @date 2024/8/27
+ * **注意**：只能在[Application]初始化阶段调用该函数。
  */
-object InsetsCompat {
+fun Insets.disableFullScreenCompat() = apply {
+    InsetsCompat.isFullScreenCompatEnabled = false
+}
 
-    @Volatile
-    internal var isFullScreenCompatEnabled = true
-        private set
+/**
+ * 全局禁用[View.setOnApplyWindowInsetsListenerImmutable]、
+ * [View.setWindowInsetsAnimationCallbackImmutable]的兼容方案。
+ *
+ * **注意**：只能在[Application]初始化阶段调用该函数。
+ */
+fun Insets.disableImmutableCompat() = apply {
+    InsetsCompat.isImmutableCompatEnabled = false
+}
 
-    @Volatile
-    internal var isImmutableCompatEnabled = true
-        private set
+/**
+ * 全局禁用[Window.modifyImeAnimation]、[Window.restoreImeAnimation]、
+ * [Window.setWindowInsetsAnimationCallbackCompat]的兼容方案。
+ *
+ * **注意**：只能在[Application]初始化阶段调用该函数。
+ */
+fun Insets.disableInsetsAnimationCompat() = apply {
+    InsetsCompat.isInsetsAnimationCompatEnabled = false
+}
 
-    @Volatile
-    internal var isInsetsAnimationCompatEnabled = true
-        private set
+internal fun Insets.isFullScreenCompatEnabled(): Boolean {
+    return InsetsCompat.isFullScreenCompatEnabled
+}
 
-    /**
-     * 全局禁用[Window.enableDispatchApplyInsetsFullscreenCompat]的兼容方案
-     *
-     * **注意**：只能在[Application]初始化阶段调用该函数。
-     */
-    fun disableFullScreenCompat() {
-        isFullScreenCompatEnabled = false
-    }
+internal fun Insets.isImmutableCompatEnabled(): Boolean {
+    return InsetsCompat.isImmutableCompatEnabled
+}
 
-    /**
-     * 全局禁用[View.setOnApplyWindowInsetsListenerImmutable]、
-     * [View.setWindowInsetsAnimationCallbackImmutable]的兼容方案。
-     *
-     * **注意**：只能在[Application]初始化阶段调用该函数。
-     */
-    fun disableImmutableCompat() {
-        isImmutableCompatEnabled = false
-    }
+internal fun Insets.isInsetsAnimationCompatEnabled(): Boolean {
+    return InsetsCompat.isInsetsAnimationCompatEnabled
+}
 
-    /**
-     * 全局禁用[Window.modifyImeAnimation]、[Window.restoreImeAnimation]、
-     * [Window.setWindowInsetsAnimationCallbackCompat]的兼容方案。
-     *
-     * **注意**：只能在[Application]初始化阶段调用该函数。
-     */
-    fun disableInsetsAnimationCompat() {
-        isInsetsAnimationCompatEnabled = false
-    }
+private object InsetsCompat {
+    @Volatile var isFullScreenCompatEnabled = true
+    @Volatile var isImmutableCompatEnabled = true
+    @Volatile var isInsetsAnimationCompatEnabled = true
 }
