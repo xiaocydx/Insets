@@ -50,4 +50,20 @@ internal class SystemBarControllerFlags(default: SystemBarController.Default) {
     fun setAppearanceLightNavigationBar() {
         hasAppearanceLightNavigationBar = true
     }
+
+    fun clearStatusBarColor() {
+        hasStatusBarColor = false
+    }
+
+    fun clearNavigationBarColor() {
+        hasNavigationBarColor = false
+    }
+
+    fun clearAppearanceLightStatusBar() {
+        hasAppearanceLightStatusBar = false
+    }
+
+    fun clearAppearanceLightNavigationBar() {
+        hasAppearanceLightNavigationBar = false
+    }
 }

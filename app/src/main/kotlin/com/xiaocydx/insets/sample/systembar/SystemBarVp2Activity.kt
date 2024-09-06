@@ -17,6 +17,7 @@ import com.xiaocydx.insets.sample.onClick
 import com.xiaocydx.insets.statusBars
 import com.xiaocydx.insets.systembar.EdgeToEdge
 import com.xiaocydx.insets.systembar.SystemBar
+import com.xiaocydx.insets.systembar.isAppearanceLight
 import com.xiaocydx.insets.systembar.systemBarController
 
 /**
@@ -32,7 +33,6 @@ class SystemBarVp2Activity : AppCompatActivity(), SystemBar {
     private val controller = systemBarController {
         // PageFragment自行处理状态栏Insets
         statusBarEdgeToEdge = EdgeToEdge.Enabled
-        navigationBarColor = 0xFF5E79B5.toInt()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,11 +67,11 @@ class SystemBarVp2Activity : AppCompatActivity(), SystemBar {
 
 enum class Page(
     val statusBarColor: Int,
-    val isAppearanceLightStatusBar: Boolean
+    val isAppearanceLightStatusBar: Boolean = isAppearanceLight(statusBarColor)
 ) {
-    A(0xFFBABBC4.toInt(), true),
-    B(0xFF496291.toInt(), false),
-    C(0xFFD0CE85.toInt(), true)
+    A(0xFFBABBC4.toInt()),
+    B(0xFF496291.toInt()),
+    C(0xFFD0CE85.toInt())
 }
 
 class PageFragment : BaseFragment() {

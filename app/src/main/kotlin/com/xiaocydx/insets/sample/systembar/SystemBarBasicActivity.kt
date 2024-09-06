@@ -60,7 +60,6 @@ class SystemBarConstructorFragment : BaseFragment(), SystemBar {
             statusBarEdgeToEdge = EdgeToEdge.Enabled
             navigationBarColor = 0xFFC4B9BA.toInt()
             isAppearanceLightStatusBar = true
-            isAppearanceLightNavigationBar = true
         }
     }
 
@@ -82,7 +81,6 @@ class SystemBarModifyFragment : BaseFragment(), SystemBar {
                 statusBarEdgeToEdge = EdgeToEdge.Enabled
                 navigationBarColor = 0xFFC4B9BA.toInt()
                 isAppearanceLightStatusBar = true
-                isAppearanceLightNavigationBar = true
             }
         }
         tvCenter.text = "实现SystemBar，动态修改配置\n\n" +

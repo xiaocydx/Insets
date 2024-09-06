@@ -40,6 +40,9 @@ interface SystemBarController {
     /**
      * 状态栏背景色，默认为`SystemBar.install()`设置的[Default.statusBarColor]，
      * 若[Default.statusBarColor]为`null`，则为`window.statusBarColor`的初始值。
+     *
+     * 设置状态栏背景色，若[isAppearanceLightStatusBar]未设置过，
+     * 则调用[isAppearanceLight]，传入[statusBarColor]进行推断。
      */
     @get:ColorInt
     @set:ColorInt
@@ -48,6 +51,9 @@ interface SystemBarController {
     /**
      * 导航栏背景色，默认为`SystemBar.install()`设置的[Default.navigationBarColor]，
      * 若[Default.navigationBarColor]为`null`，则为`window.navigationBarColor`的初始值。
+     *
+     * 设置导航栏背景色，若[isAppearanceLightNavigationBar]未设置过，
+     * 则调用[isAppearanceLight]，传入[navigationBarColor]进行推断。
      */
     @get:ColorInt
     @set:ColorInt
@@ -82,7 +88,7 @@ interface SystemBarController {
      *
      * 默认为`SystemBar.install()`设置的[Default.isAppearanceLightStatusBar]，
      * 若[Default.isAppearanceLightStatusBar]为`null`，则调用[isAppearanceLight]，
-     * 传入`window.statusBarColor`的初始值进行推断。
+     * 传入[statusBarColor]进行推断。
      *
      * 对应`WindowInsetsControllerCompat.isAppearanceLightStatusBars`。
      */
@@ -93,7 +99,7 @@ interface SystemBarController {
      *
      * 默认为`SystemBar.install()`设置的[Default.isAppearanceLightNavigationBar]，
      * 若[Default.isAppearanceLightNavigationBar]为`null`，则调用[isAppearanceLight]，
-     * 传入`window.navigationBarColor`的初始值进行推断。
+     * 传入[navigationBarColor]进行推断。
      *
      * 对应`WindowInsetsControllerCompat.isAppearanceLightNavigationBars`。
      */

@@ -36,7 +36,6 @@ class SystemBarDialogFragment : DialogFragment(), SystemBar {
             statusBarEdgeToEdge = EdgeToEdge.Enabled
             navigationBarEdgeToEdge = EdgeToEdge.Gesture
             navigationBarColor = 0xFFC4B9BA.toInt()
-            isAppearanceLightNavigationBar = true
         }
     }
 

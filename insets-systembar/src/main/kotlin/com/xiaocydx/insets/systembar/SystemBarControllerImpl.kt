@@ -64,6 +64,10 @@ internal abstract class SystemBarControllerImpl(
             field = value
             flags.setStatusBarColor()
             container?.statusBarColor = value
+            if (!flags.hasAppearanceLightStatusBar) {
+                isAppearanceLightStatusBar = isAppearanceLight(value)
+                flags.clearAppearanceLightStatusBar()
+            }
         }
 
     final override var navigationBarColor = default.navigationBarColor ?: 0
@@ -71,6 +75,10 @@ internal abstract class SystemBarControllerImpl(
             field = value
             flags.setNavigationBarColor()
             container?.navigationBarColor = value
+            if (!flags.hasAppearanceLightNavigationBar) {
+                isAppearanceLightNavigationBar = isAppearanceLight(value)
+                flags.clearAppearanceLightNavigationBar()
+            }
         }
 
     final override var statusBarEdgeToEdge = default.statusBarEdgeToEdge
@@ -109,24 +117,24 @@ internal abstract class SystemBarControllerImpl(
 
     protected fun applyPendingSystemBarConfig() = with(flags) {
         val window = requireNotNull(window)
+        if (hasAppearanceLightStatusBar) {
+            isAppearanceLightStatusBar = isAppearanceLightStatusBar
+        }
+        if (hasAppearanceLightNavigationBar) {
+            isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
+        }
+        // 未设置isAppearanceLightStatusBar，根据statusBarColor进行推断
         statusBarColor = when {
             hasStatusBarColor -> statusBarColor
             else -> window.initialState.statusBarColor
         }
+        // 未设置isAppearanceLightNavigationBar，根据navigationBarColor进行推断
         navigationBarColor = when {
             hasNavigationBarColor -> navigationBarColor
             else -> window.initialState.navigationBarColor
         }
         statusBarEdgeToEdge = statusBarEdgeToEdge
         navigationBarEdgeToEdge = navigationBarEdgeToEdge
-        isAppearanceLightStatusBar = when {
-            hasAppearanceLightStatusBar -> isAppearanceLightStatusBar
-            else -> isAppearanceLight(window.initialState.statusBarColor)
-        }
-        isAppearanceLightNavigationBar = when {
-            hasAppearanceLightNavigationBar -> isAppearanceLightNavigationBar
-            else -> isAppearanceLight(window.initialState.navigationBarColor)
-        }
     }
 }
 

@@ -33,7 +33,6 @@ class SystemBarDialog(context: Context) : AppCompatDialog(context, SystemBar.Dia
             statusBarEdgeToEdge = EdgeToEdge.Enabled
             navigationBarEdgeToEdge = EdgeToEdge.Gesture
             navigationBarColor = 0xFFC4B9BA.toInt()
-            isAppearanceLightNavigationBar = true
         }
     }
 

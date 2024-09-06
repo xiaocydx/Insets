@@ -57,8 +57,6 @@ class SystemBarFragmentA : BaseFragment(), SystemBar {
         systemBarController {
             statusBarColor = 0xFFBABBC4.toInt()
             navigationBarColor = 0xFFBABBC4.toInt()
-            isAppearanceLightStatusBar = true
-            isAppearanceLightNavigationBar = true
         }
     }
 
@@ -80,8 +78,6 @@ class SystemBarFragmentB : BaseFragment(), SystemBar {
         systemBarController {
             statusBarColor = 0xFF496291.toInt()
             navigationBarColor = 0xFF496291.toInt()
-            isAppearanceLightStatusBar = false
-            isAppearanceLightNavigationBar = false
         }
     }
 
@@ -103,8 +99,6 @@ class SystemBarFragmentC : BaseFragment(), SystemBar {
         systemBarController {
             statusBarColor = 0xFFD0CE85.toInt()
             navigationBarColor = 0xFFD0CE85.toInt()
-            isAppearanceLightStatusBar = true
-            isAppearanceLightNavigationBar = true
         }
     }
 

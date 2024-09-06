@@ -80,11 +80,11 @@ open class SystemBarControllerWrapper : SystemBarController {
     }
 
     private fun applyPendingSystemBarConfig(delegate: SystemBarController) = with(flags) {
+        if (hasAppearanceLightStatusBar) delegate.isAppearanceLightStatusBar = isAppearanceLightStatusBar
+        if (hasAppearanceLightNavigationBar) delegate.isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
         if (hasStatusBarColor) delegate.statusBarColor = statusBarColor
         if (hasNavigationBarColor) delegate.navigationBarColor = navigationBarColor
         delegate.statusBarEdgeToEdge = statusBarEdgeToEdge
         delegate.navigationBarEdgeToEdge = navigationBarEdgeToEdge
-        if (hasAppearanceLightStatusBar) delegate.isAppearanceLightStatusBar = isAppearanceLightStatusBar
-        if (hasAppearanceLightNavigationBar) delegate.isAppearanceLightNavigationBar = isAppearanceLightNavigationBar
     }
 }
