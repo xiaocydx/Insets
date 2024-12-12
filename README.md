@@ -1,8 +1,8 @@
 Insets是一个帮助处理WindowInsets的库
 <br><br>
-[Insets（一）使用文档](https://www.yuque.com/u12192380/khwdgb/ua7cgzqu6k384i8s)
+[Insets - 使用文档](https://www.yuque.com/u12192380/khwdgb/ua7cgzqu6k384i8s)
 
-[Insets（二）常见问题](https://www.yuque.com/u12192380/zl0316/id77prqdzlq54tbg)
+[Insets - 常见问题](https://www.yuque.com/u12192380/zl0316/id77prqdzlq54tbg)
 <br><br>
 1. 在根目录的settings.gradle添加
 ```
