@@ -1,22 +1,16 @@
 package com.xiaocydx.insets.sample
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
-import com.xiaocydx.cxrv.binding.bindingDelegate
-import com.xiaocydx.cxrv.concat.Concat
-import com.xiaocydx.cxrv.concat.toAdapter
-import com.xiaocydx.cxrv.divider.divider
-import com.xiaocydx.cxrv.itemclick.doOnSimpleItemClick
-import com.xiaocydx.cxrv.list.adapter
-import com.xiaocydx.cxrv.list.linear
-import com.xiaocydx.cxrv.list.submitList
-import com.xiaocydx.cxrv.multitype.listAdapter
-import com.xiaocydx.cxrv.multitype.register
-import com.xiaocydx.insets.sample.databinding.ItemSampleCategoryBinding
-import com.xiaocydx.insets.sample.databinding.ItemSampleElementBinding
-import com.xiaocydx.insets.sample.databinding.SmapleHeaderBinding
+import com.xiaocydx.insets.sample.compat.FullscreenCompatActivity
+import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
+import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
+import com.xiaocydx.insets.sample.insetter.InsetterActivity
+import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
+import com.xiaocydx.insets.sample.systembar.SystemBarDialog
+import com.xiaocydx.insets.sample.systembar.SystemBarDialogFragment
+import com.xiaocydx.insets.sample.systembar.SystemBarRestoreActivity
+import com.xiaocydx.insets.sample.systembar.SystemBarVp2Activity
 import com.xiaocydx.insets.systembar.SystemBar
 
 /**
@@ -27,45 +21,34 @@ class MainActivity : AppCompatActivity(), SystemBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(contentView())
+        val sample = Sample(source(), this)
+        setContentView(sample.contentView())
     }
 
-    private fun contentView(): View {
-        val header = SmapleHeaderBinding
-            .inflate(layoutInflater).root
-            .layoutParams(matchParent, 100.dp)
-            .toAdapter()
+    private fun source() = listOf(
+        "insets".elements(
+            "Insetter" desc "提供常用的WindowInsets扩展属性和扩展函数" start InsetterActivity::class
+        ),
 
-        val sampleList = SampleList()
-        val content = listAdapter {
-            submitList(sampleList.filter())
-            register(bindingDelegate(
-                uniqueId = SampleItem.Category::title,
-                inflate = ItemSampleCategoryBinding::inflate
-            ) {
-                onBindView {
-                    tvTitle.text = it.title
-                    ivSelected.setImageResource(it.selectedResId)
-                }
-                getChangePayload(sampleList::categoryPayload)
-                doOnSimpleItemClick { submitList(sampleList.toggle(it)) }
-            })
+        "insets-compat".elements(
+            "ImeAnimationCompat" desc "修改Android 11及以上IME动画的时长和插值器" start ImeAnimationCompatActivity::class,
+            "FullscreenCompat" desc "Android 11以下FLAG_FULLSCREEN的兼容方案" start FullscreenCompatActivity::class,
+            "ImmutableCompat" desc "Android 9.0以下的WindowInsets可变的兼容方案" start ImmutableCompatActivity::class
+        ),
 
-            register(bindingDelegate(
-                uniqueId = SampleItem.Element::title,
-                inflate = ItemSampleElementBinding::inflate
-            ) {
-                onBindView {
-                    tvTitle.text = it.title
-                    tvDesc.text = it.desc
-                }
-                doOnSimpleItemClick { it.perform(this@MainActivity) }
-            })
-        }
-
-        return RecyclerView(this)
-            .linear().divider(height = 2.dp)
-            .layoutParams(matchParent, matchParent)
-            .adapter(Concat.header(header).content(content).concat())
-    }
+        "insets-systembar".elements(
+            "Basic" desc "SystemBar的基本使用" start SystemBarBasicActivity::class,
+            "Restore" desc "SystemBar恢复window属性" start SystemBarRestoreActivity::class,
+            "ViewPager2" desc "在ViewPager2场景下使用SystemBar" start SystemBarVp2Activity::class,
+            "Dialog" desc """
+                1. Dialog主题需要包含windowIsFloating = false。
+                2. 不支持SystemBar的应用默认配置使用方式。
+                """.trimIndent() show ::SystemBarDialog,
+            "DialogFragment" desc """
+                1. Dialog主题需要包含windowIsFloating = false。
+                2. 支持SystemBar的全部使用方式，跟Fragment一致。
+                3. 需要通过Fragment.onCreateView()创建contentView。
+                """.trimIndent() show ::SystemBarDialogFragment
+        )
+    )
 }
