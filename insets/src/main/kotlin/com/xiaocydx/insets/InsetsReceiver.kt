@@ -29,7 +29,7 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType
  * @date 2024/3/9
  */
 class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewState) -> Unit {
-    private val storeMap = Array<InsetsStore?>(STORE_MAP_SIZE) { null }
+    private var storeMap: Array<InsetsStore?>? = null
     private var gestureNavBarEdgeToEdge = false
 
     /**
@@ -112,7 +112,7 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
     @SinceKotlin("999.9")
     @Suppress("NEWER_VERSION_IN_SINCE_KOTLIN")
     override fun invoke(view: View, insets: WindowInsetsCompat, initialState: ViewState) {
-        storeMap[KEY_PADDINGS]?.let { paddings ->
+        getStore(KEY_PADDINGS)?.let { paddings ->
             val applyInsets = getInsets(paddings, insets)
             val finalState = paddings.getFinalState(initialState)
             view.updatePadding(
@@ -122,7 +122,7 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
                 bottom = finalState.paddings.bottom + applyInsets.bottom
             )
         }
-        storeMap[KEY_MARGINS]?.let { margins ->
+        getStore(KEY_MARGINS)?.let { margins ->
             val applyInsets = getInsets(margins, insets)
             val finalState = margins.getFinalState(initialState)
             view.updateMargins(
@@ -132,24 +132,19 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
                 bottom = finalState.params.marginBottom + applyInsets.bottom
             )
         }
-        storeMap[KEY_DIMENSION]?.let { dimension ->
+        getStore(KEY_DIMENSION)?.let { dimension ->
             val applyInsets = getInsets(dimension, insets)
             val finalState = dimension.getFinalState(initialState)
-            val width = when {
-                finalState.params.width < 0 -> finalState.params.width
-                else -> finalState.params.width + applyInsets.left + applyInsets.right
-            }
-            val height = when {
-                finalState.params.height < 0 -> finalState.params.height
-                else -> finalState.params.height + applyInsets.top + applyInsets.bottom
-            }
-            val params = view.layoutParams
-            if (params != null && (params.width != width || params.height != height)) {
-                view.updateLayoutParams {
-                    this.width = width
-                    this.height = height
+            view.updateLayoutSize(
+                width = when {
+                    finalState.params.width < 0 -> finalState.params.width
+                    else -> finalState.params.width + applyInsets.left + applyInsets.right
+                },
+                height = when {
+                    finalState.params.height < 0 -> finalState.params.height
+                    else -> finalState.params.height + applyInsets.top + applyInsets.bottom
                 }
-            }
+            )
         }
         if (gestureNavBarEdgeToEdge) {
             view.handleGestureNavBarEdgeToEdge(insets, initialState)
@@ -158,18 +153,23 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
     }
 
     private fun setStore(key: Int, typeMask: Int, ignoringInitial: Boolean) {
-        var store = storeMap[key]
+        if (storeMap == null) {
+            storeMap = Array(STORE_MAP_SIZE) { null }
+        }
+        var store = storeMap!![key]
         if (store == null) {
             store = InsetsStore()
-            storeMap[key] = store
+            storeMap!![key] = store
         }
         store.typeMask = typeMask
         store.ignoringInitial = ignoringInitial
     }
 
+    private fun getStore(key: Int) = storeMap?.get(key)
+
     private fun getInsets(store: InsetsStore, insets: WindowInsetsCompat): Insets {
         // 查找相同typeMask的insets，避免重复调用getInsets()
-        storeMap.forEach {
+        storeMap?.forEach {
             val sameInsets = it?.getSameInsets(store)
             if (sameInsets != null) return sameInsets
         }
@@ -178,7 +178,7 @@ class InsetsReceiver internal constructor() : (View, WindowInsetsCompat, ViewSta
     }
 
     private fun clearInsets() {
-        storeMap.forEach { it?.insets = null }
+        storeMap?.forEach { it?.insets = null }
     }
 
     private class InsetsStore(
