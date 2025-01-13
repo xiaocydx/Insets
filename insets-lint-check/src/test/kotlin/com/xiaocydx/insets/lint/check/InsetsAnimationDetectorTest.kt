@@ -6,13 +6,13 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 /**
- * [InsetsAnimationCallbackDetector]的单元测试
+ * [InsetsAnimationDetector]的单元测试
  *
  * @author xcc
  * @date 2025/1/13
  */
 @Suppress("UnstableApiUsage")
-internal class InsetsAnimationCallbackDetectorTest {
+internal class InsetsAnimationDetectorTest {
 
     @Test
     fun setWindowInsetsAnimationCallbackNoWarning() {
@@ -50,7 +50,7 @@ internal class InsetsAnimationCallbackDetectorTest {
                     """
                 ).indented(),
             )
-            .issues(InsetsAnimationCallbackDetector.ISSUE)
+            .issues(InsetsAnimationDetector.ISSUE_CALLBACK)
             .run()
             .expect("No warnings.")
     }
@@ -97,20 +97,20 @@ internal class InsetsAnimationCallbackDetectorTest {
                     """
                 ).indented(),
             )
-            .issues(InsetsAnimationCallbackDetector.ISSUE)
+            .issues(InsetsAnimationDetector.ISSUE_CALLBACK)
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:10: Error:  WindowInsetsAnimation.Callback 存在兼容问题 [WindowInsetsAnimationCallback]
+                src/test/pkg/TestClass.java:10: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.java:11: Error:  WindowInsetsAnimation.Callback 存在兼容问题 [WindowInsetsAnimationCallback]
+                src/test/pkg/TestClass.java:11: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:10: Error:  WindowInsetsAnimation.Callback 存在兼容问题 [WindowInsetsAnimationCallback]
+                src/test/pkg/TestClass.kt:10: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:11: Error:  WindowInsetsAnimation.Callback 存在兼容问题 [WindowInsetsAnimationCallback]
+                src/test/pkg/TestClass.kt:11: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 4 errors, 0 warnings

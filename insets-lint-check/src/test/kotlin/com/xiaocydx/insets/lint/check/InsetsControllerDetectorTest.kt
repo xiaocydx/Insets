@@ -22,19 +22,18 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 /**
- * [ShowImeDetector]的单元测试
+ * [InsetsControllerDetector]的单元测试
  *
  * @author xcc
  * @date 2025/1/13
  */
 @Suppress("UnstableApiUsage")
-internal class ShowImeDetectorTest {
+internal class InsetsControllerDetectorTest {
 
     private fun javaFile(types: String) = java(
         """
         package test.pkg;
         
-        import androidx.core.view.WindowInsetsCompat;
         import androidx.core.view.WindowInsetsControllerCompat;
 
         class TestClass {
@@ -61,7 +60,7 @@ internal class ShowImeDetectorTest {
     ).indented()
 
     @Test
-    fun typesNoImeNoWarning() {
+    fun showTypesNoImeNoWarning() {
         lint()
             .files(
                 windowInsetsCompatStub,
@@ -69,13 +68,13 @@ internal class ShowImeDetectorTest {
                 javaFile(types = "WindowInsetsCompat.Type.statusBars()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.statusBars()"),
             )
-            .issues(ShowImeDetector.ISSUE)
+            .issues(InsetsControllerDetector.ISSUE_SHOW_IME)
             .run()
             .expect("No warnings.")
     }
 
     @Test
-    fun typesOnlyImeWarning() {
+    fun showTypesOnlyImeWarning() {
         lint()
             .files(
                 windowInsetsCompatStub,
@@ -83,14 +82,14 @@ internal class ShowImeDetectorTest {
                 javaFile(types = "WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.ime()"),
             )
-            .issues(ShowImeDetector.ISSUE)
+            .issues(InsetsControllerDetector.ISSUE_SHOW_IME)
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:8: Error:  show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.java:7: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.ime());
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:8: Error:  show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.kt:8: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.ime())
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
@@ -99,7 +98,7 @@ internal class ShowImeDetectorTest {
     }
 
     @Test
-    fun typesNotOnlyImeWarning() {
+    fun showTypesNotOnlyImeWarning() {
         lint()
             .files(
                 windowInsetsCompatStub,
@@ -107,14 +106,14 @@ internal class ShowImeDetectorTest {
                 javaFile(types = "WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.ime()"),
             )
-            .issues(ShowImeDetector.ISSUE)
+            .issues(InsetsControllerDetector.ISSUE_SHOW_IME)
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:8: Error:  show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.java:7: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.ime());
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:8: Error:  show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.kt:8: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.ime())
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings

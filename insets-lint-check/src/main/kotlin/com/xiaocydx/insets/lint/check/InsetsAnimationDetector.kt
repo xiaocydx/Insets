@@ -31,7 +31,7 @@ import org.jetbrains.uast.UCallExpression
  * @date 2025/1/13
  */
 @Suppress("UnstableApiUsage")
-internal class InsetsAnimationCallbackDetector : Detector(), SourceCodeScanner {
+internal class InsetsAnimationDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf(
         "setWindowInsetsAnimationCallback",
@@ -43,19 +43,19 @@ internal class InsetsAnimationCallbackDetector : Detector(), SourceCodeScanner {
                 || context.evaluator.isMemberInInsetsCompat(method)
                 || context.evaluator.isMemberInView(method)) {
             context.report(
-                Incident(context, ISSUE)
-                    .message(" `WindowInsetsAnimation.Callback` 存在兼容问题")
+                Incident(context, ISSUE_CALLBACK)
+                    .message(" `WindowInsetsAnimationCompat.Callback` 存在兼容问题")
                     .at(node)
             )
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "WindowInsetsAnimationCallback",
-            briefDescription = "WindowInsetsAnimationCallback兼容问题",
+        val ISSUE_CALLBACK = Issue.create(
+            id = "WindowInsetsAnimationCompatCallback",
+            briefDescription = "WindowInsetsAnimationCompat.Callback兼容问题",
             explanation = "explanation",
-            implementation = Implementation(InsetsAnimationCallbackDetector::class.java, JAVA_FILE_SCOPE)
+            implementation = Implementation(InsetsAnimationDetector::class.java, JAVA_FILE_SCOPE)
         )
     }
 }

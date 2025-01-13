@@ -24,9 +24,9 @@ import com.android.tools.lint.detector.api.CURRENT_API
 internal class InsetsIssueRegistry : IssueRegistry() {
 
     override val issues = listOf(
-        ShowImeDetector.ISSUE,
         FitsSystemWindowsDetector.ISSUE,
-        InsetsAnimationCallbackDetector.ISSUE
+        InsetsAnimationDetector.ISSUE_CALLBACK,
+        InsetsControllerDetector.ISSUE_SHOW_IME
     )
 
     override val api = CURRENT_API

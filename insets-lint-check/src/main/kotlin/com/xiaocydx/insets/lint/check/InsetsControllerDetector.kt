@@ -31,26 +31,27 @@ import org.jetbrains.uast.UCallExpression
  * @date 2025/1/13
  */
 @Suppress("UnstableApiUsage")
-internal class ShowImeDetector : Detector(), SourceCodeScanner {
+internal class InsetsControllerDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf("show")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!context.evaluator.isMemberInWindowInsetsControllerCompat(method)) return
-        if (!node.valueArguments[0].asSourceString().contains("ime", ignoreCase = true)) return
-        context.report(
-            Incident(context, ISSUE)
-                .message(" `show(ime())` 存在兼容问题")
-                .at(node)
-        )
+        if (context.evaluator.isMemberInWindowInsetsControllerCompat(method)
+                && node.valueArguments[0].asSourceString().contains("ime", ignoreCase = true)) {
+            context.report(
+                Incident(context, ISSUE_SHOW_IME)
+                    .message(" `WindowInsetsControllerCompat.show(ime())` 存在兼容问题")
+                    .at(node)
+            )
+        }
     }
 
     companion object {
-        val ISSUE = Issue.create(
+        val ISSUE_SHOW_IME = Issue.create(
             id = "WindowInsetsControllerCompatShowIme",
-            briefDescription = "ShowIme兼容问题",
+            briefDescription = "WindowInsetsControllerCompat.show(ime())兼容问题",
             explanation = "explanation",
-            implementation = Implementation(ShowImeDetector::class.java, JAVA_FILE_SCOPE)
+            implementation = Implementation(InsetsControllerDetector::class.java, JAVA_FILE_SCOPE)
         )
     }
 }
