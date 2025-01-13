@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-@Suppress("UnstableApiUsage")
 internal class InsetsIssueRegistry : IssueRegistry() {
 
     override val issues = listOf(
-        FitsSystemWindowsDetector.ISSUE,
-        InsetsAnimationDetector.ISSUE_CALLBACK,
-        InsetsControllerDetector.ISSUE_SHOW_IME
+        FitsSystemWindowsDetector.Consume,
+        InsetsAnimationDetector.Callback,
+        InsetsControllerDetector.ShowIme
     )
 
     override val api = CURRENT_API

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
@@ -27,7 +29,6 @@ import org.junit.Test
  * @author xcc
  * @date 2025/1/13
  */
-@Suppress("UnstableApiUsage")
 internal class InsetsControllerDetectorTest {
 
     private fun javaFile(types: String) = java(
@@ -68,7 +69,7 @@ internal class InsetsControllerDetectorTest {
                 javaFile(types = "WindowInsetsCompat.Type.statusBars()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.statusBars()"),
             )
-            .issues(InsetsControllerDetector.ISSUE_SHOW_IME)
+            .issues(InsetsControllerDetector.ShowIme)
             .run()
             .expect("No warnings.")
     }
@@ -82,7 +83,7 @@ internal class InsetsControllerDetectorTest {
                 javaFile(types = "WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.ime()"),
             )
-            .issues(InsetsControllerDetector.ISSUE_SHOW_IME)
+            .issues(InsetsControllerDetector.ShowIme)
             .run()
             .expect(
                 """
@@ -106,7 +107,7 @@ internal class InsetsControllerDetectorTest {
                 javaFile(types = "WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.ime()"),
             )
-            .issues(InsetsControllerDetector.ISSUE_SHOW_IME)
+            .issues(InsetsControllerDetector.ShowIme)
             .run()
             .expect(
                 """

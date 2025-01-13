@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage", "ConstPropertyName")
+
 package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.detector.api.Detector
@@ -30,20 +32,21 @@ import org.jetbrains.uast.UCallExpression
  * @author xcc
  * @date 2025/1/13
  */
-@Suppress("UnstableApiUsage")
 internal class InsetsAnimationDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf(
-        "setWindowInsetsAnimationCallback",
-        "setWindowInsetsAnimationCallbackCompat"
+        SetWindowInsetsAnimationCallback,
+        SetWindowInsetsAnimationCallbackCompat
     )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (context.evaluator.isMemberInViewCompat(method)
-                || context.evaluator.isMemberInInsetsCompat(method)
-                || context.evaluator.isMemberInView(method)) {
+        val isSetMethod = fun(methodName: String, className: String) = run {
+            method.name == methodName && context.evaluator.isMemberInClass(method, className)
+        }
+        if (isSetMethod(SetWindowInsetsAnimationCallback, ClassViewCompat)
+                || isSetMethod(SetWindowInsetsAnimationCallbackCompat, ClassInsetsCompatKt)) {
             context.report(
-                Incident(context, ISSUE_CALLBACK)
+                Incident(context, Callback)
                     .message(" `WindowInsetsAnimationCompat.Callback` 存在兼容问题")
                     .at(node)
             )
@@ -51,7 +54,10 @@ internal class InsetsAnimationDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val ISSUE_CALLBACK = Issue.create(
+        private const val SetWindowInsetsAnimationCallback = "setWindowInsetsAnimationCallback"
+        private const val SetWindowInsetsAnimationCallbackCompat = "setWindowInsetsAnimationCallbackCompat"
+
+        val Callback = Issue.create(
             id = "WindowInsetsAnimationCompatCallback",
             briefDescription = "WindowInsetsAnimationCompat.Callback兼容问题",
             explanation = "explanation",

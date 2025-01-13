@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.detector.api.Detector
@@ -25,29 +27,36 @@ import com.android.tools.lint.detector.api.Scope.Companion.JAVA_FILE_SCOPE
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UExpression
 
 /**
  * @author xcc
  * @date 2025/1/13
  */
-@Suppress("UnstableApiUsage")
 internal class InsetsControllerDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf("show")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (context.evaluator.isMemberInWindowInsetsControllerCompat(method)
-                && node.valueArguments[0].asSourceString().contains("ime", ignoreCase = true)) {
+        val isShowMethod = context.evaluator.methodMatches(
+            method, ClassWindowInsetsControllerCompat,
+            allowInherit = false, TypeInt
+        )
+        if (isShowMethod && typesContainsIme(node.valueArguments.first())) {
             context.report(
-                Incident(context, ISSUE_SHOW_IME)
+                Incident(context, ShowIme)
                     .message(" `WindowInsetsControllerCompat.show(ime())` 存在兼容问题")
                     .at(node)
             )
         }
     }
 
+    private fun typesContainsIme(valueArgument: UExpression): Boolean {
+        return valueArgument.asSourceString().contains("ime", ignoreCase = true)
+    }
+
     companion object {
-        val ISSUE_SHOW_IME = Issue.create(
+        val ShowIme = Issue.create(
             id = "WindowInsetsControllerCompatShowIme",
             briefDescription = "WindowInsetsControllerCompat.show(ime())兼容问题",
             explanation = "explanation",

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.detector.api.Detector
@@ -31,16 +33,16 @@ import org.jetbrains.uast.isFalseLiteral
  * @author xcc
  * @date 2025/1/5
  */
-@Suppress("UnstableApiUsage")
 internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf("setFitsSystemWindows")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (context.evaluator.isMemberInView(method)
-                && !node.valueArguments[0].isFalseLiteral()) {
+        val isSetFitsSystemWindowsMethod = context.evaluator
+            .methodMatches(method, ClassView, allowInherit = true, TypeBoolean)
+        if (isSetFitsSystemWindowsMethod && !node.valueArguments.first().isFalseLiteral()) {
             context.report(
-                Incident(context, ISSUE)
+                Incident(context, Consume)
                     .message(" `fitSystemWindows = true` 存在兼容问题")
                     .at(node)
             )
@@ -48,7 +50,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
+        val Consume = Issue.create(
             id = "FitsSystemWindows",
             briefDescription = "FitsSystemWindows兼容问题",
             explanation = """

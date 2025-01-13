@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
@@ -27,7 +29,6 @@ import org.junit.Test
  * @author xcc
  * @date 2025/1/6
  */
-@Suppress("UnstableApiUsage")
 internal class FitsSystemWindowsDetectorTest {
 
     private fun javaFile(value: String) = java(
@@ -65,7 +66,7 @@ internal class FitsSystemWindowsDetectorTest {
                 javaFile(value = "false"),
                 kotlinFile(value = "false")
             )
-            .issues(FitsSystemWindowsDetector.ISSUE)
+            .issues(FitsSystemWindowsDetector.Consume)
             .run()
             .expect("No warnings.")
     }
@@ -77,7 +78,7 @@ internal class FitsSystemWindowsDetectorTest {
                 javaFile(value = "true"),
                 kotlinFile(value = "true")
             )
-            .issues(FitsSystemWindowsDetector.ISSUE)
+            .issues(FitsSystemWindowsDetector.Consume)
             .run()
             .expect(
                 """
@@ -99,7 +100,7 @@ internal class FitsSystemWindowsDetectorTest {
                 javaFile(value = "fitsSystemWindows"),
                 kotlinFile(value = "fitsSystemWindows")
             )
-            .issues(FitsSystemWindowsDetector.ISSUE)
+            .issues(FitsSystemWindowsDetector.Consume)
             .run()
             .expect(
                 """
