@@ -97,10 +97,10 @@ internal class FitsSystemWindowsDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
+                src/test/pkg/TestClass.java:6: Error:  fitSystemWindows = true 存在版本兼容问题 [FitsSystemWindows]
                         view.setFitsSystemWindows(true);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
+                src/test/pkg/TestClass.kt:6: Error:  fitSystemWindows = true 存在版本兼容问题 [FitsSystemWindows]
                         view.fitsSystemWindows = true
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
@@ -141,10 +141,10 @@ internal class FitsSystemWindowsDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
+                src/test/pkg/TestClass.java:6: Error:  fitSystemWindows = true 存在版本兼容问题 [FitsSystemWindows]
                         view.setFitsSystemWindows(fitsSystemWindows);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
+                src/test/pkg/TestClass.kt:6: Error:  fitSystemWindows = true 存在版本兼容问题 [FitsSystemWindows]
                         view.fitsSystemWindows = fitsSystemWindows
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings

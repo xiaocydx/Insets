@@ -16,23 +16,13 @@
 
 package com.xiaocydx.insets.lint.check
 
-import com.android.tools.lint.client.api.IssueRegistry
-import com.android.tools.lint.client.api.Vendor
-import com.android.tools.lint.detector.api.CURRENT_API
+import com.android.tools.lint.client.api.JavaEvaluator
+import com.intellij.psi.PsiMethod
 
-@Suppress("UnstableApiUsage")
-internal class InsetsIssueRegistry : IssueRegistry() {
+internal fun JavaEvaluator.isMemberInView(method: PsiMethod): Boolean {
+    return isMemberInClass(method, "android.view.View")
+}
 
-    override val issues = listOf(
-        ShowImeDetector.ISSUE,
-        FitsSystemWindowsDetector.ISSUE
-    )
-
-    override val api = CURRENT_API
-
-    override val vendor = Vendor(
-        vendorName = "Insets",
-        feedbackUrl = "https://github.com/xiaocydx/Insets/issues",
-        contact = "https://github.com/xiaocydx/Insets",
-    )
+internal fun JavaEvaluator.isMemberInWindowInsetsControllerCompat(method: PsiMethod): Boolean {
+    return isMemberInClass(method, "androidx.core.view.WindowInsetsControllerCompat")
 }

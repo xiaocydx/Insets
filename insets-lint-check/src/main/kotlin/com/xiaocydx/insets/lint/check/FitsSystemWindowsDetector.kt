@@ -21,7 +21,7 @@ import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.Scope
+import com.android.tools.lint.detector.api.Scope.Companion.JAVA_FILE_SCOPE
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
@@ -37,11 +37,11 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames() = listOf("setFitsSystemWindows")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!context.evaluator.isMemberInClass(method, "android.view.View")) return
+        if (!context.evaluator.isMemberInView(method)) return
         if (node.valueArguments[0].isFalseLiteral()) return
         context.report(
             Incident(context, ISSUE)
-                .message(" `fitSystemWindows = true` 存在版本兼容问题，需谨慎使用")
+                .message(" `fitSystemWindows = true` 存在版本兼容问题")
                 .at(node)
         )
     }
@@ -96,7 +96,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
                 child2.setOnApplyWindowInsetsListenerCompat { v, insets -> insets }
                 ```
                 """,
-            implementation = Implementation(FitsSystemWindowsDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            implementation = Implementation(FitsSystemWindowsDetector::class.java, JAVA_FILE_SCOPE)
         )
     }
 }
