@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":insets"))
     implementation(project(":insets-compat"))
     implementation(project(":insets-systembar"))
+    implementation(project(":insets-lint"))
     implementation(CommonLibs.cxrv)
     implementation(CommonLibs.`cxrv-binding`)
     implementation(CommonLibs.`androidx-core-ktx`)
