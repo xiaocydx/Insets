@@ -22,6 +22,10 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
+/**
+ * @author xcc
+ * @date 2025/1/13
+ */
 internal class InsetsIssueRegistry : IssueRegistry() {
 
     override val issues = listOf(
