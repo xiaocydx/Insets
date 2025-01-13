@@ -31,26 +31,31 @@ import org.jetbrains.uast.UCallExpression
  * @date 2025/1/13
  */
 @Suppress("UnstableApiUsage")
-internal class ShowImeDetector : Detector(), SourceCodeScanner {
+internal class InsetsAnimationCallbackDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames() = listOf("show")
+    override fun getApplicableMethodNames() = listOf(
+        "setWindowInsetsAnimationCallback",
+        "setWindowInsetsAnimationCallbackCompat"
+    )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!context.evaluator.isMemberInWindowInsetsControllerCompat(method)) return
-        if (!node.valueArguments[0].asSourceString().contains("ime", ignoreCase = true)) return
-        context.report(
-            Incident(context, ISSUE)
-                .message(" `show(ime())` 存在兼容问题")
-                .at(node)
-        )
+        if (context.evaluator.isMemberInViewCompat(method)
+                || context.evaluator.isMemberInInsetsCompat(method)
+                || context.evaluator.isMemberInView(method)) {
+            context.report(
+                Incident(context, ISSUE)
+                    .message(" `WindowInsetsAnimation.Callback` 存在兼容问题")
+                    .at(node)
+            )
+        }
     }
 
     companion object {
         val ISSUE = Issue.create(
-            id = "WindowInsetsControllerCompatShowIme",
-            briefDescription = "ShowIme兼容问题",
+            id = "WindowInsetsAnimationCallback",
+            briefDescription = "WindowInsetsAnimationCallback兼容问题",
             explanation = "explanation",
-            implementation = Implementation(ShowImeDetector::class.java, JAVA_FILE_SCOPE)
+            implementation = Implementation(InsetsAnimationCallbackDetector::class.java, JAVA_FILE_SCOPE)
         )
     }
 }

@@ -25,7 +25,8 @@ internal class InsetsIssueRegistry : IssueRegistry() {
 
     override val issues = listOf(
         ShowImeDetector.ISSUE,
-        FitsSystemWindowsDetector.ISSUE
+        FitsSystemWindowsDetector.ISSUE,
+        InsetsAnimationCallbackDetector.ISSUE
     )
 
     override val api = CURRENT_API

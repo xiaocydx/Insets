@@ -37,19 +37,20 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames() = listOf("setFitsSystemWindows")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!context.evaluator.isMemberInView(method)) return
-        if (node.valueArguments[0].isFalseLiteral()) return
-        context.report(
-            Incident(context, ISSUE)
-                .message(" `fitSystemWindows = true` 存在版本兼容问题")
-                .at(node)
-        )
+        if (context.evaluator.isMemberInView(method)
+                && !node.valueArguments[0].isFalseLiteral()) {
+            context.report(
+                Incident(context, ISSUE)
+                    .message(" `fitSystemWindows = true` 存在兼容问题")
+                    .at(node)
+            )
+        }
     }
 
     companion object {
         val ISSUE = Issue.create(
             id = "FitsSystemWindows",
-            briefDescription = "FitsSystemWindows版本兼容问题",
+            briefDescription = "FitsSystemWindows兼容问题",
             explanation = """
                 
                 Android 11以下， `fitSystemWindows = true` 会让其他View没有WindowInsets分发：

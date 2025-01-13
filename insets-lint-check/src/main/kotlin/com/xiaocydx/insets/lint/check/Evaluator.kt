@@ -23,6 +23,14 @@ internal fun JavaEvaluator.isMemberInView(method: PsiMethod): Boolean {
     return isMemberInClass(method, "android.view.View")
 }
 
+internal fun JavaEvaluator.isMemberInViewCompat(method: PsiMethod): Boolean {
+    return isMemberInClass(method, "androidx.core.view.ViewCompat")
+}
+
 internal fun JavaEvaluator.isMemberInWindowInsetsControllerCompat(method: PsiMethod): Boolean {
     return isMemberInClass(method, "androidx.core.view.WindowInsetsControllerCompat")
+}
+
+internal fun JavaEvaluator.isMemberInInsetsCompat(method: PsiMethod): Boolean {
+    return isMemberInClass(method, "com.xiaocydx.insets.CompatKt")
 }
