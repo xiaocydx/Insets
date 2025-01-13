@@ -22,6 +22,8 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 /**
+ * [FitsSystemWindowsDetector]的单元测试
+ *
  * @author xcc
  * @date 2025/1/6
  */
@@ -29,7 +31,41 @@ import org.junit.Test
 internal class FitsSystemWindowsDetectorTest {
 
     @Test
-    fun test() {
+    fun sourceCodeFalseLiteral() {
+        lint()
+            .files(
+                java(
+                    """
+                    package test.pkg;
+                    import android.view.View;
+
+                    class TestClass {
+                        void test(View view) {
+                            view.setFitsSystemWindows(false);
+                        }
+                    }
+                    """
+                ).indented(),
+                kotlin(
+                    """
+                    package test.pkg
+                    import android.view.View
+
+                    class TestClass {
+                        fun test(view: View) {
+                            view.fitsSystemWindows = false
+                        }
+                    }
+                    """
+                ).indented(),
+            )
+            .issues(FitsSystemWindowsDetector.ISSUE)
+            .run()
+            .expect("No warnings.")
+    }
+
+    @Test
+    fun sourceCodeTrueLiteral() {
         lint()
             .files(
                 java(
@@ -67,6 +103,50 @@ internal class FitsSystemWindowsDetectorTest {
                 src/test/pkg/TestClass.kt:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
                         view.fitsSystemWindows = true
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
+                """
+            )
+    }
+
+    @Test
+    fun sourceCodeNotLiteral() {
+        lint()
+            .files(
+                java(
+                    """
+                    package test.pkg;
+                    import android.view.View;
+
+                    class TestClass {
+                        void test(View view, boolean fitsSystemWindows) {
+                            view.setFitsSystemWindows(fitsSystemWindows);
+                        }
+                    }
+                    """
+                ).indented(),
+                kotlin(
+                    """
+                    package test.pkg
+                    import android.view.View
+
+                    class TestClass {
+                        fun test(view: View, fitsSystemWindows: Boolean) {
+                            view.fitsSystemWindows = fitsSystemWindows
+                        }
+                    }
+                    """
+                ).indented(),
+            )
+            .issues(FitsSystemWindowsDetector.ISSUE)
+            .run()
+            .expect(
+                """
+                src/test/pkg/TestClass.java:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
+                        view.setFitsSystemWindows(fitsSystemWindows);
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.kt:6: Error:  fitSystemWindows = true 存在版本兼容问题，需谨慎使用 [FitsSystemWindows]
+                        view.fitsSystemWindows = fitsSystemWindows
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
                 """
             )

@@ -39,7 +39,6 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!context.evaluator.isMemberInClass(method, "android.view.View")) return
         if (node.valueArguments[0].isFalseLiteral()) return
-        // View.setFitsSystemWindows(fitSystemWindows)的实参为字面量true或者变量
         context.report(
             Incident(context, ISSUE)
                 .message(" `fitSystemWindows = true` 存在版本兼容问题，需谨慎使用")
