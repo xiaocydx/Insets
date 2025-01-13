@@ -1,12 +1,7 @@
 package com.xiaocydx.insets.sample
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsAnimationCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.xiaocydx.insets.sample.compat.FullscreenCompatActivity
 import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
 import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
@@ -16,7 +11,6 @@ import com.xiaocydx.insets.sample.systembar.SystemBarDialog
 import com.xiaocydx.insets.sample.systembar.SystemBarDialogFragment
 import com.xiaocydx.insets.sample.systembar.SystemBarRestoreActivity
 import com.xiaocydx.insets.sample.systembar.SystemBarVp2Activity
-import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
 import com.xiaocydx.insets.systembar.SystemBar
 
 /**
@@ -29,15 +23,6 @@ class MainActivity : AppCompatActivity(), SystemBar {
         super.onCreate(savedInstanceState)
         val sample = Sample(source(), this)
         setContentView(sample.contentView())
-        val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.show(WindowInsetsCompat.Type.ime())
-    }
-
-    fun test(view: View, callback: WindowInsetsAnimationCompat.Callback) {
-        // ViewCompat.setWindowInsetsAnimationCallback(view, callback)
-        // view.setWindowInsetsAnimationCallback()
-        // view.setWindowInsetsAnimationCallback()
-        // view.setWindowInsetsAnimationCallbackCompat(callback)
     }
 
     private fun source() = listOf(
