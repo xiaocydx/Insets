@@ -99,6 +99,7 @@ internal class InsetsCompatDetector : Detector(), SourceCodeScanner {
             id = "WindowInsetsCompatSystemWindowInsets",
             briefDescription = "Android 11以下的SystemWindowInsets包含IME，代替做法未提到",
             explanation = """
+                
                 Android 11以下的SystemWindowInsets包含IME，完整的代替做法：
                 ```
                 val insets: WindowInsetsCompat = ...
