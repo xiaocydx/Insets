@@ -6,6 +6,7 @@ import com.xiaocydx.insets.sample.compat.FullscreenCompatActivity
 import com.xiaocydx.insets.sample.compat.ImeAnimationCompatActivity
 import com.xiaocydx.insets.sample.compat.ImmutableCompatActivity
 import com.xiaocydx.insets.sample.insetter.InsetterActivity
+import com.xiaocydx.insets.sample.lint.LintSample
 import com.xiaocydx.insets.sample.systembar.SystemBarBasicActivity
 import com.xiaocydx.insets.sample.systembar.SystemBarDialog
 import com.xiaocydx.insets.sample.systembar.SystemBarDialogFragment
@@ -49,6 +50,10 @@ class MainActivity : AppCompatActivity(), SystemBar {
                 2. 支持SystemBar的全部使用方式，跟Fragment一致。
                 3. 需要通过Fragment.onCreateView()创建contentView。
                 """.trimIndent() show ::SystemBarDialogFragment
+        ),
+
+        "insets-lint".elements(
+            "Lint" desc "${LintSample::class.java.simpleName}.kt"
         )
     )
 }
