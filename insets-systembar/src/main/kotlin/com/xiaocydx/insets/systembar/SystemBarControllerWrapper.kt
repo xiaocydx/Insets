@@ -23,7 +23,7 @@ package com.xiaocydx.insets.systembar
  * @date 2024/5/7
  */
 open class SystemBarControllerWrapper : SystemBarController {
-    private val default = SystemBarController.default
+    private val default = SystemBarController.Default
     private val flags = SystemBarControllerFlags(default)
     private var delegate: SystemBarController? = null
 

@@ -53,7 +53,7 @@ internal abstract class SystemBarControllerImpl(
     private val systemBarTarget: Any,
     protected val fromInstaller: Boolean
 ) : SystemBarController {
-    private val default = SystemBarController.default
+    private val default = SystemBarController.Default
     private val flags = SystemBarControllerFlags(default)
     protected var container: SystemBarContainer? = null
     protected var enforcer: SystemBarWindowEnforcer? = null

@@ -118,7 +118,7 @@ interface SystemBarController {
     )
 
     companion object {
-        @Volatile internal var default = Default()
+        @Volatile internal var Default = Default()
     }
 }
 

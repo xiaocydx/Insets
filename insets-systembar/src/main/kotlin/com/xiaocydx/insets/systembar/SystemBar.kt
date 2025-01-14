@@ -44,7 +44,7 @@ fun SystemBar.Companion.install(
     application: Application,
     default: SystemBarController.Default = SystemBarController.Default()
 ) {
-    SystemBarController.default = default
+    SystemBarController.Default = default
     ActivitySystemBarInstaller.register(application)
 }
 
