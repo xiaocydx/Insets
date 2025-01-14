@@ -66,14 +66,14 @@ internal class InsetsCompatDetector : Detector(), SourceCodeScanner {
             isCompatMethod(SetInsets, ClassWindowInsetsCompatBuilder) -> {
                 if (typesContainsIme(node.valueArguments.first())) {
                     incident = Incident(context, BuilderSetInsets)
-                        .message(" `typeMask` 不能包含 `ime()`")
+                        .message(" `typeMask` 包含 `ime()` 会让WindowInsets分发的表现不一致")
                         .at(node)
                 }
             }
 
             isCompatMethod(SetInsetsIgnoringVisibility, ClassWindowInsetsCompatBuilder) -> {
                 incident = Incident(context, BuilderSetInsetsIgnoringVisibility)
-                    .message("非必要情况下，请避免调用此函数")
+                    .message("此函数会让构建结果的表现不一致，如果不是必需，请避免调用")
                     .at(node)
             }
         }
@@ -98,21 +98,96 @@ internal class InsetsCompatDetector : Detector(), SourceCodeScanner {
         val SystemWindowInsets = Issue.create(
             id = "WindowInsetsCompatSystemWindowInsets",
             briefDescription = "Android 11以下的SystemWindowInsets包含IME，代替做法未提到",
-            explanation = "explanation",
+            explanation = """
+                Android 11以下的SystemWindowInsets包含IME，完整的代替做法：
+                ```
+                val insets: WindowInsetsCompat = ...
+                val systemWindowInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
+                ```
+            """,
             implementation = Implementation
         )
 
         val BuilderSetInsets = Issue.create(
             id = "WindowInsetsCompatBuilderSetInsets",
             briefDescription = "Android 11以下的构建结果正确，但分发后仍能获取到IME的Insets",
-            explanation = "explanation",
+            explanation = """
+                ```
+                class MainActivity : Activity() {
+                
+                    override fun onCreate(savedInstanceState: Bundle?) {
+                        super.onCreate(savedInstanceState)
+                        window.setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
+                        WindowCompat.setDecorFitsSystemWindows(window, false)
+                        
+                        val child = View(this)
+                        val parent = findViewById<ViewGroup>(android.R.id.content)
+                        parent.addView(child)
+                        
+                        // parent的意图是消费IME数值，避免child重复处理
+                        val imeType = WindowInsetsCompat.Type.ime()
+                        ViewCompat.setOnApplyWindowInsetsListener(parent) { _, insets ->
+                            val consumed = WindowInsetsCompat.Builder(insets)
+                                .setInsets(imeType, Insets.NONE).build()
+                            assert(consumed.getInsets(imeType).isEmpty)
+                            consumed
+                        }
+                        
+                        // 对child分发的WindowInsets，没有IME数值才符合预期
+                        ViewCompat.setOnApplyWindowInsetsListener(child) { _, insets ->
+                            // Android 11及以上显示IME，断言成功
+                            // Android 11以下显示IME，断言失败
+                            assert(insets.getInsets(imeType).isEmpty)
+                            insets
+                        }
+                    }
+                }
+                ```
+                
+                依赖 `com.github.xiaocydx.Insets:insets` ，可以通过以下方式实现消费意图：
+                ```
+                ViewCompat.setOnApplyWindowInsetsListener(parent) { _, insets ->
+                    // consumeInsets()会检查类型集，并确保WindowInsets分发的表现一致
+                    insets.consumeInsets(typeMask)
+                }
+                ```
+            """,
             implementation = Implementation
         )
 
         val BuilderSetInsetsIgnoringVisibility = Issue.create(
             id = "WindowInsetsCompatBuilderSetInsetsIgnoringVisibility",
             briefDescription = "Android 11以下的构建结果错误，仍能获取到typeMask的Insets",
-            explanation = "explanation",
+            explanation = """
+                ```
+                class MainActivity : Activity() {
+                
+                    override fun onCreate(savedInstanceState: Bundle?) {
+                        super.onCreate(savedInstanceState)
+                        WindowCompat.setDecorFitsSystemWindows(window, false)
+                        
+                        val types = WindowInsetsCompat.Type.systemBars()
+                        val parent = findViewById<ViewGroup>(android.R.id.content)
+                        ViewCompat.setOnApplyWindowInsetsListener(parent) { _, insets ->
+                            val consumed = WindowInsetsCompat.Builder(insets)
+                                .setInsetsIgnoringVisibility(types, Insets.NONE).build()
+                            // Android 11及以上断言成功
+                            // Android 11以下断言失败
+                            assert(consumed.getInsetsIgnoringVisibility(types).isEmpty)
+                            consumed
+                        }
+                    }
+                }
+                ```
+                
+                依赖 `com.github.xiaocydx.Insets:insets` ，可以通过以下方式实现消费意图：
+                ```
+                ViewCompat.setOnApplyWindowInsetsListener(parent) { _, insets ->
+                    // consumeInsets()会检查类型集，并确保WindowInsets分发的表现一致
+                    insets.consumeInsets(typeMask)
+                }
+                ```
+            """,
             implementation = Implementation
         )
     }

@@ -82,10 +82,10 @@ internal class FitsSystemWindowsDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:7: Error:  fitSystemWindows = true 存在兼容问题 [FitsSystemWindows]
+                src/test/pkg/TestClass.java:7: Error:  fitSystemWindows = true 会导致其他View不能处理WindowInsets [FitsSystemWindows]
                         view.setFitsSystemWindows(true);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:7: Error:  fitSystemWindows = true 存在兼容问题 [FitsSystemWindows]
+                src/test/pkg/TestClass.kt:7: Error:  fitSystemWindows = true 会导致其他View不能处理WindowInsets [FitsSystemWindows]
                         view.fitsSystemWindows = true
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
@@ -104,10 +104,10 @@ internal class FitsSystemWindowsDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:7: Error:  fitSystemWindows = true 存在兼容问题 [FitsSystemWindows]
+                src/test/pkg/TestClass.java:7: Error:  fitSystemWindows = true 会导致其他View不能处理WindowInsets [FitsSystemWindows]
                         view.setFitsSystemWindows(fitsSystemWindows);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:7: Error:  fitSystemWindows = true 存在兼容问题 [FitsSystemWindows]
+                src/test/pkg/TestClass.kt:7: Error:  fitSystemWindows = true 会导致其他View不能处理WindowInsets [FitsSystemWindows]
                         view.fitsSystemWindows = fitsSystemWindows
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings

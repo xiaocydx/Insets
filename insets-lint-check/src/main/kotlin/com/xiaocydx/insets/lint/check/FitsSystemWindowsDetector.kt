@@ -43,7 +43,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
         if (isSetFitsSystemWindowsMethod && !node.valueArguments.first().isFalseLiteral()) {
             context.report(
                 Incident(context, Consume)
-                    .message(" `fitSystemWindows = true` 存在兼容问题")
+                    .message(" `fitSystemWindows = true` 会导致其他View不能处理WindowInsets")
                     .at(node)
             )
         }
@@ -52,10 +52,8 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
     companion object {
         val Consume = Issue.create(
             id = "FitsSystemWindows",
-            briefDescription = "FitsSystemWindows兼容问题",
+            briefDescription = "FitsSystemWindows会消费SystemWindowInsets",
             explanation = """
-                
-                Android 11以下， `fitSystemWindows = true` 会让其他View没有WindowInsets分发：
                 ```
                 class MainActivity : Activity() {
                 
@@ -69,7 +67,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
                         parent.addView(child1)
                         parent.addView(child2)
                         
-                        // child1消费systemWindowInsets并设置paddings
+                        // child1会消费systemWindowInsets并对自己设置paddings
                         child1.fitsSystemWindows = true 
                          
                         // Android 11以下，child2的OnApplyWindowInsetsListener不会触发
@@ -79,7 +77,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
                 ```
                 
                 
-                用 `OnApplyWindowInsetsListener` 代替 `fitSystemWindows = true` ：
+                用 `OnApplyWindowInsetsListener` 代替 `fitSystemWindows = true` 实现paddings：
                 ```
                 // 只获取需要的数值，比如获取状态栏和导航栏的高度
                 ViewCompat.setOnApplyWindowInsetsListener(child1) { _, insets->
@@ -93,7 +91,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
                 ```
                 
                 
-                如果已依赖 `com.github.xiaocydx.Insets:insets` ，那么代码可以简化为：
+                依赖 `com.github.xiaocydx.Insets:insets` ，代码可以简化为：
                 ```
                 child1.insets().paddings(systemBars())
                 child2.setOnApplyWindowInsetsListenerCompat { v, insets -> insets }

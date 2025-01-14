@@ -263,10 +263,10 @@ internal class InsetsCompatDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:8: Error:  typeMask 不能包含 ime() [WindowInsetsCompatBuilderSetInsets]
+                src/test/pkg/TestClass.java:8: Error:  typeMask 包含 ime() 会让WindowInsets分发的表现不一致 [WindowInsetsCompatBuilderSetInsets]
                         builder.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:8: Error:  typeMask 不能包含 ime() [WindowInsetsCompatBuilderSetInsets]
+                src/test/pkg/TestClass.kt:8: Error:  typeMask 包含 ime() 会让WindowInsets分发的表现不一致 [WindowInsetsCompatBuilderSetInsets]
                         builder.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
@@ -357,10 +357,10 @@ internal class InsetsCompatDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:8: Error: 非必要情况下，请避免调用此函数 [WindowInsetsCompatBuilderSetInsetsIgnoringVisibility]
+                src/test/pkg/TestClass.java:8: Error: 此函数会让构建结果的表现不一致，如果不是必需，请避免调用 [WindowInsetsCompatBuilderSetInsetsIgnoringVisibility]
                         builder.setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:8: Error: 非必要情况下，请避免调用此函数 [WindowInsetsCompatBuilderSetInsetsIgnoringVisibility]
+                src/test/pkg/TestClass.kt:8: Error: 此函数会让构建结果的表现不一致，如果不是必需，请避免调用 [WindowInsetsCompatBuilderSetInsetsIgnoringVisibility]
                         builder.setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
