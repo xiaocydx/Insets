@@ -28,9 +28,16 @@ internal val viewCompatStub = java(
     public class ViewCompat {
         public static void setWindowInsetsAnimationCallback(
             View view, WindowInsetsAnimationCompat.Callback callback
-        ) {
-        }
+        ) {}
     }
+    """
+).indented()
+
+internal val graphicsInsetsStub = java(
+    """
+    package androidx.core.graphics;
+        
+    public final class Insets {}
     """
 ).indented()
 
@@ -38,13 +45,19 @@ internal val windowInsetsCompatStub = java(
     """
         package androidx.core.view;
         
+        import androidx.core.graphics.Insets;
+        
         public class WindowInsetsCompat {
+            public boolean hasSystemWindowInsets() {}
+            public Insets getSystemWindowInsets() {}
+            public int getSystemWindowInsetLeft() {}
+            public int getSystemWindowInsetTop() {}
+            public int getSystemWindowInsetRight() {}
+            public int getSystemWindowInsetBottom() {}
+        
             public static final class Type {
-                public static int statusBars() {
-                }
-                
-                public static int ime() {
-                }
+                public static int statusBars() {}
+                public static int ime() {}
             }
         }
         """
@@ -55,8 +68,7 @@ internal val windowInsetsControllerCompatStub = java(
         package androidx.core.view;
 
         public final class WindowInsetsControllerCompat {
-            public void show(int types) {
-            }
+            public void show(int types) {}
         }
         """
 ).indented()
@@ -66,8 +78,7 @@ internal val windowInsetsAnimationCompatStub = java(
         package androidx.core.view;
 
         public final class WindowInsetsAnimationCompat {
-            public abstract static class Callback {
-            }
+            public abstract static class Callback {}
         }
         """
 ).indented()
@@ -82,8 +93,7 @@ internal val insetsCompatKtStub = java(
     public final class CompatKt {
         public static final void setWindowInsetsAnimationCallbackCompat(
             View view, WindowInsetsAnimationCompat.Callback callback
-        ) {
-        }
+        ) {}
     }
     """
 ).indented()

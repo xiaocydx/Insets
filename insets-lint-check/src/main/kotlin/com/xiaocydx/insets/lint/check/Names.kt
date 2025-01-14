@@ -16,14 +16,16 @@
 
 package com.xiaocydx.insets.lint.check
 
+internal val TypeInt = Int::class.javaPrimitiveType?.name ?: ""
+
+internal val TypeBoolean = Boolean::class.javaPrimitiveType?.name ?: ""
+
 internal const val ClassView = "android.view.View"
 
 internal const val ClassViewCompat = "androidx.core.view.ViewCompat"
 
+internal const val ClassWindowInsetsCompat = "androidx.core.view.WindowInsetsCompat"
+
 internal const val ClassWindowInsetsControllerCompat = "androidx.core.view.WindowInsetsControllerCompat"
 
 internal const val ClassInsetsCompatKt = "com.xiaocydx.insets.CompatKt"
-
-internal val TypeInt = Int::class.javaPrimitiveType?.name ?: ""
-
-internal val TypeBoolean = Boolean::class.javaPrimitiveType?.name ?: ""

@@ -24,12 +24,12 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 /**
- * [InsetsControllerDetector]的单元测试
+ * [InsetsControllerCompatDetector]的单元测试
  *
  * @author xcc
  * @date 2025/1/13
  */
-internal class InsetsControllerDetectorTest {
+internal class InsetsControllerCompatDetectorTest {
 
     private fun javaFile(types: String) = java(
         """
@@ -64,26 +64,28 @@ internal class InsetsControllerDetectorTest {
     fun showTypesNoImeNoWarning() {
         lint()
             .files(
+                graphicsInsetsStub,
                 windowInsetsCompatStub,
                 windowInsetsControllerCompatStub,
                 javaFile(types = "WindowInsetsCompat.Type.statusBars()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.statusBars()"),
             )
-            .issues(InsetsControllerDetector.ShowIme)
+            .issues(InsetsControllerCompatDetector.ShowIme)
             .run()
-            .expect("No warnings.")
+            .expectClean()
     }
 
     @Test
     fun showTypesOnlyImeWarning() {
         lint()
             .files(
+                graphicsInsetsStub,
                 windowInsetsCompatStub,
                 windowInsetsControllerCompatStub,
                 javaFile(types = "WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.ime()"),
             )
-            .issues(InsetsControllerDetector.ShowIme)
+            .issues(InsetsControllerCompatDetector.ShowIme)
             .run()
             .expect(
                 """
@@ -102,12 +104,13 @@ internal class InsetsControllerDetectorTest {
     fun showTypesNotOnlyImeWarning() {
         lint()
             .files(
+                graphicsInsetsStub,
                 windowInsetsCompatStub,
                 windowInsetsControllerCompatStub,
                 javaFile(types = "WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.ime()"),
             )
-            .issues(InsetsControllerDetector.ShowIme)
+            .issues(InsetsControllerCompatDetector.ShowIme)
             .run()
             .expect(
                 """

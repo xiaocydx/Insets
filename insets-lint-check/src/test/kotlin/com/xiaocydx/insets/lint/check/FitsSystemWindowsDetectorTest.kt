@@ -68,7 +68,7 @@ internal class FitsSystemWindowsDetectorTest {
             )
             .issues(FitsSystemWindowsDetector.Consume)
             .run()
-            .expect("No warnings.")
+            .expectClean()
     }
 
     @Test

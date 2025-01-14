@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "ConstPropertyName")
 
 package com.xiaocydx.insets.lint.check
 
@@ -27,40 +27,41 @@ import com.android.tools.lint.detector.api.Scope.Companion.JAVA_FILE_SCOPE
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.UExpression
 
 /**
  * @author xcc
  * @date 2025/1/13
  */
-internal class InsetsControllerDetector : Detector(), SourceCodeScanner {
+internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames() = listOf("show")
+    override fun getApplicableMethodNames() = listOf(
+        SetWindowInsetsAnimationCallback,
+        SetWindowInsetsAnimationCallbackCompat
+    )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        val isShowMethod = context.evaluator.methodMatches(
-            method, ClassWindowInsetsControllerCompat,
-            allowInherit = false, TypeInt
-        )
-        if (isShowMethod && typesContainsIme(node.valueArguments.first())) {
+        val isSetMethod = fun(methodName: String, className: String) = run {
+            method.name == methodName && context.evaluator.isMemberInClass(method, className)
+        }
+        if (isSetMethod(SetWindowInsetsAnimationCallback, ClassViewCompat)
+                || isSetMethod(SetWindowInsetsAnimationCallbackCompat, ClassInsetsCompatKt)) {
             context.report(
-                Incident(context, ShowIme)
-                    .message(" `WindowInsetsControllerCompat.show(ime())` 存在兼容问题")
+                Incident(context, Callback)
+                    .message(" `WindowInsetsAnimationCompat.Callback` 存在兼容问题")
                     .at(node)
             )
         }
     }
 
-    private fun typesContainsIme(valueArgument: UExpression): Boolean {
-        return valueArgument.asSourceString().contains("ime", ignoreCase = true)
-    }
-
     companion object {
-        val ShowIme = Issue.create(
-            id = "WindowInsetsControllerCompatShowIme",
-            briefDescription = "WindowInsetsControllerCompat.show(ime())兼容问题",
+        private const val SetWindowInsetsAnimationCallback = "setWindowInsetsAnimationCallback"
+        private const val SetWindowInsetsAnimationCallbackCompat = "setWindowInsetsAnimationCallbackCompat"
+
+        val Callback = Issue.create(
+            id = "WindowInsetsAnimationCompatCallback",
+            briefDescription = "WindowInsetsAnimationCompat.Callback兼容问题",
             explanation = "explanation",
-            implementation = Implementation(InsetsControllerDetector::class.java, JAVA_FILE_SCOPE)
+            implementation = Implementation(InsetsAnimationCompatDetector::class.java, JAVA_FILE_SCOPE)
         )
     }
 }

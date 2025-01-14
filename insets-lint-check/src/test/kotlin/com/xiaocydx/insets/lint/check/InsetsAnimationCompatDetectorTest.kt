@@ -24,12 +24,12 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 /**
- * [InsetsAnimationDetector]的单元测试
+ * [InsetsAnimationCompatDetector]的单元测试
  *
  * @author xcc
  * @date 2025/1/13
  */
-internal class InsetsAnimationDetectorTest {
+internal class InsetsAnimationCompatDetectorTest {
 
     @Test
     fun setWindowInsetsAnimationCallbackNoWarning() {
@@ -39,6 +39,7 @@ internal class InsetsAnimationDetectorTest {
                 java(
                     """
                     package test.pkg;
+                    
                     import androidx.core.view.WindowInsetsAnimationCompat;
 
                     class TestClass {
@@ -46,14 +47,14 @@ internal class InsetsAnimationDetectorTest {
                             setWindowInsetsAnimationCallback(callback);
                         }
                         
-                        void setWindowInsetsAnimationCallback(WindowInsetsAnimationCompat.Callback callback) {
-                        }
+                        void setWindowInsetsAnimationCallback(WindowInsetsAnimationCompat.Callback callback) {}
                     }
                     """
                 ).indented(),
                 kotlin(
                     """
                     package test.pkg
+
                     import androidx.core.view.WindowInsetsAnimationCompat
 
                     class TestClass {
@@ -61,15 +62,14 @@ internal class InsetsAnimationDetectorTest {
                             setWindowInsetsAnimationCallback(callback)
                         }
 
-                        fun setWindowInsetsAnimationCallback(callback: WindowInsetsAnimationCompat.Callback) {
-                        }
+                        fun setWindowInsetsAnimationCallback(callback: WindowInsetsAnimationCompat.Callback) {}
                     }
                     """
                 ).indented(),
             )
-            .issues(InsetsAnimationDetector.Callback)
+            .issues(InsetsAnimationCompatDetector.Callback)
             .run()
-            .expect("No warnings.")
+            .expectClean()
     }
 
     @Test
@@ -114,7 +114,7 @@ internal class InsetsAnimationDetectorTest {
                     """
                 ).indented(),
             )
-            .issues(InsetsAnimationDetector.Callback)
+            .issues(InsetsAnimationCompatDetector.Callback)
             .run()
             .expect(
                 """
