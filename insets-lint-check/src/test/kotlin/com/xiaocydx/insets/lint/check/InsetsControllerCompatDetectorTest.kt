@@ -67,8 +67,8 @@ internal class InsetsControllerCompatDetectorTest {
                 graphicsInsetsStub,
                 windowInsetsCompatStub,
                 windowInsetsControllerCompatStub,
-                javaFile(types = "WindowInsetsCompat.Type.statusBars()"),
-                kotlinFile(types = "WindowInsetsCompat.Type.statusBars()"),
+                javaFile(types = "WindowInsetsCompat.Type.systemBars()"),
+                kotlinFile(types = "WindowInsetsCompat.Type.systemBars()"),
             )
             .issues(InsetsControllerCompatDetector.ShowIme)
             .run()
@@ -107,18 +107,18 @@ internal class InsetsControllerCompatDetectorTest {
                 graphicsInsetsStub,
                 windowInsetsCompatStub,
                 windowInsetsControllerCompatStub,
-                javaFile(types = "WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.ime()"),
-                kotlinFile(types = "WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.ime()"),
+                javaFile(types = "WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()"),
+                kotlinFile(types = "WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()"),
             )
             .issues(InsetsControllerCompatDetector.ShowIme)
             .run()
             .expect(
                 """
                 src/test/pkg/TestClass.java:7: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
-                        controller.show(WindowInsetsCompat.Type.statusBars() | WindowInsetsCompat.Type.ime());
+                        controller.show(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 src/test/pkg/TestClass.kt:8: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
-                        controller.show(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.ime())
+                        controller.show(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
                 """

@@ -32,7 +32,7 @@ import org.junit.Test
 internal class InsetsCompatDetectorTest {
 
     @Test
-    fun callSystemWindowInsetsNoWarning() {
+    fun systemWindowInsetsNoWarning() {
         lint()
             .files(
                 graphicsInsetsStub,
@@ -93,7 +93,7 @@ internal class InsetsCompatDetectorTest {
     }
 
     @Test
-    fun callSystemWindowInsetsWarning() {
+    fun systemWindowInsetsWarning() {
         lint()
             .files(
                 graphicsInsetsStub,
@@ -176,6 +176,194 @@ internal class InsetsCompatDetectorTest {
                         insets.systemWindowInsetBottom
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 12 errors, 0 warnings
+                """
+            )
+    }
+
+    @Test
+    fun setInsetsNoWarning() {
+        lint()
+            .files(
+                graphicsInsetsStub,
+                windowInsetsCompatStub,
+                java(
+                    """
+                    package test.pkg;
+                    
+                    import androidx.core.graphics.Insets;
+                    import androidx.core.view.WindowInsetsCompat;
+                    
+                    class TestClass {
+                        void test() {
+                            setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE);
+                        }
+                        
+                        public void setInsets(int typeMask, Insets insets) {}
+                    }
+                    """
+                ).indented(),
+                kotlin(
+                    """
+                    package test.pkg
+
+                    import androidx.core.graphics.Insets
+                    import androidx.core.view.WindowInsetsCompat
+
+                    class TestClass {
+                        fun test() {
+                            setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
+                        }
+                        
+                        fun setInsets(typeMask: Int, insets: Insets) {}
+                    }
+                    """
+                ).indented()
+            )
+            .issues(InsetsCompatDetector.BuilderSetInsets)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun builderSetInsetsWarning() {
+        lint()
+            .files(
+                graphicsInsetsStub,
+                windowInsetsCompatStub,
+                java(
+                    """
+                    package test.pkg;
+                    
+                    import androidx.core.graphics.Insets;
+                    import androidx.core.view.WindowInsetsCompat;
+                    
+                    class TestClass {
+                        void test(WindowInsetsCompat.Builder builder) {
+                            builder.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE);
+                        }
+                    }
+                    """
+                ).indented(),
+                kotlin(
+                    """
+                    package test.pkg
+
+                    import androidx.core.graphics.Insets
+                    import androidx.core.view.WindowInsetsCompat
+
+                    class TestClass {
+                        fun test(builder: WindowInsetsCompat.Builder) {
+                            builder.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
+                        }
+                    }
+                    """
+                ).indented()
+            )
+            .issues(InsetsCompatDetector.BuilderSetInsets)
+            .run()
+            .expect(
+                """
+                src/test/pkg/TestClass.java:8: Error:  typeMask 不能包含 ime() [WindowInsetsCompatBuilderSetInsets]
+                        builder.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE);
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.kt:8: Error:  typeMask 不能包含 ime() [WindowInsetsCompatBuilderSetInsets]
+                        builder.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
+                """
+            )
+    }
+
+    @Test
+    fun setInsetsIgnoringVisibilityNoWarning() {
+        lint()
+            .files(
+                graphicsInsetsStub,
+                windowInsetsCompatStub,
+                java(
+                    """
+                    package test.pkg;
+                    
+                    import androidx.core.graphics.Insets;
+                    import androidx.core.view.WindowInsetsCompat;
+                    
+                    class TestClass {
+                        void test() {
+                            setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE);
+                        }
+                        
+                        public void setInsetsIgnoringVisibility(int typeMask, Insets insets) {}
+                    }
+                    """
+                ).indented(),
+                kotlin(
+                    """
+                    package test.pkg
+
+                    import androidx.core.graphics.Insets
+                    import androidx.core.view.WindowInsetsCompat
+
+                    class TestClass {
+                        fun test() {
+                            setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
+                        }
+                        
+                        fun setInsetsIgnoringVisibility(typeMask: Int, insets: Insets) {}
+                    }
+                    """
+                ).indented()
+            )
+            .issues(InsetsCompatDetector.BuilderSetInsetsIgnoringVisibility)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun builderSetInsetsIgnoringVisibilityWarning() {
+        lint()
+            .files(
+                graphicsInsetsStub,
+                windowInsetsCompatStub,
+                java(
+                    """
+                    package test.pkg;
+                    
+                    import androidx.core.graphics.Insets;
+                    import androidx.core.view.WindowInsetsCompat;
+                    
+                    class TestClass {
+                        void test(WindowInsetsCompat.Builder builder) {
+                            builder.setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE);
+                        }
+                    }
+                    """
+                ).indented(),
+                kotlin(
+                    """
+                    package test.pkg
+
+                    import androidx.core.graphics.Insets
+                    import androidx.core.view.WindowInsetsCompat
+
+                    class TestClass {
+                        fun test(builder: WindowInsetsCompat.Builder) {
+                            builder.setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
+                        }
+                    }
+                    """
+                ).indented()
+            )
+            .issues(InsetsCompatDetector.BuilderSetInsetsIgnoringVisibility)
+            .run()
+            .expect(
+                """
+                src/test/pkg/TestClass.java:8: Error: 非必要情况下，请避免调用此函数 [WindowInsetsCompatBuilderSetInsetsIgnoringVisibility]
+                        builder.setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE);
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.kt:8: Error: 非必要情况下，请避免调用此函数 [WindowInsetsCompatBuilderSetInsetsIgnoringVisibility]
+                        builder.setInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
                 """
             )
     }

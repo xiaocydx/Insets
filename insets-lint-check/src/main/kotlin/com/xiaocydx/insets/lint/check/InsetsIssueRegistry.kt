@@ -30,9 +30,11 @@ internal class InsetsIssueRegistry : IssueRegistry() {
 
     override val issues = listOf(
         FitsSystemWindowsDetector.Consume,
-        InsetsCompatDetector.SystemWindowInsets,
         InsetsAnimationCompatDetector.Callback,
-        InsetsControllerCompatDetector.ShowIme
+        InsetsControllerCompatDetector.ShowIme,
+        InsetsCompatDetector.SystemWindowInsets,
+        InsetsCompatDetector.BuilderSetInsets,
+        InsetsCompatDetector.BuilderSetInsetsIgnoringVisibility,
     )
 
     override val api = CURRENT_API

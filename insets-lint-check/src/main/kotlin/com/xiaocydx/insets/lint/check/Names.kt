@@ -26,6 +26,8 @@ internal const val ClassViewCompat = "androidx.core.view.ViewCompat"
 
 internal const val ClassWindowInsetsCompat = "androidx.core.view.WindowInsetsCompat"
 
+internal const val ClassWindowInsetsCompatBuilder = "androidx.core.view.WindowInsetsCompat.Builder"
+
 internal const val ClassWindowInsetsControllerCompat = "androidx.core.view.WindowInsetsControllerCompat"
 
 internal const val ClassInsetsCompatKt = "com.xiaocydx.insets.CompatKt"

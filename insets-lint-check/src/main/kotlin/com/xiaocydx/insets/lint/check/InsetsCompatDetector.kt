@@ -27,6 +27,7 @@ import com.android.tools.lint.detector.api.Scope.Companion.JAVA_FILE_SCOPE
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UExpression
 
 /**
  * @author xcc
@@ -40,27 +41,47 @@ internal class InsetsCompatDetector : Detector(), SourceCodeScanner {
         GetSystemWindowInsetLeft,
         GetSystemWindowInsetTop,
         GetSystemWindowInsetRight,
-        GetSystemWindowInsetBottom
+        GetSystemWindowInsetBottom,
+        SetInsets,
+        SetInsetsIgnoringVisibility,
     )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        val isInsetsCompatMethod = fun(methodName: String) = run {
-            method.name == methodName && context.evaluator
-                .isMemberInClass(method, ClassWindowInsetsCompat)
+        val isCompatMethod = fun(methodName: String, className: String) = run {
+            method.name == methodName && context.evaluator.isMemberInClass(method, className)
         }
-        if (isInsetsCompatMethod(HasSystemWindowInsets)
-                || isInsetsCompatMethod(GetSystemWindowInsets)
-                || isInsetsCompatMethod(GetSystemWindowInsetLeft)
-                || isInsetsCompatMethod(GetSystemWindowInsetTop)
-                || isInsetsCompatMethod(GetSystemWindowInsetRight)
-                || isInsetsCompatMethod(GetSystemWindowInsetBottom)) {
-            context.report(
-                Incident(context, SystemWindowInsets)
+        var incident: Incident? = null
+        when {
+            isCompatMethod(HasSystemWindowInsets, ClassWindowInsetsCompat)
+                    || isCompatMethod(GetSystemWindowInsets, ClassWindowInsetsCompat)
+                    || isCompatMethod(GetSystemWindowInsetLeft, ClassWindowInsetsCompat)
+                    || isCompatMethod(GetSystemWindowInsetTop, ClassWindowInsetsCompat)
+                    || isCompatMethod(GetSystemWindowInsetRight, ClassWindowInsetsCompat)
+                    || isCompatMethod(GetSystemWindowInsetBottom, ClassWindowInsetsCompat) -> {
+                incident = Incident(context, SystemWindowInsets)
                     .message("注释中 `@deprecated` 描述的代替做法不完整")
                     .at(node)
-            )
-            return
+            }
+
+            isCompatMethod(SetInsets, ClassWindowInsetsCompatBuilder) -> {
+                if (typesContainsIme(node.valueArguments.first())) {
+                    incident = Incident(context, BuilderSetInsets)
+                        .message(" `typeMask` 不能包含 `ime()`")
+                        .at(node)
+                }
+            }
+
+            isCompatMethod(SetInsetsIgnoringVisibility, ClassWindowInsetsCompatBuilder) -> {
+                incident = Incident(context, BuilderSetInsetsIgnoringVisibility)
+                    .message("非必要情况下，请避免调用此函数")
+                    .at(node)
+            }
         }
+        incident?.let(context::report)
+    }
+
+    private fun typesContainsIme(valueArgument: UExpression): Boolean {
+        return valueArgument.asSourceString().contains("ime", ignoreCase = true)
     }
 
     companion object {
@@ -70,12 +91,29 @@ internal class InsetsCompatDetector : Detector(), SourceCodeScanner {
         private const val GetSystemWindowInsetTop = "getSystemWindowInsetTop"
         private const val GetSystemWindowInsetRight = "getSystemWindowInsetRight"
         private const val GetSystemWindowInsetBottom = "getSystemWindowInsetBottom"
+        private const val SetInsets = "setInsets"
+        private const val SetInsetsIgnoringVisibility = "setInsetsIgnoringVisibility"
+        private val Implementation = Implementation(InsetsCompatDetector::class.java, JAVA_FILE_SCOPE)
 
         val SystemWindowInsets = Issue.create(
             id = "WindowInsetsCompatSystemWindowInsets",
-            briefDescription = "注释中@deprecated描述的代替做法不完整",
+            briefDescription = "Android 11以下的SystemWindowInsets包含IME，代替做法未提到",
             explanation = "explanation",
-            implementation = Implementation(InsetsCompatDetector::class.java, JAVA_FILE_SCOPE)
+            implementation = Implementation
+        )
+
+        val BuilderSetInsets = Issue.create(
+            id = "WindowInsetsCompatBuilderSetInsets",
+            briefDescription = "Android 11以下的构建结果正确，但分发后仍能获取到IME的Insets",
+            explanation = "explanation",
+            implementation = Implementation
+        )
+
+        val BuilderSetInsetsIgnoringVisibility = Issue.create(
+            id = "WindowInsetsCompatBuilderSetInsetsIgnoringVisibility",
+            briefDescription = "Android 11以下的构建结果错误，仍能获取到typeMask的Insets",
+            explanation = "explanation",
+            implementation = Implementation
         )
     }
 }

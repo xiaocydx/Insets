@@ -37,7 +37,9 @@ internal val graphicsInsetsStub = java(
     """
     package androidx.core.graphics;
         
-    public final class Insets {}
+    public final class Insets {
+        public static final Insets NONE = new Insets(0, 0, 0, 0);
+    }
     """
 ).indented()
 
@@ -54,9 +56,15 @@ internal val windowInsetsCompatStub = java(
             public int getSystemWindowInsetTop() {}
             public int getSystemWindowInsetRight() {}
             public int getSystemWindowInsetBottom() {}
+
+            public static final class Builder {
+                public Builder(WindowInsetsCompat insets) {}
+                public Builder setInsets(int typeMask, Insets insets) {}
+                public Builder setInsetsIgnoringVisibility(int typeMask, Insets insets) {}
+            }
         
             public static final class Type {
-                public static int statusBars() {}
+                public static int systemBars() {}
                 public static int ime() {}
             }
         }
