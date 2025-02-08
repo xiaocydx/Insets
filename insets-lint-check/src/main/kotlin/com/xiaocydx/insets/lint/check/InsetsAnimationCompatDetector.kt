@@ -47,7 +47,7 @@ internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
                 || isSetMethod(SetWindowInsetsAnimationCallbackCompat, ClassInsetsCompatKt)) {
             context.report(
                 Incident(context, Callback)
-                    .message(" `WindowInsetsAnimationCompat.Callback` 存在兼容问题")
+                    .message("确保 `WindowInsetsAnimationCompat.Callback` 正常执行")
                     .at(node)
             )
         }
@@ -59,8 +59,42 @@ internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
 
         val Callback = Issue.create(
             id = "WindowInsetsAnimationCompatCallback",
-            briefDescription = "WindowInsetsAnimationCompat.Callback兼容问题",
-            explanation = "explanation",
+            briefDescription = "WindowInsetsAnimationCompat.Callback的兼容处理",
+            explanation = """
+                ```
+                class MainActivity : Activity() {
+                
+                    override fun onCreate(savedInstanceState: Bundle?) {
+                        super.onCreate(savedInstanceState)
+                        
+                        // 1. IME交互的必要兼容
+                        // 确保Android 11以下触发WindowInsets分发，
+                        // Android 11及以上视图树不会滚动到焦点可见的位置。
+                        window.setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
+                        
+                        // 2. 对非DecorView的视图设置Callback，需要自行处理WindowInsets
+                        WindowCompat.setDecorFitsSystemWindows(window, false)
+                        
+                        // 3. Android 11以下，Callback基于WindowInsets分发实现，
+                        // 需要确保View有WindowInsets分发，并且所需类型未被消费。
+                        val content = findViewById<ViewGroup>(android.R.id.content)
+                        ViewCompat.setWindowInsetsAnimationCallback(content, callback)
+                    }
+                }
+                ```
+                
+                依赖 `com.github.xiaocydx.Insets:insets-compat` ，可以使用以下兼容方案：
+                ```
+                // Android 11以下，window包含FLAG_FULLSCREEN的兼容方案
+                window.enableDispatchApplyInsetsFullscreenCompat()
+                
+                // Android 9.0以下，WindowInsets可变的兼容方案
+                // 注意：未返回DecorView处理WindowInsets后的结果，
+                // 当代码不好改动或者改动后造成其他影响，再考虑此方案。
+                view.setOnApplyWindowInsetsListenerImmutable(listener)
+                view.setWindowInsetsAnimationCallbackImmutable(callback)
+                ```
+            """,
             implementation = Implementation(InsetsAnimationCompatDetector::class.java, JAVA_FILE_SCOPE)
         )
     }

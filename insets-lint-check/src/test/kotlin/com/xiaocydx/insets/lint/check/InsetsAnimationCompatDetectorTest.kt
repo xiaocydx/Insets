@@ -118,16 +118,16 @@ internal class InsetsAnimationCompatDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:10: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.java:10: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.java:11: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.java:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:10: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.kt:10: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:11: Error:  WindowInsetsAnimationCompat.Callback 存在兼容问题 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.kt:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 4 errors, 0 warnings
