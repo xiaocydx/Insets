@@ -89,10 +89,10 @@ internal class InsetsControllerCompatDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:7: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.java:7: Error: 确保 WindowInsetsControllerCompat.show(ime()) 正常执行 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.ime());
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:8: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.kt:8: Error: 确保 WindowInsetsControllerCompat.show(ime()) 正常执行 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.ime())
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
@@ -114,10 +114,10 @@ internal class InsetsControllerCompatDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:7: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.java:7: Error: 确保 WindowInsetsControllerCompat.show(ime()) 正常执行 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:8: Error:  WindowInsetsControllerCompat.show(ime()) 存在兼容问题 [WindowInsetsControllerCompatShowIme]
+                src/test/pkg/TestClass.kt:8: Error: 确保 WindowInsetsControllerCompat.show(ime()) 正常执行 [WindowInsetsControllerCompatShowIme]
                         controller.show(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings

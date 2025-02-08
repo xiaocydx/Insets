@@ -45,7 +45,7 @@ internal class InsetsControllerCompatDetector : Detector(), SourceCodeScanner {
         if (isShowMethod && typesContainsIme(node.valueArguments.first())) {
             context.report(
                 Incident(context, ShowIme)
-                    .message(" `WindowInsetsControllerCompat.show(ime())` 存在兼容问题")
+                    .message("确保 `WindowInsetsControllerCompat.show(ime())` 正常执行")
                     .at(node)
             )
         }
@@ -58,8 +58,50 @@ internal class InsetsControllerCompatDetector : Detector(), SourceCodeScanner {
     companion object {
         val ShowIme = Issue.create(
             id = "WindowInsetsControllerCompatShowIme",
-            briefDescription = "WindowInsetsControllerCompat.show(ime())兼容问题",
-            explanation = "explanation",
+            briefDescription = "WindowInsetsControllerCompat.show(ime())的兼容处理",
+            explanation = """
+                ```
+                class MainActivity : Activity() {
+                
+                    override fun onCreate(savedInstanceState: Bundle?) {
+                        super.onCreate(savedInstanceState)
+                        
+                        val view = findViewById<View>(android.R.id.content)
+                        val controller = WindowInsetsControllerCompat(window, view)
+                        
+                        // Android 11以下，show(ime())基于InputMethodManager实现，
+                        // 构建controller的Window和View需要获取焦点，显示IME才有效。
+                        fun showIme() {
+                            view.isFocusable = true
+                            view.isFocusableInTouchMode = true
+                            view.requestFocus()
+                            controller.show(ime())
+                        }
+                        
+                        // 在点击触发时显示IME，Window已获取焦点，因此显示IME正常执行
+                        view.setOnClickListener { showIme() }
+                        
+                        // 若需要在初始化阶段显示IME，则在Window获取焦点后，再显示IME
+                        view.viewTreeObserver.addOnWindowFocusChangeListener(
+                            object : ViewTreeObserver.OnWindowFocusChangeListener {
+                                override fun onWindowFocusChanged(hasFocus: Boolean) {
+                                    if (!hasFocus) return
+                                    // 在Window获取焦点后，移除监听并显示IME
+                                    view.viewTreeObserver.removeOnWindowFocusChangeListener(this)
+                                    showIme()
+                                }
+                            }
+                        )
+                    }
+                }
+                ```
+                
+                依赖 `com.github.xiaocydx.Insets:insets` ，代码可以简化为：
+                ```
+                // 在Window获取焦点后，移除监听并显示IME
+                view.doOnHasWindowFocus { showIme() }
+                ```
+            """,
             implementation = Implementation(InsetsControllerCompatDetector::class.java, JAVA_FILE_SCOPE)
         )
     }

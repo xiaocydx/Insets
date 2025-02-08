@@ -77,8 +77,8 @@ internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
                         
                         // 3. Android 11以下，Callback基于WindowInsets分发实现，
                         // 需要确保View有WindowInsets分发，并且所需类型未被消费。
-                        val content = findViewById<ViewGroup>(android.R.id.content)
-                        ViewCompat.setWindowInsetsAnimationCallback(content, callback)
+                        val view = findViewById<View>(android.R.id.content)
+                        ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                     }
                 }
                 ```
