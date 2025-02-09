@@ -1,7 +1,9 @@
 package com.xiaocydx.insets.sample.lint
 
+import android.content.Context
 import android.view.View
 import android.view.Window
+import android.view.WindowInsets
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
@@ -41,5 +43,19 @@ class LintSample {
     fun windowInsetsControllerCompat(window: Window, view: View) {
         val controller = WindowInsetsControllerCompat(window, view)
         controller.show(WindowInsetsCompat.Type.ime())
+    }
+
+    fun windowInsetsConsume(view: View) {
+        object : View(view.context) {
+            override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+                return super.onApplyWindowInsets(insets)
+            }
+        }
+    }
+}
+
+class TestClass(context: Context) : View(context) {
+    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+        return super.onApplyWindowInsets(insets)
     }
 }
