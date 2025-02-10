@@ -91,6 +91,18 @@ internal val windowInsetsAnimationCompatStub = java(
         """
 ).indented()
 
+internal val onApplyWindowInsetsListenerCompatStub = java(
+    """
+        package androidx.core.view;
+        
+        import android.view.View;
+
+        public interface OnApplyWindowInsetsListener {
+            WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets);
+        }
+        """
+).indented()
+
 internal val insetsCompatKtStub = java(
     """
     package com.xiaocydx.insets;
@@ -105,3 +117,9 @@ internal val insetsCompatKtStub = java(
     }
     """
 ).indented()
+
+internal val stubs = arrayOf(
+    viewCompatStub, graphicsInsetsStub, windowInsetsCompatStub,
+    windowInsetsControllerCompatStub, windowInsetsAnimationCompatStub,
+    onApplyWindowInsetsListenerCompatStub, insetsCompatKtStub
+)

@@ -35,7 +35,7 @@ internal class InsetsIssueRegistry : IssueRegistry() {
         InsetsCompatDetector.SystemWindowInsets,
         InsetsCompatDetector.BuilderSetInsets,
         InsetsCompatDetector.BuilderSetInsetsIgnoringVisibility,
-        InsetsConsumeDetector.OnApplyInsets
+        InsetsDispatchDetector.Consume
     )
 
     override val api = CURRENT_API

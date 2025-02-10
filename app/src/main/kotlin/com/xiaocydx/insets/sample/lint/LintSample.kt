@@ -5,10 +5,12 @@ import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import androidx.core.graphics.Insets
+import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.xiaocydx.insets.setOnApplyWindowInsetsListenerCompat
 import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
 
 /**
@@ -47,10 +49,19 @@ class LintSample {
 
     fun windowInsetsConsume(view: View) {
         object : View(view.context) {
+            override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
+                return super.dispatchApplyWindowInsets(insets)
+            }
+
             override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
                 return super.onApplyWindowInsets(insets)
             }
         }
+
+        val listener = OnApplyWindowInsetsListener { v, insets -> insets }
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets }
+        view.setOnApplyWindowInsetsListenerCompat { _, insets -> insets }
     }
 }
 

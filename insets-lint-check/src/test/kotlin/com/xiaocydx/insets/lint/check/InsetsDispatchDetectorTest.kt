@@ -23,12 +23,12 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
 /**
- * [InsetsConsumeDetector]的单元测试
+ * [InsetsDispatchDetector]的单元测试
  *
  * @author xcc
  * @date 2025/2/9
  */
-internal class InsetsConsumeDetectorTest {
+internal class InsetsDispatchDetectorTest {
 
     @Test
     fun test() {
@@ -49,7 +49,32 @@ internal class InsetsConsumeDetectorTest {
                     """
                 ).indented()
             )
-            .issues(InsetsConsumeDetector.OnApplyInsets)
+            .issues(InsetsDispatchDetector.Consume)
+            .run()
+            .expect("")
+    }
+
+    @Test
+    fun test2() {
+        lint()
+            .files(
+                *stubs,
+                kotlin(
+                    """
+                    package test.pkg
+
+                    import android.view.View
+                    import androidx.core.view.ViewCompat
+
+                    class TestClass {
+                        fun test(view: View) {
+                            // ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets }
+                        }
+                    }
+                    """
+                ).indented()
+            )
+            .issues(InsetsDispatchDetector.Consume)
             .run()
             .expect("")
     }
