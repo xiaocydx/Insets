@@ -41,7 +41,7 @@ class FullscreenCompatActivity : AppCompatActivity() {
     /**
      * 调用[enableDispatchApplyInsetsFullscreenCompat]后，Android 11以下会打印日志
      */
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "WindowInsetsDispatchConsume")
     private fun handleImeShowOrHideOrChange() {
         var lastImeHeight = 0
         window.decorView.setOnApplyWindowInsetsListenerCompat { v, insets ->

@@ -1,15 +1,15 @@
 package com.xiaocydx.insets.sample.lint
 
-import android.content.Context
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
 import androidx.core.graphics.Insets
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.xiaocydx.insets.compat.setOnApplyWindowInsetsListenerImmutable
+import com.xiaocydx.insets.compat.setWindowInsetsAnimationCallbackImmutable
 import com.xiaocydx.insets.setOnApplyWindowInsetsListenerCompat
 import com.xiaocydx.insets.setWindowInsetsAnimationCallbackCompat
 
@@ -40,6 +40,7 @@ class LintSample {
     fun windowInsetsAnimationCompat(view: View, callback: WindowInsetsAnimationCompat.Callback) {
         ViewCompat.setWindowInsetsAnimationCallback(view, callback)
         view.setWindowInsetsAnimationCallbackCompat(callback)
+        view.setWindowInsetsAnimationCallbackImmutable(callback)
     }
 
     fun windowInsetsControllerCompat(window: Window, view: View) {
@@ -47,8 +48,8 @@ class LintSample {
         controller.show(WindowInsetsCompat.Type.ime())
     }
 
-    fun windowInsetsConsume(view: View) {
-        object : View(view.context) {
+    fun windowInsetsDispatchConsume(view: View) {
+        class CustomView : View(view.context) {
             override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
                 return super.dispatchApplyWindowInsets(insets)
             }
@@ -58,15 +59,23 @@ class LintSample {
             }
         }
 
-        val listener = OnApplyWindowInsetsListener { v, insets -> insets }
+        class CustomOnApplyWindowInsetsListener : View.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(v: View, insets: WindowInsets): WindowInsets {
+                return insets.consumeStableInsets()
+            }
+        }
 
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets }
-        view.setOnApplyWindowInsetsListenerCompat { _, insets -> insets }
-    }
-}
+        class CustomOnApplyWindowInsetsListenerCompat : androidx.core.view.OnApplyWindowInsetsListener {
+            override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+                return insets.consumeStableInsets()
+            }
+        }
 
-class TestClass(context: Context) : View(context) {
-    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
-        return super.onApplyWindowInsets(insets)
+        View.OnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
+        androidx.core.view.OnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
+        view.setOnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets.consumeStableInsets() }
+        view.setOnApplyWindowInsetsListenerCompat { _, insets -> insets.consumeStableInsets() }
+        view.setOnApplyWindowInsetsListenerImmutable { _, insets -> insets.consumeStableInsets() }
     }
 }

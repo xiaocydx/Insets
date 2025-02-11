@@ -53,7 +53,10 @@ class MainActivity : AppCompatActivity(), SystemBar {
         ),
 
         "insets-lint".elements(
-            "Lint" desc "${LintSample::class.java.simpleName}.kt"
+            "Lint" desc """
+                ${LintSample::class.java.simpleName}.kt 演示了检查场景和IDE提示。
+                检查报告 app\build\reports\lint-results-debug.html 可放入浏览器查看。
+                """.trimIndent()
         )
     )
 }
