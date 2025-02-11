@@ -23,9 +23,15 @@ internal val viewCompatStub = java(
     package androidx.core.view;
     
     import android.view.View;
+    import androidx.core.view.OnApplyWindowInsetsListener;
     import androidx.core.view.WindowInsetsAnimationCompat;
     
     public class ViewCompat {
+    
+        public static void setOnApplyWindowInsetsListener(
+            View v, OnApplyWindowInsetsListener listener
+        ) {}
+
         public static void setWindowInsetsAnimationCallback(
             View view, WindowInsetsAnimationCompat.Callback callback
         ) {}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage", "ConstPropertyName", "PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+@file:Suppress("UnstableApiUsage", "ConstPropertyName")
 
 package com.xiaocydx.insets.lint.check
 
@@ -26,6 +26,7 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope.Companion.JAVA_FILE_SCOPE
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.UReturnExpression
@@ -37,73 +38,84 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
  */
 internal class InsetsDispatchDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableUastTypes() = listOf(UMethod::class.java)
+    override fun getApplicableUastTypes() = listOf(
+        UMethod::class.java,
+        ULambdaExpression::class.java
+    )
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
         return object : UElementHandler() {
-            override fun visitMethod(method: UMethod) {
-                checkOverride(context, method)
-                checkListener(context, method)
+            override fun visitMethod(node: UMethod) {
+                checkDispatchApplyWindowInsets(context, node)
+                checkOnApplyWindowInsetsListener(context, node)
+            }
+
+            override fun visitLambdaExpression(node: ULambdaExpression) {
+                checkOnApplyWindowInsetsLambda(context, node)
             }
         }
     }
 
-    private fun checkOverride(context: JavaContext, method: UMethod) {
-        val isDispatchMethod = fun(methodName: String) = run {
-            method.name == methodName && context.evaluator.methodMatches(
-                method, ClassView, allowInherit = true, ClassWindowInsets
+    private fun checkDispatchApplyWindowInsets(context: JavaContext, node: UMethod) {
+        val isMethod = fun(methodName: String) = run {
+            node.name == methodName && context.evaluator.methodMatches(
+                node, ClassView, allowInherit = true, ClassWindowInsets
             )
         }
-        if (isDispatchMethod("dispatchApplyWindowInsets")
-                || isDispatchMethod("onApplyWindowInsets")) {
-            val parameterName = method.parameters[0].name
-            method.accept(object : AbstractUastVisitor() {
-                override fun visitReturnExpression(node: UReturnExpression): Boolean {
-                    val returnValue = node.returnExpression as? UReferenceExpression
-                    if (returnValue == null || returnValue.resolvedName != parameterName) {
-                        context.report(
-                            Incident(context, Consume)
-                                .message("WindowInsetsConsume")
-                                .at(method)
-                        )
-                    }
-                    return super.visitReturnExpression(node)
-                }
-            })
+        if (isMethod(DispatchApplyWindowInsets) || isMethod(OnApplyWindowInsets)) {
+            node.accept(ReturnExpressionVisitor(context, node, node.parameters[0].name))
         }
     }
 
-    private fun checkListener(context: JavaContext, method: UMethod) {
-        val isListenerMethod = fun(methodName: String) = run {
-            method.name == methodName && context.evaluator.methodMatches(
-                method, ClassOnApplyWindowInsetsListener,
-                allowInherit = true, ClassView, ClassWindowInsetsCompat
+    private fun checkOnApplyWindowInsetsListener(context: JavaContext, node: UMethod) {
+        val isMethod = fun(className: String, insetsName: String) = run {
+            node.name == OnApplyWindowInsets && context.evaluator.methodMatches(
+                node, className, allowInherit = true, ClassView, insetsName
             )
         }
-        if (isListenerMethod("onApplyWindowInsets")) {
-            val parameterName = method.parameters[0].name
-            method.accept(object : AbstractUastVisitor() {
-                override fun visitReturnExpression(node: UReturnExpression): Boolean {
-                    val returnValue = node.returnExpression as? UReferenceExpression
-                    if (returnValue == null || returnValue.resolvedName != parameterName) {
-                        context.report(
-                            Incident(context, Consume)
-                                .message("WindowInsetsConsume")
-                                .at(method)
-                        )
-                    }
-                    return super.visitReturnExpression(node)
-                }
-            })
+        if (isMethod(ClassOnApplyWindowInsetsListener, ClassWindowInsets)
+                || isMethod(ClassOnApplyWindowInsetsListenerCompat, ClassWindowInsetsCompat)) {
+            node.accept(ReturnExpressionVisitor(context, node, node.parameters[1].name))
+        }
+    }
+
+    private fun checkOnApplyWindowInsetsLambda(context: JavaContext, node: ULambdaExpression) {
+        val isLambda = fun(className: String) = run {
+            node.functionalInterfaceType?.equalsToText(className) == true
+        }
+        if (isLambda(ClassOnApplyWindowInsetsListener)
+                || isLambda(ClassOnApplyWindowInsetsListenerCompat)) {
+            node.accept(ReturnExpressionVisitor(context, node, node.valueParameters[1].name))
+        }
+    }
+
+    private class ReturnExpressionVisitor(
+        private val context: JavaContext,
+        private val scope: Any,
+        private val insetsParameterName: String?
+    ) : AbstractUastVisitor() {
+
+        override fun visitReturnExpression(node: UReturnExpression): Boolean {
+            val returnValue = node.returnExpression as? UReferenceExpression
+            if (returnValue == null || returnValue.resolvedName != insetsParameterName) {
+                context.report(
+                    Incident(context, Consume)
+                        .message("WindowInsetsDispatchConsume")
+                        .at(scope)
+                )
+            }
+            return super.visitReturnExpression(node)
         }
     }
 
     companion object {
+        private const val DispatchApplyWindowInsets = "dispatchApplyWindowInsets"
+        private const val OnApplyWindowInsets = "onApplyWindowInsets"
         private val Implementation = Implementation(InsetsDispatchDetector::class.java, JAVA_FILE_SCOPE)
 
         val Consume = Issue.create(
-            id = "WindowInsetsConsume",
-            briefDescription = "WindowInsetsConsume",
+            id = "WindowInsetsDispatchConsume",
+            briefDescription = "WindowInsetsDispatchConsume",
             explanation = "explanation",
             implementation = Implementation
         )

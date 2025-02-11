@@ -65,9 +65,11 @@ internal class InsetsDispatchDetectorTest {
 
                     import android.view.View
                     import androidx.core.view.ViewCompat
+                    import androidx.core.view.OnApplyWindowInsetsListener
 
                     class TestClass {
                         fun test(view: View) {
+                            val listener = OnApplyWindowInsetsListener { v, insets -> insets }
                             // ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets }
                         }
                     }
