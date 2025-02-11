@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "ConstPropertyName")
 
 package com.xiaocydx.insets.lint.check
 
@@ -35,19 +35,16 @@ import org.jetbrains.uast.UExpression
  */
 internal class InsetsControllerCompatDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames() = listOf("show")
+    override fun getApplicableMethodNames() = listOf(Show)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        val isShowMethod = context.evaluator.methodMatches(
-            method, ClassWindowInsetsControllerCompat,
-            allowInherit = false, TypeInt
+        val isShowMethod = method.name == Show && context.evaluator.methodMatches(
+            method, ClassWindowInsetsControllerCompat, allowInherit = false, TypeInt
         )
         if (isShowMethod && typesContainsIme(node.valueArguments.first())) {
-            context.report(
-                Incident(context, ShowIme)
-                    .message("确保 `WindowInsetsControllerCompat.show(ime())` 正常执行")
-                    .at(node)
-            )
+            Incident(context, ShowIme)
+                .message("确保 `WindowInsetsControllerCompat.show(ime())` 正常执行")
+                .at(node).report(context)
         }
     }
 
@@ -56,6 +53,7 @@ internal class InsetsControllerCompatDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
+        private const val Show = "show"
         val ShowIme = Issue.create(
             id = "WindowInsetsControllerCompatShowIme",
             briefDescription = "WindowInsetsControllerCompat.show(ime())的兼容处理",

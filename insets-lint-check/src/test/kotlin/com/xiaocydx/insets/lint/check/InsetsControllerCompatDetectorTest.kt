@@ -64,9 +64,7 @@ internal class InsetsControllerCompatDetectorTest {
     fun showTypesNoImeNoWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
-                windowInsetsControllerCompatStub,
+                *stubs,
                 javaFile(types = "WindowInsetsCompat.Type.systemBars()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.systemBars()"),
             )
@@ -79,9 +77,7 @@ internal class InsetsControllerCompatDetectorTest {
     fun showTypesOnlyImeWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
-                windowInsetsControllerCompatStub,
+                *stubs,
                 javaFile(types = "WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.ime()"),
             )
@@ -104,9 +100,7 @@ internal class InsetsControllerCompatDetectorTest {
     fun showTypesNotOnlyImeWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
-                windowInsetsControllerCompatStub,
+                *stubs,
                 javaFile(types = "WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime()"),
                 kotlinFile(types = "WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()"),
             )

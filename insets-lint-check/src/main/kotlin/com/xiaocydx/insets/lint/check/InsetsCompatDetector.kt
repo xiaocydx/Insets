@@ -77,7 +77,7 @@ internal class InsetsCompatDetector : Detector(), SourceCodeScanner {
                     .at(node)
             }
         }
-        incident?.let(context::report)
+        incident?.report(context)
     }
 
     private fun typesContainsIme(valueArgument: UExpression): Boolean {

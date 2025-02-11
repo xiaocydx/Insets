@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "ConstPropertyName")
 
 package com.xiaocydx.insets.lint.check
 
@@ -35,21 +35,20 @@ import org.jetbrains.uast.isFalseLiteral
  */
 internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames() = listOf("setFitsSystemWindows")
+    override fun getApplicableMethodNames() = listOf(SetFitsSystemWindows)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        val isSetFitsSystemWindowsMethod = context.evaluator
+        val isSetMethod = method.name == SetFitsSystemWindows && context.evaluator
             .methodMatches(method, ClassView, allowInherit = true, TypeBoolean)
-        if (isSetFitsSystemWindowsMethod && !node.valueArguments.first().isFalseLiteral()) {
-            context.report(
-                Incident(context, Consume)
-                    .message(" `fitSystemWindows = true` 会导致其他View不能处理WindowInsets")
-                    .at(node)
-            )
+        if (isSetMethod && !node.valueArguments.first().isFalseLiteral()) {
+            Incident(context, Consume)
+                .message(" `fitSystemWindows = true` 会导致其他View不能处理WindowInsets")
+                .at(node).report(context)
         }
     }
 
     companion object {
+        private const val SetFitsSystemWindows = "setFitsSystemWindows"
         val Consume = Issue.create(
             id = "FitsSystemWindows",
             briefDescription = "FitsSystemWindows会消费SystemWindowInsets",

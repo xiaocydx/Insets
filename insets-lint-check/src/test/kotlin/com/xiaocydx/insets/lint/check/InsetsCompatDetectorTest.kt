@@ -35,7 +35,7 @@ internal class InsetsCompatDetectorTest {
     fun systemWindowInsetsNoWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;
@@ -96,8 +96,7 @@ internal class InsetsCompatDetectorTest {
     fun systemWindowInsetsWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;
@@ -184,8 +183,7 @@ internal class InsetsCompatDetectorTest {
     fun setInsetsNoWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;
@@ -228,8 +226,7 @@ internal class InsetsCompatDetectorTest {
     fun builderSetInsetsWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;
@@ -278,8 +275,7 @@ internal class InsetsCompatDetectorTest {
     fun setInsetsIgnoringVisibilityNoWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;
@@ -322,8 +318,7 @@ internal class InsetsCompatDetectorTest {
     fun builderSetInsetsIgnoringVisibilityWarning() {
         lint()
             .files(
-                graphicsInsetsStub,
-                windowInsetsCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;

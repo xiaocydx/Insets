@@ -18,7 +18,7 @@ package com.xiaocydx.insets.lint.check
 
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
 
-internal val viewCompatStub = java(
+private val viewCompatStub = java(
     """
     package androidx.core.view;
     
@@ -39,7 +39,7 @@ internal val viewCompatStub = java(
     """
 ).indented()
 
-internal val graphicsInsetsStub = java(
+private val graphicsInsetsStub = java(
     """
     package androidx.core.graphics;
         
@@ -49,7 +49,7 @@ internal val graphicsInsetsStub = java(
     """
 ).indented()
 
-internal val windowInsetsCompatStub = java(
+private val windowInsetsCompatStub = java(
     """
         package androidx.core.view;
         
@@ -77,7 +77,7 @@ internal val windowInsetsCompatStub = java(
         """
 ).indented()
 
-internal val windowInsetsControllerCompatStub = java(
+private val windowInsetsControllerCompatStub = java(
     """
         package androidx.core.view;
 
@@ -87,7 +87,7 @@ internal val windowInsetsControllerCompatStub = java(
         """
 ).indented()
 
-internal val windowInsetsAnimationCompatStub = java(
+private val windowInsetsAnimationCompatStub = java(
     """
         package androidx.core.view;
 
@@ -97,7 +97,7 @@ internal val windowInsetsAnimationCompatStub = java(
         """
 ).indented()
 
-internal val onApplyWindowInsetsListenerCompatStub = java(
+private val onApplyWindowInsetsListenerCompatStub = java(
     """
         package androidx.core.view;
         
@@ -109,7 +109,7 @@ internal val onApplyWindowInsetsListenerCompatStub = java(
         """
 ).indented()
 
-internal val insetsCompatKtStub = java(
+private val insetsCompatKtStub = java(
     """
     package com.xiaocydx.insets;
 

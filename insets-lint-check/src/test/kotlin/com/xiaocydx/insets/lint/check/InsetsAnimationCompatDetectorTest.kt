@@ -35,7 +35,7 @@ internal class InsetsAnimationCompatDetectorTest {
     fun setWindowInsetsAnimationCallbackNoWarning() {
         lint()
             .files(
-                windowInsetsAnimationCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;
@@ -76,9 +76,7 @@ internal class InsetsAnimationCompatDetectorTest {
     fun setWindowInsetsAnimationCallbackWarning() {
         lint()
             .files(
-                viewCompatStub,
-                insetsCompatKtStub,
-                windowInsetsAnimationCompatStub,
+                *stubs,
                 java(
                     """
                     package test.pkg;

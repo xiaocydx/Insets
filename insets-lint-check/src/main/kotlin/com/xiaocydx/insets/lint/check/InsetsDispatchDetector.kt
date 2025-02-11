@@ -98,11 +98,9 @@ internal class InsetsDispatchDetector : Detector(), SourceCodeScanner {
         override fun visitReturnExpression(node: UReturnExpression): Boolean {
             val returnValue = node.returnExpression as? UReferenceExpression
             if (returnValue == null || returnValue.resolvedName != insetsParameterName) {
-                context.report(
-                    Incident(context, Consume)
-                        .message("WindowInsetsDispatchConsume")
-                        .at(scope)
-                )
+                Incident(context, Consume)
+                    .message("WindowInsetsDispatchConsume")
+                    .at(scope).report(context)
             }
             return super.visitReturnExpression(node)
         }

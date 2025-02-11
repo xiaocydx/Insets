@@ -36,7 +36,8 @@ internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf(
         SetWindowInsetsAnimationCallback,
-        SetWindowInsetsAnimationCallbackCompat
+        SetWindowInsetsAnimationCallbackCompat,
+        SetWindowInsetsAnimationCallbackImmutable
     )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
@@ -44,18 +45,18 @@ internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
             method.name == methodName && context.evaluator.isMemberInClass(method, className)
         }
         if (isSetMethod(SetWindowInsetsAnimationCallback, ClassViewCompat)
-                || isSetMethod(SetWindowInsetsAnimationCallbackCompat, ClassInsetsCompatKt)) {
-            context.report(
-                Incident(context, Callback)
-                    .message("确保 `WindowInsetsAnimationCompat.Callback` 正常执行")
-                    .at(node)
-            )
+                || isSetMethod(SetWindowInsetsAnimationCallbackCompat, ClassInsetsCompatKt)
+                || isSetMethod(SetWindowInsetsAnimationCallbackImmutable, ClassInsetsCompatKt)) {
+            Incident(context, Callback)
+                .message("确保 `WindowInsetsAnimationCompat.Callback` 正常执行")
+                .at(node).report(context)
         }
     }
 
     companion object {
         private const val SetWindowInsetsAnimationCallback = "setWindowInsetsAnimationCallback"
         private const val SetWindowInsetsAnimationCallbackCompat = "setWindowInsetsAnimationCallbackCompat"
+        private const val SetWindowInsetsAnimationCallbackImmutable = "setWindowInsetsAnimationCallbackImmutable"
 
         val Callback = Issue.create(
             id = "WindowInsetsAnimationCompatCallback",
