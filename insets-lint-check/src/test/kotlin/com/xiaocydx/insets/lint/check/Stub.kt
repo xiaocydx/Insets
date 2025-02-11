@@ -122,15 +122,27 @@ private val insetsCompatKtStub = java(
         public static final void setOnApplyWindowInsetsListenerCompat(
             View view, OnApplyWindowInsetsListener listener
         ) {}
-
-        public static final void setOnApplyWindowInsetsListenerImmutable(
-            View view, OnApplyWindowInsetsListener listener
-        ) {}
     
         public static final void setWindowInsetsAnimationCallbackCompat(
             View view, WindowInsetsAnimationCompat.Callback callback
         ) {}
+    }
+    """
+).indented()
 
+private val immutableCompatKtStub = java(
+    """
+    package com.xiaocydx.insets.compat;
+
+    import android.view.View;
+    import androidx.core.view.OnApplyWindowInsetsListener;
+    import androidx.core.view.WindowInsetsAnimationCompat;
+    
+    public final class ImmutableCompatKt {
+        public static final void setOnApplyWindowInsetsListenerImmutable(
+            View view, OnApplyWindowInsetsListener listener
+        ) {}
+    
         public static final void setWindowInsetsAnimationCallbackImmutable(
             View view, WindowInsetsAnimationCompat.Callback callback
         ) {}
@@ -141,5 +153,5 @@ private val insetsCompatKtStub = java(
 internal val stubs = arrayOf(
     viewCompatStub, graphicsInsetsStub, windowInsetsCompatStub,
     windowInsetsControllerCompatStub, windowInsetsAnimationCompatStub,
-    onApplyWindowInsetsListenerCompatStub, insetsCompatKtStub
+    onApplyWindowInsetsListenerCompatStub, insetsCompatKtStub, immutableCompatKtStub
 )

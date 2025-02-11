@@ -89,12 +89,13 @@ internal class InsetsAnimationCompatDetectorTest {
                     import androidx.core.view.ViewCompat;
                     import androidx.core.view.WindowInsetsAnimationCompat;
                     import com.xiaocydx.insets.CompatKt;
+                    import com.xiaocydx.insets.compat.ImmutableCompatKt;
 
                     class TestClass {
                         void test(View view, WindowInsetsAnimationCompat.Callback callback) {
                             ViewCompat.setWindowInsetsAnimationCallback(view, callback);
                             CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback);
-                            CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback);
+                            ImmutableCompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback);
                         }
                     }
                     """
@@ -107,12 +108,13 @@ internal class InsetsAnimationCompatDetectorTest {
                     import androidx.core.view.ViewCompat
                     import androidx.core.view.WindowInsetsAnimationCompat
                     import com.xiaocydx.insets.CompatKt
+                    import com.xiaocydx.insets.compat.ImmutableCompatKt
 
                     class TestClass {
                         fun test(view: View, callback: WindowInsetsAnimationCompat.Callback) {
                             ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                             CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback)
-                            CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback)
+                            ImmutableCompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback)
                         }
                     }
                     """
@@ -122,24 +124,24 @@ internal class InsetsAnimationCompatDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.java:10: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.java:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.java:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.java:12: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.java:12: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
-                        CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback);
-                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:10: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.java:13: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                        ImmutableCompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback);
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.kt:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                src/test/pkg/TestClass.kt:12: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:12: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
-                        CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback)
-                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.kt:13: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                        ImmutableCompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 6 errors, 0 warnings
                 """
             )

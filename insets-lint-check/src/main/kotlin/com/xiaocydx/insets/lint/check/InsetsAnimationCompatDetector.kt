@@ -46,7 +46,7 @@ internal class InsetsAnimationCompatDetector : Detector(), SourceCodeScanner {
         }
         if (isSetMethod(SetWindowInsetsAnimationCallback, ClassViewCompat)
                 || isSetMethod(SetWindowInsetsAnimationCallbackCompat, ClassInsetsCompatKt)
-                || isSetMethod(SetWindowInsetsAnimationCallbackImmutable, ClassInsetsCompatKt)) {
+                || isSetMethod(SetWindowInsetsAnimationCallbackImmutable, ClassImmutableCompatKt)) {
             Incident(context, Callback)
                 .message("确保 `WindowInsetsAnimationCompat.Callback` 正常执行")
                 .at(node).report(context)

@@ -37,3 +37,5 @@ internal const val ClassWindowInsetsControllerCompat = "androidx.core.view.Windo
 internal const val ClassOnApplyWindowInsetsListenerCompat = "androidx.core.view.OnApplyWindowInsetsListener"
 
 internal const val ClassInsetsCompatKt = "com.xiaocydx.insets.CompatKt"
+
+internal const val ClassImmutableCompatKt = "com.xiaocydx.insets.compat.ImmutableCompatKt"

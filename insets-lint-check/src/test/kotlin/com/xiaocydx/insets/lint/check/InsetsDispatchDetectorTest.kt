@@ -335,6 +335,7 @@ internal class InsetsDispatchDetectorTest {
                     import android.view.View
                     import androidx.core.view.ViewCompat
                     import com.xiaocydx.insets.CompatKt
+                    import com.xiaocydx.insets.compat.ImmutableCompatKt
 
                     class TestClass {
                         fun test(view: View) {
@@ -343,7 +344,7 @@ internal class InsetsDispatchDetectorTest {
                             view.setOnApplyWindowInsetsListener { v, insets -> insets }
                             ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets }
                             CompatKt.setOnApplyWindowInsetsListenerCompat(view) { _, insets -> insets }
-                            CompatKt.setOnApplyWindowInsetsListenerImmutable(view) { _, insets -> insets }
+                            ImmutableCompatKt.setOnApplyWindowInsetsListenerImmutable(view) { _, insets -> insets }
                         }
                     }
                     """
@@ -366,6 +367,7 @@ internal class InsetsDispatchDetectorTest {
                     import android.view.View
                     import androidx.core.view.ViewCompat
                     import com.xiaocydx.insets.CompatKt
+                    import com.xiaocydx.insets.compat.ImmutableCompatKt
 
                     class TestClass {
                         fun test(view: View) {
@@ -374,7 +376,7 @@ internal class InsetsDispatchDetectorTest {
                             view.setOnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
                             ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets.consumeStableInsets() }
                             CompatKt.setOnApplyWindowInsetsListenerCompat(view) { _, insets -> insets.consumeStableInsets() }
-                            CompatKt.setOnApplyWindowInsetsListenerImmutable(view) { _, insets -> insets.consumeStableInsets() }
+                            ImmutableCompatKt.setOnApplyWindowInsetsListenerImmutable(view) { _, insets -> insets.consumeStableInsets() }
                         }
                     }
                     """
@@ -384,24 +386,24 @@ internal class InsetsDispatchDetectorTest {
             .run()
             .expect(
                 """
-                src/test/pkg/TestClass.kt:9: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
+                src/test/pkg/TestClass.kt:10: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
                         View.OnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:10: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
+                src/test/pkg/TestClass.kt:11: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
                         androidx.core.view.OnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:11: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
+                src/test/pkg/TestClass.kt:12: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
                         view.setOnApplyWindowInsetsListener { v, insets -> insets.consumeStableInsets() }
                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:12: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
+                src/test/pkg/TestClass.kt:13: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
                         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets -> insets.consumeStableInsets() }
                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:13: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
+                src/test/pkg/TestClass.kt:14: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
                         CompatKt.setOnApplyWindowInsetsListenerCompat(view) { _, insets -> insets.consumeStableInsets() }
                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/test/pkg/TestClass.kt:14: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
-                        CompatKt.setOnApplyWindowInsetsListenerImmutable(view) { _, insets -> insets.consumeStableInsets() }
-                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.kt:15: Error: 确保WindowInsets分发的表现一致 [WindowInsetsDispatchConsume]
+                        ImmutableCompatKt.setOnApplyWindowInsetsListenerImmutable(view) { _, insets -> insets.consumeStableInsets() }
+                                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 6 errors, 0 warnings
                 """
             )
