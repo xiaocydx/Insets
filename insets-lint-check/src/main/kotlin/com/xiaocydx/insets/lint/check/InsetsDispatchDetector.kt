@@ -113,8 +113,46 @@ internal class InsetsDispatchDetector : Detector(), SourceCodeScanner {
 
         val Consume = Issue.create(
             id = "WindowInsetsDispatchConsume",
-            briefDescription = "WindowInsetsDispatchConsume",
-            explanation = "explanation",
+            briefDescription = "WindowInsets分发的兼容处理",
+            explanation = """
+                
+                Android 11以下和Android 11及以上的WindowInsets分发逻辑不同，消费WindowInsets可能产生不同的现象。
+                若需要自行处理WindowInsets，则将Android 11以下的WindowInsets分发，兼容到跟Android 11一样的效果。
+                
+                
+                贴合实际应用的总结：
+                1. 不使用View.fitsSystemWindows，对View设置 `OnApplyWindowInsetsListener` 实现间距，返回传入的WindowInsets。
+                
+                2. 只有ViewGroup才需要消费WindowInsets，意图是自己处理WindowInsets实现间距，避免Child重复实现间距。
+                
+                3. 可能被其他View盖住的ViewGroup（层级关系），消费WindowInsets必须重写 `dispatchApplyWindowInsets()` 
+                返回传入的WindowInsets，否则会影响其他View，超出第2点意图。
+              
+                
+                以 `com.github.xiaocydx.Insets:insets-systembar` 的 `SystemBarContainer` 为例，
+                一个 `SystemBarContainer` 可能被其它 `SystemBarContainer` 盖住（Fragment覆盖Fragment）。
+                因此，消费WindowInsets需要重写 `dispatchApplyWindowInsets()` 返回传入的WindowInsets：
+                ```
+                internal class SystemBarContainer(context: Context) : FrameLayout(context) {
+                
+                    override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
+                        super.dispatchApplyWindowInsets(insets)
+                        // 兼容到跟Android 11一样的分发效果，确保同级子View能处理已消费的数值
+                        return insets
+                    }
+                    
+                    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+                        // 消费insets的系统栏数值
+                        val typeMask = statusBars() or navigationBars()
+                        val applyInsets = insets.toWindowInsetsCompat(this)
+                        val paddingTop = applyInsets.statusBarHeight
+                        val paddingBottom = applyInsets.navigationBarHeight
+                        updatePadding(top = paddingTop, bottom = paddingBottom)
+                        return applyInsets.consumeInsets(typeMask).toWindowInsets()!!
+                    }
+                }
+                ```
+            """,
             implementation = Implementation
         )
     }
