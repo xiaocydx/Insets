@@ -49,6 +49,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
 
     companion object {
         private const val SetFitsSystemWindows = "setFitsSystemWindows"
+
         val Consume = Issue.create(
             id = "FitsSystemWindows",
             briefDescription = "FitsSystemWindows会消费SystemWindowInsets",

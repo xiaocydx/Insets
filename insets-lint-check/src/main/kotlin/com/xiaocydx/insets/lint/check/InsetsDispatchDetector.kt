@@ -109,7 +109,6 @@ internal class InsetsDispatchDetector : Detector(), SourceCodeScanner {
     companion object {
         private const val DispatchApplyWindowInsets = "dispatchApplyWindowInsets"
         private const val OnApplyWindowInsets = "onApplyWindowInsets"
-        private val Implementation = Implementation(InsetsDispatchDetector::class.java, JAVA_FILE_SCOPE)
 
         val Consume = Issue.create(
             id = "WindowInsetsDispatchConsume",
@@ -153,7 +152,7 @@ internal class InsetsDispatchDetector : Detector(), SourceCodeScanner {
                 }
                 ```
             """,
-            implementation = Implementation
+            implementation = Implementation(InsetsDispatchDetector::class.java, JAVA_FILE_SCOPE)
         )
     }
 }

@@ -54,6 +54,7 @@ internal class InsetsControllerCompatDetector : Detector(), SourceCodeScanner {
 
     companion object {
         private const val Show = "show"
+
         val ShowIme = Issue.create(
             id = "WindowInsetsControllerCompatShowIme",
             briefDescription = "WindowInsetsControllerCompat.show(ime())的兼容处理",
