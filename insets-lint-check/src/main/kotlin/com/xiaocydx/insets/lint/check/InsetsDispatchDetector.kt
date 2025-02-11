@@ -99,7 +99,7 @@ internal class InsetsDispatchDetector : Detector(), SourceCodeScanner {
             val returnValue = node.returnExpression as? UReferenceExpression
             if (returnValue == null || returnValue.resolvedName != insetsParameterName) {
                 Incident(context, Consume)
-                    .message("WindowInsetsDispatchConsume")
+                    .message("确保WindowInsets分发的表现一致")
                     .at(scope).report(context)
             }
             return super.visitReturnExpression(node)

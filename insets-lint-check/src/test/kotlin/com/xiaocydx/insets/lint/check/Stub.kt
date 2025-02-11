@@ -62,6 +62,7 @@ private val windowInsetsCompatStub = java(
             public int getSystemWindowInsetTop() {}
             public int getSystemWindowInsetRight() {}
             public int getSystemWindowInsetBottom() {}
+            public WindowInsetsCompat consumeStableInsets() {}
 
             public static final class Builder {
                 public Builder(WindowInsetsCompat insets) {}
@@ -114,10 +115,23 @@ private val insetsCompatKtStub = java(
     package com.xiaocydx.insets;
 
     import android.view.View;
+    import androidx.core.view.OnApplyWindowInsetsListener;
     import androidx.core.view.WindowInsetsAnimationCompat;
     
     public final class CompatKt {
+        public static final void setOnApplyWindowInsetsListenerCompat(
+            View view, OnApplyWindowInsetsListener listener
+        ) {}
+
+        public static final void setOnApplyWindowInsetsListenerImmutable(
+            View view, OnApplyWindowInsetsListener listener
+        ) {}
+    
         public static final void setWindowInsetsAnimationCallbackCompat(
+            View view, WindowInsetsAnimationCompat.Callback callback
+        ) {}
+
+        public static final void setWindowInsetsAnimationCallbackImmutable(
             View view, WindowInsetsAnimationCompat.Callback callback
         ) {}
     }

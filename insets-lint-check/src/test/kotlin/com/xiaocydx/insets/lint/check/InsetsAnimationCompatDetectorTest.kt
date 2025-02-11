@@ -45,9 +45,11 @@ internal class InsetsAnimationCompatDetectorTest {
                     class TestClass {
                         void test(WindowInsetsAnimationCompat.Callback callback) {
                             setWindowInsetsAnimationCallback(callback);
+                            setWindowInsetsAnimationCallbackImmutable(callback);
                         }
                         
                         void setWindowInsetsAnimationCallback(WindowInsetsAnimationCompat.Callback callback) {}
+                        void setWindowInsetsAnimationCallbackImmutable(WindowInsetsAnimationCompat.Callback callback) {}
                     }
                     """
                 ).indented(),
@@ -60,9 +62,11 @@ internal class InsetsAnimationCompatDetectorTest {
                     class TestClass {
                         fun test(callback: WindowInsetsAnimationCompat.Callback) {
                             setWindowInsetsAnimationCallback(callback)
+                            setWindowInsetsAnimationCallbackImmutable(callback)
                         }
 
                         fun setWindowInsetsAnimationCallback(callback: WindowInsetsAnimationCompat.Callback) {}
+                        fun setWindowInsetsAnimationCallbackImmutable(callback: WindowInsetsAnimationCompat.Callback) {}
                     }
                     """
                 ).indented(),
@@ -90,6 +94,7 @@ internal class InsetsAnimationCompatDetectorTest {
                         void test(View view, WindowInsetsAnimationCompat.Callback callback) {
                             ViewCompat.setWindowInsetsAnimationCallback(view, callback);
                             CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback);
+                            CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback);
                         }
                     }
                     """
@@ -107,6 +112,7 @@ internal class InsetsAnimationCompatDetectorTest {
                         fun test(view: View, callback: WindowInsetsAnimationCompat.Callback) {
                             ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                             CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback)
+                            CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback)
                         }
                     }
                     """
@@ -122,13 +128,19 @@ internal class InsetsAnimationCompatDetectorTest {
                 src/test/pkg/TestClass.java:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback);
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/test/pkg/TestClass.java:12: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                        CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback);
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 src/test/pkg/TestClass.kt:10: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         ViewCompat.setWindowInsetsAnimationCallback(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 src/test/pkg/TestClass.kt:11: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
                         CompatKt.setWindowInsetsAnimationCallbackCompat(view, callback)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                4 errors, 0 warnings
+                src/test/pkg/TestClass.kt:12: Error: 确保 WindowInsetsAnimationCompat.Callback 正常执行 [WindowInsetsAnimationCompatCallback]
+                        CompatKt.setWindowInsetsAnimationCallbackImmutable(view, callback)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                6 errors, 0 warnings
                 """
             )
     }
