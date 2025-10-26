@@ -55,7 +55,7 @@ object PublishLibs {
 
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     const val `coroutines-android` = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    const val hiddenapibypass = "org.lsposed.hiddenapibypass:hiddenapibypass:6.1"
+    const val hiddenapibypass = "org.lsposed.hiddenapibypass:hiddenapibypass:+"
 
     const val `androidx-test-core` = "androidx.test:core:1.5.0"
     const val `androidx-junit` = "androidx.test.ext:junit:1.2.0"
