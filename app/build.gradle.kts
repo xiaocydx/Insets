@@ -8,7 +8,6 @@ android {
     defaultConfig { applicationId = "com.xiaocydx.insets.sample" }
     kotlinOptions { jvmTarget = Versions.jvmTarget }
     buildFeatures { viewBinding = true }
-    lint { baseline = file("lint-baseline.xml") }
 }
 
 dependencies {
