@@ -8,6 +8,7 @@ android {
     defaultConfig { applicationId = "com.xiaocydx.insets.sample" }
     kotlinOptions { jvmTarget = Versions.jvmTarget }
     buildFeatures { viewBinding = true }
+    lint { baseline = file("lint-baseline.xml") }
 }
 
 dependencies {
@@ -15,6 +16,7 @@ dependencies {
     implementation(project(":insets-compat"))
     implementation(project(":insets-systembar"))
     implementation(project(":insets-lint"))
+    // lintChecks(project(":insets-lint-check"))
     implementation(CommonLibs.cxrv)
     implementation(CommonLibs.`cxrv-binding`)
     implementation(CommonLibs.`androidx-core-ktx`)

@@ -42,7 +42,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
             .methodMatches(method, ClassView, allowInherit = true, TypeBoolean)
         if (isSetMethod && !node.valueArguments.first().isFalseLiteral()) {
             Incident(context, Consume)
-                .message(" `fitSystemWindows = true` 会导致其他View不能处理WindowInsets")
+                .message(" `fitsSystemWindows = true` 会导致其他View不能处理WindowInsets")
                 .at(node).report(context)
         }
     }
@@ -77,7 +77,7 @@ internal class FitsSystemWindowsDetector : Detector(), SourceCodeScanner {
                 ```
                 
                 
-                用 `OnApplyWindowInsetsListener` 代替 `fitSystemWindows = true` 实现paddings：
+                用 `OnApplyWindowInsetsListener` 代替 `fitsSystemWindows = true` 实现paddings：
                 ```
                 // 只获取需要的数值，比如获取状态栏和导航栏的高度
                 ViewCompat.setOnApplyWindowInsetsListener(child1) { _, insets->
