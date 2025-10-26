@@ -1,7 +1,7 @@
 plugins {
     id("java-library")
     id("org.jetbrains.kotlin.jvm")
-    // id("maven-publish")
+    id("maven-publish")
 }
 
 java {

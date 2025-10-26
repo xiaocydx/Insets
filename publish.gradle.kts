@@ -11,21 +11,39 @@ class PublishPlugin : Plugin<Project> {
                 return@afterEvaluate
             }
 
-            publishing {
-                publications {
-                    register<MavenPublication>("release") {
-                        groupId = GROUP_ID
-                        afterEvaluate { from(components["release"]) }
-                    }
+            if (plugins.hasPlugin("com.android.library")) {
+                publishAndroidLibrary()
+            } else {
+                publishLibrary()
+            }
+        }
+    }
+
+    private fun Project.publishAndroidLibrary() {
+        publishing {
+            publications {
+                register<MavenPublication>("release") {
+                    groupId = GROUP_ID
+                    afterEvaluate { from(components["release"]) }
                 }
             }
+        }
 
-            android {
-                publishing {
-                    singleVariant("release") {
-                        withSourcesJar()
-                        withJavadocJar()
-                    }
+        android {
+            publishing {
+                singleVariant("release") {
+                    withSourcesJar()
+                    withJavadocJar()
+                }
+            }
+        }
+    }
+
+    private fun Project.publishLibrary() {
+        publishing {
+            publications {
+                register<MavenPublication>("release") {
+                    groupId = GROUP_ID
                 }
             }
         }
