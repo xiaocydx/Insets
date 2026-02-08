@@ -64,7 +64,7 @@ fun SystemBar.Companion.install(
  * }
  *
  * // 3. 实现SystemBar，动态修改配置
- * class SystemBarActivity : SystemBar.None(), SystemBar {
+ * class SystemBarActivity : ComponentActivity(), SystemBar {
  *      private val controller = systemBarController()
  * }
  * ```
