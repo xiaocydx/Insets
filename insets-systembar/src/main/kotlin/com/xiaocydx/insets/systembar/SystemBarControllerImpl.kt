@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
+import androidx.activity.ComponentActivity
 import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.DialogFragment
@@ -139,7 +140,7 @@ internal abstract class SystemBarControllerImpl(
 }
 
 internal class ActivitySystemBarController private constructor(
-    private val activity: FragmentActivity,
+    private val activity: ComponentActivity,
     fromInstaller: Boolean
 ) : SystemBarControllerImpl(activity, fromInstaller) {
     override val window: Window?
@@ -163,7 +164,10 @@ internal class ActivitySystemBarController private constructor(
                     // Installer后创建的SystemBarController不做任何处理。
                     return
                 }
-                enforcer = BackStackWindowEnforcer.create(activity)
+                enforcer = when (activity) {
+                    is FragmentActivity -> BackStackWindowEnforcer.create(activity)
+                    else -> SimpleWindowEnforcer(requireNotNull(window))
+                }
                 enforcer!!.attach()
                 applyPendingSystemBarConfig()
             }
@@ -189,13 +193,13 @@ internal class ActivitySystemBarController private constructor(
 
     companion object {
 
-        private fun FragmentActivity.checkStateOnCreate() {
+        private fun ComponentActivity.checkStateOnCreate() {
             check(window == null && lifecycle.currentState === INITIALIZED) {
                 "只能在${name}的构造阶段获取${SystemBarController.name}"
             }
         }
 
-        fun create(activity: FragmentActivity, fromInstaller: Boolean = false) = run {
+        fun create(activity: ComponentActivity, fromInstaller: Boolean = false) = run {
             if (!fromInstaller) activity.checkStateOnCreate()
             ActivitySystemBarController(activity, fromInstaller)
         }

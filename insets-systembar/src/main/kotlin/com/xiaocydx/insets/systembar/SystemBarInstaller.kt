@@ -21,6 +21,7 @@ import android.app.Application
 import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -35,16 +36,18 @@ internal object ActivitySystemBarInstaller : ActivityLifecycleCallbacks {
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (activity !is SystemBar) return
-        require(activity is FragmentActivity) {
+        require(activity is ComponentActivity) {
             val activityName = activity.javaClass.canonicalName
-            val componentName = FragmentActivity::class.java.canonicalName
+            val componentName = ComponentActivity::class.java.canonicalName
             "${activityName}需要是${componentName}，才能实现${SystemBar.name}"
         }
         activity.window.disableDecorFitsSystemWindows()
         if (activity !is SystemBar.None) {
             ActivitySystemBarController.create(activity, fromInstaller = true).attach()
         }
-        FragmentSystemBarInstaller.register(activity)
+        if (activity is FragmentActivity) {
+            FragmentSystemBarInstaller.register(activity)
+        }
     }
 
     override fun onActivityStarted(activity: Activity) = Unit

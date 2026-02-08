@@ -44,7 +44,7 @@ import androidx.lifecycle.ViewModelProvider
  * @author xcc
  * @date 2023/12/22
  */
-internal abstract class SystemBarWindowEnforcer(private val window: Window) {
+internal abstract class SystemBarWindowEnforcer(window: Window) {
     private var applyStateCount = 0
     private var isAttached = false
     private var detachedAction: (() -> Unit)? = null

@@ -109,8 +109,8 @@ interface SystemBarController {
      * [SystemBarController]属性的默认值
      */
     data class Default(
-        val statusBarColor: Int? = null,
-        val navigationBarColor: Int? = null,
+        @ColorInt val statusBarColor: Int? = null,
+        @ColorInt val navigationBarColor: Int? = null,
         val statusBarEdgeToEdge: EdgeToEdge = Disabled,
         val navigationBarEdgeToEdge: EdgeToEdge = Disabled,
         val isAppearanceLightStatusBar: Boolean? = null,

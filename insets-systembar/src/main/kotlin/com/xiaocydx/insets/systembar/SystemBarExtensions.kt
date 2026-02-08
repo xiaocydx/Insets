@@ -18,8 +18,8 @@ package com.xiaocydx.insets.systembar
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.ComponentActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
 import com.xiaocydx.insets.systembar.SystemBarExtensions.Companion.name
 import java.util.ServiceLoader
@@ -49,7 +49,7 @@ internal interface SystemBarExtensions {
         internal val Fragment.name: String
             get() = javaClass.canonicalName ?: ""
 
-        internal val FragmentActivity.name: String
+        internal val ComponentActivity.name: String
             get() = javaClass.canonicalName ?: ""
 
         internal fun all() = extensions

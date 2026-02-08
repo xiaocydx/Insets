@@ -18,6 +18,7 @@ package com.xiaocydx.insets.systembar
 
 import android.app.Application
 import android.app.Dialog
+import androidx.activity.ComponentActivity
 import androidx.annotation.StyleRes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -26,7 +27,7 @@ import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 
 /**
- * 对[FragmentActivity]和[Fragment]注入[SystemBar]的实现
+ * 对[ComponentActivity]和[Fragment]注入[SystemBar]的实现
  *
  * ```
  * class App : Application() {
@@ -50,20 +51,20 @@ fun SystemBar.Companion.install(
 
 /**
  * ### 使用方式
- * [SystemBar]有三种使用方式，以[Fragment]为例：
+ * [SystemBar]有三种使用方式，以[ComponentActivity]为例：
  * ```
  * // 1. 实现SystemBar，应用默认配置
- * class SystemBarDefaultFragment : Fragment(), SystemBar
+ * class SystemBarActivity : ComponentActivity(), SystemBar
  *
  * // 2. 实现SystemBar，构造声明配置
- * class SystemBarConstructorFragment : Fragment(), SystemBar {
+ * class SystemBarActivity : ComponentActivity(), SystemBar {
  *     init {
  *         systemBarController {...}
  *     }
  * }
  *
  * // 3. 实现SystemBar，动态修改配置
- * class SystemBarModifyFragment : Fragment(), SystemBar {
+ * class SystemBarActivity : SystemBar.None(), SystemBar {
  *      private val controller = systemBarController()
  * }
  * ```
@@ -72,7 +73,7 @@ fun SystemBar.Companion.install(
  * 作为宿主的[FragmentActivity]，需要实现[SystemBar]，
  * 当宿主没有`contentView`时，可以实现[SystemBar.None]：
  * ```
- * class MainActivity : AppCompatActivity(), SystemBar, SystemBar.None
+ * class MainActivity : FragmentActivity(), SystemBar, SystemBar.None
  * ```
  *
  * ### 替换`Fragment.view`
@@ -80,7 +81,7 @@ fun SystemBar.Companion.install(
  * 不能通过[Fragment.onViewCreated]的形参`view`或`Fragment.view`构建`ViewBinding`，
  * 因为此时`view`跟`ViewBinding.rootView`的类型不一致，构建过程会抛出异常：
  * ```
- * class SystemBarDefaultFragment : Fragment(), SystemBar {
+ * class SystemBarFragment : Fragment(), SystemBar {
  *
  *     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
  *         // 此时view跟ViewBinding.rootView的类型不一致，构建过程会抛出异常，
@@ -110,6 +111,9 @@ interface SystemBar {
      * 当不需要[SystemBar]的实现时，可以实现该接口，
      * 例如父类实现了[SystemBar]，但子类不需要实现：
      * ```
+     * open class SuperActivity : ComponentActivity(), SystemBar
+     * class SubActivity : SuperActivity(), SystemBar.None
+     *
      * open class SuperFragment : Fragment(), SystemBar
      * class SubFragment : SuperFragment(), SystemBar.None
      * ```
@@ -131,7 +135,7 @@ val SystemBar.Companion.name: String
 
 fun <A> A.systemBarController(
     initializer: (SystemBarController.() -> Unit)? = null
-): SystemBarController where A : FragmentActivity, A : SystemBar = run {
+): SystemBarController where A : ComponentActivity, A : SystemBar = run {
     ActivitySystemBarController.create(this).attach(initializer)
 }
 
